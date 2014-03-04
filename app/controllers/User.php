@@ -57,7 +57,7 @@ class User extends \Controller {
 		$provider = $f3->get('PARAMS.provider');
 		$action = $f3->get('PARAMS.action');
 		
-		if ($action == "callback")
+		if ($provider == "callback")
 			$oauth_run = false;
 		else $oauth_run = true;
 		
@@ -101,7 +101,7 @@ class User extends \Controller {
 				$user = new \models\User();
 				
 				// check if user already has authenticated using this provider before
-				$authentication_info = $authentication->findByProviderUid($provider, $response['provider']);
+				$authentication_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
 				
 				// if authentication already exists, reroute to dashboard
 				if ($authentication_info){
@@ -109,13 +109,13 @@ class User extends \Controller {
 					$f3->reroute("/user/dashboard");
 				}
 				
-				$provider_uid  = $response['uid'];
-				$email         = $response['info']['email'];
-				$first_name    = $response['info']['first_name'];
-				$last_name     = $response['info']['last_name'];
-				$display_name  = $response['info']['name'];
-				$website_url   = $response['info']['urls']['website'];
-				$avatar_url   = $response['info']['image'];
+				$provider_uid  = $response['auth']['uid'];
+				$email         = $response['auth']['info']['email'];
+				$first_name    = $response['auth']['info']['first_name'];
+				$last_name     = $response['auth']['info']['last_name'];
+				$display_name  = $response['auth']['info']['name'];
+				$website_url   = $response['auth']['info']['urls']['website'];
+				$avatar_url   = $response['auth']['info']['image'];
 				
 				if ($email){
 					
