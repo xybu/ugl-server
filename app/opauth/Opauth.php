@@ -189,7 +189,6 @@ class Opauth{
 	 * Refer to example/callback.php on how to handle auth callback.
 	 */
 	public function callback(){
-		echo "<strong>Note: </strong>Application should set callback URL to application-side for further specific authentication process.\n<br>";
 		
 		$response = null;
 		switch($this->env['callback_transport']){
