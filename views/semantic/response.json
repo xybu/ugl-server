@@ -1,0 +1,7 @@
+<?php
+	$s = json_encode(array("expiration" => date('c', strtotime("+" . $expiration . " hour")), "data" => $responseData), JSON_PRETTY_PRINT);
+	header("Content-Type: application/json");
+	header("Cache-Control: no-cache, must-revalidate");
+	header("Content-Length: " . strlen($s));
+	echo $s
+?>

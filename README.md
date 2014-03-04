@@ -1,4 +1,7 @@
-ugl-server
-==========
+Notes
 
-The server part of project ugl.
+Update hybridauth:
+/app/hybrid
+
+Update f3:
+/app/lib

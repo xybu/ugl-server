@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<base href="<?php echo $SCHEME.'://'.$HOST.':'.$PORT.$BASE.'/'; ?>" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title><?php echo $page_title?></title>
+	
+    <!-- Bootstrap core CSS -->
+    <link href="views/flat/css/bootstrap.flatly.css" rel="stylesheet" />
+	
+	<link href="views/flat/css/homepage.css" rel="stylesheet" />
+	
+	<link href="views/flat/css/font-awesome-4.0.3.min.css" rel="stylesheet" />
+	
+	
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"><i class="fa fa-home"></i> Home</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right" role="form">
+            <div class="form-group">
+              <input type="email" placeholder="Email" class="form-control">
+            </div>
+            <div class="form-group">
+              <input type="password" placeholder="Password" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-success">Sign in</button>
+          </form>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+	
+    <div class="jumbotron">
+      <div class="container">
+	  <div class="row">
+	  <div class="col-md-7" id="welcome-panel">
+        <div class="row">
+		<h1>Welcome!</h1>
+        <p><strong>Unified Group Life</strong> (or &quot;<em>UGLi</em>&quot; in short) is a project that aims to simplify group life in a light-weight app that helps users manage tasks, funds, and items as a team.</p>
+		</div>
+		<div class="row">
+			Second row.
+		</div>
+      </div>
+	  <div class="col-md-1">
+	  </div>
+	  <div class="col-md-4">
+		<div class="panel panel-primary" id="join-panel">
+			<div class="panel-heading">
+				<h3 class="panel-title">Join UGLi</h3>
+			</div>
+			<div class="panel-body form-signin" id="register-panel">
+				<div class="main">
+					<div class="row">
+						<h3>Connect with</h3>
+						<div class="col-md-3 text-center">
+							<a id="fb-icon" href="/oauth/provider/facebook"><i class="fa fa-facebook-square fa-3x"></i></a>
+						</div>
+						<div class="col-md-3 text-center">
+							<a id="ms-icon" href="/oauth/provider/live"><i class="fa fa-windows fa-3x"></i></a>
+						</div>
+						<div class="col-md-3 text-center">
+							<a id="linkedin-icon" href=""><i class="fa fa-linkedin fa-3x"></i></a>
+						</div>
+						<div class="col-md-3 text-center">
+							<a id="github-icon" href=""><i class="fa fa-github fa-3x"></i></a>
+						</div>
+					</div>
+					<div class="login-or">
+						<hr class="hr-or" />
+						<span class="span-or">or</span>
+					</div>
+					<form class="form-signin" role="form">
+						<input type="email" name="inputUserEmail" class="form-control firstInput" placeholder="Email address" required autofocus />
+						<input type="password" name="inputUserPassword" class="form-control centerInput" placeholder="Password" required />
+						<input type="password" name="inputUserConfirmPassword" class="form-control lastInput" placeholder="Confirm password" required />
+						<label class="checkbox">
+							<input type="checkbox" name="inputAgreement" value="true"> I agree to the terms of services.
+						</label>
+						<button class="btn btn-lg btn-success btn-block" type="submit">Create my Account</button>
+					</form>
+				</div>
+				</div>
+			</div>
+		</div>
+	  </div>
+	  </div>
+    </div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6">
+				<h2><i class="fa fa-users fa-2x"></i> Groups</h2>
+				<p class="lead">Ask your friends, dormmates, teammates, or whoever share similar interests with you to join a group and start a different social life immediately. </p>
+				<p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+			</div>
+			<div class="col-md-6">
+				<h2><i class="fa fa-list-alt fa-2x"></i> Stickyboards</h2>
+				<p class="lead">Use Stickyboards to post tasks, take notes, set reminders, or simply share information to the group. </p>
+				<p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+			</div>
+		</div>
+		<hr class="featurette-divider" />
+		<div class="row">
+			<div class="col-md-4">
+				<h2 class="text-center"><i class="fa fa-tasks fa-2x"></i> Tasks</h2>
+				<p class="lead">Sula porta fpibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+				<p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+			</div>
+			<div class="col-md-4">
+				<h2 class="text-center"><i class="fa fa-book fa-2x"></i> Manage Items</h2>
+				<p class="lead">Remind your forgetful friend if you lend out your headphones, or keep a record for yourself. </p>
+				<p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+			</div>
+			<div class="col-md-4">
+				<h2 class="text-center"><i class="fa fa-credit-card fa-2x"></i> Wallet</h2>
+				<p class="lead">Manage public funds, keep track of income and expense, and generate diagrams in one place. You also have a private wallet.</p>
+				<p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+			</div>
+		</div>
+	</div>
+
+	<div class="container-fluid" id="footer">
+
+		<div class="row">
+
+			<div class="col-md-1">
+			</div>
+				
+			<div class="col-md-7">
+				<h3>Service</h3>
+				<p>Terms of Service</p>
+				<p>Privacy Policy</p>
+				<p>Contact Us</p>
+			</div>
+			
+			<div class="col-md-4 pull-right">
+				<h3>Project UGLi</h3>
+				<p>&copy; Purdue University 2014 <br />
+				1016 W Stadium Ave, West Lafayette, IN 47906</p>
+				<p><?php echo Base::instance()->format('Exec time: {0} ms / Memory: {1} KiB',round(1e3*(microtime(TRUE)-$TIME),2),round(memory_get_usage(TRUE)/1e3,1)); ?></p>
+			</div>
+			
+		</div>
+	</div>
+				
+    <script src="views/flat/js/jquery-1.11.0.min.js"></script>
+    <script src="views/flat/js/bootstrap.min.js"></script>
+	<script src="views/flat/js/holder.js"></script>
+  </body>
+</html>

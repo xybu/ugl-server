@@ -1,0 +1,174 @@
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 50px;
+}
+
+#footer {
+    background: #333333;
+    color: #EEEEEE;
+    margin-top: 60px;
+	margin-bottom:0;
+	padding-top:20px;
+	padding-bottom:20px;
+}
+
+.featurette-divider {
+    margin: 20px 0;
+}
+
+.jumbotron {
+	background-image: url('../img/bg.jpg');
+}
+
+.jumbotron #welcome-panel{
+	color: #fff;
+}
+
+/* sign-in form */
+.form-signin, .form-signup {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.form-resetpwd {
+	min-height: 280px;
+}
+
+.form-signin  .main {
+    max-width: 360px;
+    margin: 0 auto;
+}
+
+.form-signin .login-or {
+    position: relative;
+    font-size: 18px;
+    color: #aaa;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+.form-signin  .span-or {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: -2px;
+    margin-left: -25px;
+    background-color: #fff;
+    width: 50px;
+    text-align: center;
+  }
+.form-signin  .hr-or {
+    background-color: #cdcdcd;
+    height: 1px;
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+  }
+.form-signin  h3 {
+    text-align: center;
+    line-height: 100%;
+	margin-top: 0;
+  }
+
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+}
+.form-signin .checkbox {
+  font-weight: normal;
+}
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin .firstInput {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-signin .centerInput {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+	border-top-left-radius: 0 !important;
+	border-top-right-radius: 0 !important;
+}
+
+.form-signin .lastInput {
+	margin-bottom: 10px !important;
+	border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+#fb-icon {
+	color: #3b5998;
+}
+
+#fb-icon:active, #fb-icon:hover {
+	color: #30487b;
+}
+
+#ms-icon {
+	color: #4d90fe;
+}
+
+#ms-icon:active, #ms-icon:hover {
+	color: #3c89ed;
+}
+
+#linkedin-icon {
+	color: #007bb6;
+}
+
+#linkedin-icon:active, #linkedin-icon:hover {
+	color: #005f8d;
+}
+
+#github-icon {
+	color: #444;
+}
+
+#github-icon:active, #github-icon:hover {
+	color: #303030;
+}
+
+.jumbotron, .container{
+	max-width: 1920px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* Panel */
+
+.panel-primary {
+	border: none;
+}
+
+.panel-primary > .panel-heading {
+	/*background-color: #00a388;*/
+	padding: 1em;
+	border: none;
+}
+
+.panel-heading > .panel-title{
+	font-weight: 700;
+	font-size:1.3em;
+}
+
+.panel-primary.navbar-inverse > .panel-heading {
+	/*background-color: #383941;*/
+}
+
+/* Nav */
+.navbar-brand {
+	font-weight: 700;
+}
