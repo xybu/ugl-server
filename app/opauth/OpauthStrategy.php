@@ -391,6 +391,7 @@ class OpauthStrategy{
 		curl_setopt($ch, CURLOPT_HEADER, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_USERAGENT,'Ugli-web');
 		curl_setopt($ch, CURLOPT_URL, $url);
 		//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);       
 		$data = curl_exec($ch);
@@ -407,6 +408,7 @@ class OpauthStrategy{
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+		curl_setopt($ch, CURLOPT_USERAGENT,'Ugli-web');
 		curl_setopt($ch, CURLOPT_URL, $url);
 		//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);       
 		$data = curl_exec($ch);

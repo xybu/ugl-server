@@ -96,10 +96,6 @@ class Opauth{
 				$name = $this->strategyMap[$this->env['params']['strategy']]['name'];
 				$class = $this->strategyMap[$this->env['params']['strategy']]['class'];
 				$strategy = $this->env['Strategy'][$name];
-				
-				
-				
-				
 				// Strip out critical parameters
 				$safeEnv = $this->env;
 				unset($safeEnv['Strategy']);
@@ -199,7 +195,7 @@ class Opauth{
 		switch($this->env['callback_transport']){
 			case 'session':
 				$response = $this->f3->get('SESSION.opauth');
-				$this->f3->get('SESSION.opauth', null);
+				$this->f3->set('SESSION.opauth', null);
 				break;
 			case 'post':
 				$response = unserialize(base64_decode( $_POST['opauth'] ));
@@ -212,34 +208,15 @@ class Opauth{
 				break;
 		}
 		
-		/**
-		 * Check if it's an error callback
-		 */
-		if (array_key_exists('error', $response)){
-			echo '<strong style="color: red;">Authentication error: </strong> Opauth returns error auth response.'."<br>\n";
-		}
-
-		/**
-		 * No it isn't. Proceed with auth validation
-		 */
-		else{
-			if (empty($response['auth']) || empty($response['timestamp']) || empty($response['signature']) || empty($response['auth']['provider']) || empty($response['auth']['uid'])){
-				echo '<strong style="color: red;">Invalid auth response: </strong>Missing key auth response components.'."<br>\n";
-			}
-			elseif (!$this->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason)){
-				echo '<strong style="color: red;">Invalid auth response: </strong>'.$reason.".<br>\n";
-			}
-			else{
-				echo '<strong style="color: green;">OK: </strong>Auth response is validated.'."<br>\n";
-			}
-		}		
+		if (array_key_exists('error', $response))
+			throw new \Exception("Authentication Error: " . $response['error'], 1);
 		
-		/**
-		 * Auth response dump
-		 */
-		echo "<pre>";
-		print_r($response);
-		echo "</pre>";
+		if (empty($response['auth']) || empty($response['timestamp']) || empty($response['signature']) || empty($response['auth']['provider']) || empty($response['auth']['uid']))
+			throw new \Exception("Invalid auth response: Missing key auth response components.", 2);
+		
+		if (!$this->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason))
+			throw new \Exception("Invalid response: " . $reason, 3);
+		
 	}
 	
 	/**

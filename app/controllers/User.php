@@ -57,105 +57,94 @@ class User extends \Controller {
 		$provider = $f3->get('PARAMS.provider');
 		$action = $f3->get('PARAMS.action');
 		
+		if ($action == "callback")
+			$oauth_run = false;
+		else $oauth_run = true;
+		
 		try {
 			
 			$opauth = new \opauth\Opauth($f3, $this->oauth_getConfig(), array(
 				"strategy" => strtolower($provider),
 				"action" => $action
-			));	
+			), $oauth_run);
 			
+			if (!$oauth_run){ //callback
+				$response = null;
+				
+				switch($opauth->env['callback_transport']){	
+					case 'session':
+						$response = $f3->get('SESSION.opauth');;
+						$f3->set('SESSION.opauth', null);
+						break;
+					case 'post':
+						$response = unserialize(base64_decode($_POST['opauth']));
+						break;
+					case 'get':
+						$response = unserialize(base64_decode($_GET['opauth']));
+						break;
+					default:
+						throw new Exception("Unsupported callback_transport", 0);
+						break;
+				}
+				
+				if (array_key_exists('error', $response))
+					throw new Exception("Authentication Error: " . $response['error'], 1);
+				
+				if (empty($response['auth']) || empty($response['timestamp']) || empty($response['signature']) || empty($response['auth']['provider']) || empty($response['auth']['uid']))
+					throw new Exception("Invalid auth response: Missing key auth response components.", 2);
+				
+				if (!$opauth->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason))
+					throw new Exception("Invalid response: " . $reason, 3);
+				
+				// load user and authentication models
+				$authentication = new \models\Authentication();
+				$user = new \models\User();
+				
+				// check if user already has authenticated using this provider before
+				$authentication_info = $authentication->findByProviderUid($provider, $response['provider']);
+				
+				// if authentication already exists, reroute to dashboard
+				if ($authentication_info){
+					$f3->set("SESSION.user", $authentication_info["user_id"]);
+					$f3->reroute("/user/dashboard");
+				}
+				
+				$provider_uid  = $response['uid'];
+				$email         = $response['info']['email'];
+				$first_name    = $response['info']['first_name'];
+				$last_name     = $response['info']['last_name'];
+				$display_name  = $response['info']['name'];
+				$website_url   = $response['info']['urls']['website'];
+				$avatar_url   = $response['info']['image'];
+				
+				if ($email){
+					
+					$user_info = $user->findByEmail($email);
+					$user_id = null;
+					
+					if ($user_info) {
+						// the user registered the email, but hasn't assoc with his account
+						$user_id = $user_info["id"];
+						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
+					} else {
+						// the user hasn't registered the email
+						$password = rand();
+						$user_id = $user->createUser($email, $password, $first_name, $last_name, $avatar_url);
+						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
+						
+						//TODO: can send an email later
+					}
+					
+					$f3->set("SESSION.user", $user_id);
+					$f3->reroute("/user/dashboard");
+				} else
+					throw new Exception("No email specified.", 101);	
+			}
 		} catch( Exception $e ) {
-			
-			// well, basically your should not display this to the end user, just give him a hint and move on..
+			//TODO: show a hint page and move on
 			$error .= "<br /><br /><b>Original error message:</b> " . $e->getMessage(); 
 			$error .= "<hr /><pre>Trace:<br />" . $e->getTraceAsString() . "</pre>"; 
 
-			// load error view
-			$f3->set('responseData', array("error" => $error));
-			$this->setView("error.json");
-		}
-	}
-	
-	function oauth_callback($f3){
-		$provider = $f3->get('PARAMS.provider');
-		$action = $f3->get('PARAMS.action');
-		try {
-			$opauth = new \opauth\Opauth($f3, $this->oauth_getConfig(), array(
-				"strategy" => strtolower($provider),
-				"action" => $action
-			), false);
-			
-			$response = null;
-			
-			switch($opauth->env['callback_transport']){	
-				case 'session':
-					$response = $f3->get('SESSION.opauth');;
-					$f3->set('SESSION.opauth', null);
-					break;
-				case 'post':
-					$response = unserialize(base64_decode($_POST['opauth']));
-					break;
-				case 'get':
-					$response = unserialize(base64_decode($_GET['opauth']));
-					break;
-				default:
-					throw new Exception("Unsupported callback_transport", 0);
-					break;
-			}
-			
-			if (array_key_exists('error', $response))
-				throw new Exception($response['error'], 1);
-			
-			if (empty($response['auth']) || empty($response['timestamp']) || empty($response['signature']) || empty($response['auth']['provider']) || empty($response['auth']['uid']))
-				throw new Exception("Missing key components in auth", 2);
-					
-			if (!$opauth->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason))
-				throw new Exception($reason, 3);
-				
-			// load user and authentication models
-			$authentication = new \models\Authentication();
-			$user = new \models\User();
-			
-			// check if user already has authenticated using this provider before
-			$authentication_info = $authentication->findByProviderUid($provider, $response['provider']);
-			
-			// if authentication already exists, reroute to dashboard
-			if ($authentication_info){
-				$f3->set("SESSION.user", $authentication_info["user_id"]);
-				$f3->reroute("/user/dashboard");
-			}
-			
-			$provider_uid  = $response['uid'];
-			$email         = $response['info']['email'];
-			$first_name    = $response['info']['first_name'];
-			$last_name     = $response['info']['last_name'];
-			$display_name  = $response['info']['name'];
-			$website_url   = $response['info']['urls']['website'];
-			$avatar_url   = $response['info']['image'];
-			
-			if ($email){
-				
-				$user_info = $user->findByEmail($email);
-				$user_id = null;
-				
-				if ($user_info) {
-					// the user registered the email, but hasn't assoc with his account
-					$user_id = $user_info["id"];
-					$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
-				} else {
-					// the user hasn't registered the email
-					$password = rand();
-					$user_id = $user->createUser($email, $password, $first_name, $last_name, $avatar_url);
-					$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
-					
-					//TODO: can send an email later
-				}
-				
-				$f3->set("SESSION.user", $user_id);
-				$f3->reroute("/user/dashboard");
-			} else
-				throw new Exception("No email specified.", 101);
-		} catch (Exception $e) {
 			// load error view
 			$f3->set('responseData', array("error" => $error));
 			$this->setView("error.json");
