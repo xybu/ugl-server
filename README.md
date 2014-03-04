@@ -18,10 +18,13 @@ The server side of project "Ugl".
 
 ### Planning
 
-| Component  | Status | Notes |
+| Component     | Status        | Notes         |
 | ------------- | ------------- | ------------- |
-| Autoloader | Working  | |
-| Generic Controller | Working  | |
+| Autoloader | Finished  | Part of basic libraries |
+| Dispatcher | Finished  | Part of basic libraries |
+| Generic Controller | Designing | |
+| User controller | In dev | Working on auth controller part |
+| Generic Model | Designing | |
 | User model | In dev | Working on auth model |
 | Auth model | In dev | Working on auth model |
 | Group model | Not started | n/a |
