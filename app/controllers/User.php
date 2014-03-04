@@ -114,7 +114,9 @@ class User extends \Controller {
 				$first_name    = $response['info']['first_name'];
 				$last_name     = $response['info']['last_name'];
 				$display_name  = $response['info']['name'];
-				$website_url   = $response['info']['urls']['website'];
+				if (array_key_exists('website', $response['info']['urls']))
+					$website_url   = $response['info']['urls']['website'];
+				else $website_url = "";
 				$avatar_url   = $response['info']['image'];
 				
 				if ($email){
