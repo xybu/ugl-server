@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(200) NOT NULL,
   `first_name` varchar(200) NOT NULL,
   `last_name` varchar(200) NOT NULL,
+  `avatar_url` varchar(200) NOT NULL DEFAULT '/assets/img/default_avatar.png',
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
@@ -21,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `authentications` (
   `display_name` varchar(150) NOT NULL,
   `first_name` varchar(100) NOT NULL,
   `last_name` varchar(100) NOT NULL,
-  `profile_url` varchar(300) NOT NULL,
+  `avatar_url` varchar(300) NOT NULL,
   `website_url` varchar(300) NOT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),

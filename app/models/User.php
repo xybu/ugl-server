@@ -25,15 +25,18 @@ class User extends \Model {
 		return null;
 	}
 	
-	function createUser($email, $password, $first_name, $last_name){
+	function createUser($email, $password, $first_name, $last_name, $avatar_url = ""){
+		if (!$avatar_url or $avatar_url == "")
+			$avatar_url = "/assets/img/default_avatar.png";
 		$this->queryDb(
-			"INSERT INTO users (email, password, first_name, last_name, created_at) " .
-			"VALUES (:email, :password, :first_name, :last_name, NOW());",
+			"INSERT INTO users (email, password, first_name, last_name, avatar_url, created_at) " .
+			"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW());",
 			array(
 				':email' => $email,
 				':password' => $password,
 				':first_name' => $first_name,
-				':last_name' => $last_name
+				':last_name' => $last_name,
+				':avatar_url' => $avatar_url
 			)
 		);
 		

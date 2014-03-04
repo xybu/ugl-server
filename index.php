@@ -11,4 +11,6 @@
 $f3=require('app/lib/base.php');
 $f3->config('app/conf/globals.ini');
 $f3->config('app/conf/routes.ini');
+//new \Session();
+//new \Cache();
 $f3->run();
