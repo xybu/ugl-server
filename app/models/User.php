@@ -19,9 +19,13 @@ class User extends \Model {
 	}
 	
 	function findByEmailAndPassword($email, $password){
-		$sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password' LIMIT 1";
+		$sql = "SELECT * FROM users WHERE email = '$email' LIMIT 1";
 		$result = $this->queryDb($sql);
-		if (count($result) == 1) return $result[0];
+		if (count($result) == 1){
+			if ($result[0]["password"] == $password)
+				return $result[0];
+			else return null;
+		}
 		return null;
 	}
 	

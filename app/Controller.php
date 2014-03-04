@@ -14,11 +14,10 @@ class Controller {
 	// Cache is a singleton
 	protected $cache;
 	protected $view = null;
+	protected $f3;
 	
 	function __construct() {
-		$f3=Base::instance();
-		
-		
+		$this->f3=Base::instance();
 		$this->cache = \Cache::instance();
 	}
 	
@@ -42,4 +41,15 @@ class Controller {
 			echo View::instance()->render($this->view);
 	}
 	
+	function renderJsonException(Exception $e){
+		$f3->set('responseData', array(
+					"error" => $e->getCode(), 
+					"message" => $e->getMessage(), 
+					"file" => $e->getFile() . 
+					"line ". $e->getLine(), 
+					"trace" => $e->getTraceAsString())
+		);
+		echo View::instance()->render("error.json");
+		die();
+	}
 }

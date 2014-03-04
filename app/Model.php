@@ -33,4 +33,9 @@ class Model {
 		
 		return $this->db->exec($cmds, $args, $ttl, $log);
 	}
+	
+	// some basic validations
+	function isValidEmail($str){
+		return filter_var($str, FILTER_VALIDATE_EMAIL);
+	}
 }
