@@ -27,28 +27,27 @@
   <body>
 
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#"><i class="fa fa-home"></i> Home</a>
-        </div>
-        <div class="navbar-collapse collapse">
-          <form class="navbar-form navbar-right" role="form" method="post" action="/api/login" id="nav-login">
-            <div class="form-group">
-              <input type="email" name="email" placeholder="Email" class="form-control">
-            </div>
-            <div class="form-group">
-              <input type="password" name="password" placeholder="Password" class="form-control">
-            </div>
-            <button type="submit" class="btn btn-success">Sign in</button>
-          </form>
-        </div><!--/.navbar-collapse -->
-      </div>
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#"><i class="fa fa-home"></i> Home</a>
+			</div>
+			<div class="navbar-collapse collapse">
+				<form class="navbar-form navbar-right" role="form" method="post" action="/api/login" id="nav-login">
+					<div class="form-group">
+						<input type="email" id="nav-login-email" name="email" value="" placeholder="Email" class="form-control" data-placement="bottom" data-trigger="manual" title="Please enter a valid email address">
+					</div>
+					<div class="form-group">
+						<input type="password" id="nav-login-pass" name="password" placeholder="Password" value="" class="form-control" data-placement="bottom" data-trigger="manual" title="Password must be at least characters">
+					</div>
+					<button type="submit" id="nav-login-btn" class="btn btn-success" data-placement="bottom" data-trigger="click">Sign in</button>
+				</form>
+			</div><!--/.navbar-collapse -->
+		</div>
     </div>
 	
 	<div class="jumbotron">
@@ -189,5 +188,6 @@
 	<script src="views/flat/js/bootstrap.min.js"></script>
 	<script src="views/flat/js/holder.js"></script>
 	<script src="views/flat/js/homepage.js"></script>
+	<script src="assets/js/jquery.crypto.js"></script>
 </body>
 </html>

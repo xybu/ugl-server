@@ -38,4 +38,9 @@ class Model {
 	function isValidEmail($str){
 		return filter_var($str, FILTER_VALIDATE_EMAIL);
 	}
+	
+	function isValidPassword($str){
+		// "" after hash
+		return $str && strlen($str) == 32 && $str != "c206cc8346228864f9176044b4792c6a";
+	}
 }

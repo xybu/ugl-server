@@ -145,7 +145,7 @@ class User extends \Controller {
 			}
 		} catch( Exception $e ) {
 			//TODO: show a hint page and move on
-			$this->renderJsonException($e);
+			$this->json_printException($e);
 		}
 	}
 	
