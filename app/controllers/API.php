@@ -40,6 +40,10 @@ class API extends \Controller {
 	
 	function registerUser($f3){
 		try {
+			
+			if (!$f3->exists("POST.agree") or $f3->get("POST.agree") != "true")
+				throw new \Exception("You must agree to the terms of services to sign up", 105);
+		
 			if (!$f3->exists("POST.email") or !$f3->exists("POST.password") or !$f3->exists("POST.confirm_pass") or !$f3->exists("POST.first_name") or !$f3->exists("POST.last_name"))
 				throw new \Exception("Email, password, or name not provided", 100);
 			
