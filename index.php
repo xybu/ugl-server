@@ -9,8 +9,7 @@
  */
 
 $f3=require('app/lib/base.php');
-$f3->config('app/conf/globals.ini');
-$f3->config('app/conf/routes.ini');
+$f3->config('app/conf/settings.ini');
 //new \Session();
 //new \Cache();
 $f3->run();

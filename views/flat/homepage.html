@@ -38,12 +38,12 @@
           <a class="navbar-brand" href="#"><i class="fa fa-home"></i> Home</a>
         </div>
         <div class="navbar-collapse collapse">
-          <form class="navbar-form navbar-right" role="form">
+          <form class="navbar-form navbar-right" role="form" method="post" action="/api/login" id="nav-login">
             <div class="form-group">
-              <input type="email" placeholder="Email" class="form-control">
+              <input type="email" name="email" placeholder="Email" class="form-control">
             </div>
             <div class="form-group">
-              <input type="password" placeholder="Password" class="form-control">
+              <input type="password" name="password" placeholder="Password" class="form-control">
             </div>
             <button type="submit" class="btn btn-success">Sign in</button>
           </form>
@@ -168,5 +168,6 @@
     <script src="views/flat/js/jquery-1.11.0.min.js"></script>
     <script src="views/flat/js/bootstrap.min.js"></script>
 	<script src="views/flat/js/holder.js"></script>
+	<script src="views/flat/js/homepage.js"></script>
   </body>
 </html>

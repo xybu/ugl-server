@@ -6,7 +6,7 @@
  * Controllers work with models to render views
  *
  * @author	Xiangyu Bu
- * @date	Feb 25, 2014
+ * @date	Mar 03, 2014
  */
 
 class Controller {
@@ -41,15 +41,35 @@ class Controller {
 			echo View::instance()->render($this->view);
 	}
 	
-	function renderJsonException(Exception $e){
-		$f3->set('responseData', array(
-					"error" => $e->getCode(), 
-					"message" => $e->getMessage(), 
-					"file" => $e->getFile() . 
-					"line ". $e->getLine(), 
-					"trace" => $e->getTraceAsString())
-		);
-		echo View::instance()->render("error.json");
-		die();
+	function json_printException(Exception $e){
+		$s = json_encode(
+			array(
+				"status" => "error",
+				"error" => $e->getCode(), 
+				"message" => $e->getMessage(), 
+				"file" => $e->getFile() . 
+				"line ". $e->getLine(), 
+				"trace" => $e->getTraceAsString()
+			) , JSON_PRETTY_PRINT);
+		//header('HTTP/1.0 403 Forbidden');
+		header("Content-Type: application/json");
+		header("Cache-Control: no-cache, must-revalidate");
+		header("Content-Length: " . strlen($s));
+		echo $s;
+		exit();
+	}
+	
+	function json_printResponse($data, $expiration = 0){
+		$s = json_encode(
+			array(
+				"status" => "success", 
+				"expiration" => date('c', strtotime("+" . $expiration . " hour")), 
+				"data" => $data
+			), JSON_PRETTY_PRINT);
+		header("Content-Type: application/json");
+		header("Cache-Control: no-cache, must-revalidate");
+		header("Content-Length: " . strlen($s));
+		echo $s;
+		exit();
 	}
 }
