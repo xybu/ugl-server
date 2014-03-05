@@ -10,11 +10,13 @@ The server side code of project Ugl.
  * [Planning](#planning)
 * [Server API Document](#server-api-document)
  * [Types of Responses](#types-of-responses)
+ * [Encryption](#encryption)
+  * [Password Encryption](#1-password-encryption)
  * [Events](#events)
-  * [get_SecurityQuestions](#get_securityQuestions)
-  * [login](#login)
-  * [logout](#logout)
-  * [register](#register)
+  * [get_SecurityQuestions](#1-get_securityQuestions)
+  * [login](#2-login)
+  * [logout](#3-logout)
+  * [register](#4-register)
 
 ## Introduction
 
@@ -94,6 +96,12 @@ where
 
 The client should be able to distinguish between these two types of messages by the `status` field.
 
+### Encryption
+
+#### 1. Password Encryption
+
+
+
 ### Events
 
 #### 1. get_securityQuestions
@@ -145,6 +153,21 @@ TBA.
 ##### Associated Errors
 
 #### 4. register
+Register an account.
+
+##### Request
+* Method: POST
+* URL: `api/register`
+* Data: `email`=something&`password`=pass&`confirm_pass`=pass&`first_name`=aaa&`last_name`=bbb&`agree`=true
+
+Sanity check:
+* `email` is a valid email address (RFC 2822)
+* `password` must not be empty
+* `password` and `confirm_pass` must match
+* `first_name` and `last_name` must not be empty
+* `agree` must be `true`
+
+Encryption: refer to the Encryption section.
 
 ##### Associated Errors
 * 100 - Email, password, or name not provided
@@ -152,3 +175,4 @@ TBA.
 * 102 - Password and confirm password do not match
 * 103 - First name or last name is empty
 * 104 - Email already registered
+* 105 - You must agree to the terms of services to sign up (field "agree" != "true")
