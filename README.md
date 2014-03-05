@@ -161,18 +161,23 @@ TBA.
 Register an account.
 
 ##### Request
+**Format:**
+
 * Method: POST
 * URL: `api/register`
 * Data: `email`=something&`password`=pass&`confirm_pass`=pass&`first_name`=aaa&`last_name`=bbb&`agree`=true
 
-Sanity check:
+**Sanity check:**
+
 * `email` is a valid email address (RFC 2822)
 * `password` must not be empty
 * `password` and `confirm_pass` must match
 * `first_name` and `last_name` must not be empty
 * `agree` must be `true`
 
-Encryption: refer to the Encryption section.
+**Encryption:**
+
+refer to the Encryption section.
 
 ##### Associated Errors
 * 100 - Email, password, or name not provided
