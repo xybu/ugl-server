@@ -4,32 +4,37 @@ The server side code of project Ugl.
 
 ## Table of Contents
 
-* [Introduction](#introduction)
- * [Architecture](#architecture)
- * [File Structure](#file-structure)
- * [Planning](#planning)
-* [Server API Document](#server-api-document)
- * [Types of Responses](#types-of-responses)
- * [Encryption](#encryption)
-  * [Password Encryption](#1-password-encryption)
- * [Events](#events)
-  * [get_SecurityQuestions](#1-get_securityQuestions)
-  * [login](#2-login)
-  * [logout](#3-logout)
-  * [register](#4-register)
+ - [Introduction](#introduction)
+  - [Architecture](#architecture)
+  - [File Structure](#file-structure)
+  - [Planning](#planning)
+ - [Server API Document](#server-api-document)
+  - [Types of Responses](#types-of-responses)
+     - [Success](#1-success)
+     - [Error](#2-error)
+  - [Encryption](#encryption)
+     - [Password Encryption](#1-password-encryption)
+  - [Events](#events)
+     - [get_SecurityQuestions](#1-get_securityQuestions)
+     - [login](#2-login)
+     - [logout](#3-logout)
+     - [register](#4-register)
 
 ## Introduction
 
 ### Architecture
+Basic features:
+
  * written in PHP 5.5+ and run on Nginx 1.5+
  * follows MVC model with autoloader
  * generic caching mechanism
  * generic database class
 
 Notes:
- * keep an eye on facebook's HipHop VM
- * Xiangyu owns the root of the server so the infrastructure can be changed when needed
- * Web Client front-end is written in HTML5 and CSS3 built ono top of Bootstrap framework.
+
+* keep an eye on facebook's HipHop VM
+* Xiangyu owns the root of the server so the infrastructure can be changed when needed
+* Web Client front-end is written in HTML5 and CSS3 built ono top of Bootstrap framework.
 
 ### File Structure
  * `app` stores the libraries, configuration files, controllers and models
@@ -60,7 +65,7 @@ Notes:
 
 ### Types of responses
 
-All responses, regardless of types, will have header attribute of HTTP status 200.
+All responses, regardless of types, will have header attribute of HTTP status **200**.
 
 There are two types of responses:
 
