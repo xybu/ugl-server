@@ -105,7 +105,14 @@ The client should be able to distinguish between these two types of messages by 
 
 #### 1. Password Encryption
 
+All non-decipherable passwords are expected to be encrypted in the following way before sending to the server:
 
+* S1: Use SHA-1 to encode the string. Eg., `123456` becomes `7c4a8d09ca3762af61e59520943dc26494f8941b`
+* S2: Use SHA-1 to encode the string got from S1. Eg., `69c5fcebaa65b560eaf06c3fbeb481ae44b8d618`
+* S3: Base64 the string from S2. Eg., `NjljNWZjZWJhYTY1YjU2MGVhZjA2YzNmYmViNDgxYWU0NGI4ZDYxOA==`
+* S4: To save space, use MD5 to encode the string from S3. Eg., `aaf53a928ca9baa6df03a5fe6e3c7b71`
+
+In short, `$str = md5(base64_encode(sha1(sha1($str))));`
 
 ### Events
 
