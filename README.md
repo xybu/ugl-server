@@ -177,7 +177,7 @@ Register an account.
 **Sanity check:**
 
 * `email` is a valid email address (RFC 2822)
-* `password` must not be empty
+* `password` must be at least 6 chars long
 * `password` and `confirm_pass` must match
 * `first_name` and `last_name` must not be empty
 * `agree` must be `true`
