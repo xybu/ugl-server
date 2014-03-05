@@ -126,11 +126,11 @@ Notes:
 Log a user in.
 
 ##### Request
- | Name   | Description                            |
- | ------ | -------------------------------------- |
- | Method | POST                                   |
- | URL    | `api/login`                            |
- | Data   | `email`=abc@abc.cc&`password`=pass     |
+| Name   | Description                            |
+| ------ | -------------------------------------- |
+| Method | POST                                   |
+| URL    | `api/login`                            |
+| Data   | `email`=abc@abc.cc&`password`=pass     |
 
 ##### Response
 TBA.
