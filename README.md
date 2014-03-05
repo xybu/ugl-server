@@ -1,14 +1,24 @@
 # Ugl-server
 
+** The server side code of project Ugl. **
+
 ## Table of Contents
 
 * [Introduction](#introduction)
+ * [Architecture](#architecture)
+ * [File Structure](#file-structure)
+ * [Planning](#planning)
 * [Server API Document](#server-api-document)
- * [Quick Reference](#quick-reference)
+ * [Types of Responses](#types-of-responses)
+ * [Events](#events)
+  * [get_SecurityQuestions](#get_securityQuestions)
+  * [login](#login)
+  * [logout](#logout)
+  * [register](#register)
 
 ## Introduction
 
-## Architecture
+### Architecture
  * written in PHP 5.5+ and run on Nginx 1.5+
  * follows MVC model with autoloader
  * generic caching mechanism
@@ -19,7 +29,7 @@ Notes:
  * Xiangyu owns the root of the server so the infrastructure can be changed when needed
  * Web Client front-end is written in HTML5 and CSS3 built ono top of Bootstrap framework.
 
-## File Structure
+### File Structure
  * `app` stores the libraries, configuration files, controllers and models
  * `assets` has the public accessible files like images, css, and javascript
  * `data` stores logs and files uploaded by users
@@ -27,23 +37,24 @@ Notes:
  * `views` stores the view models
  * `vendor` if exists, stores reference libraries
 
-## Planning
+### Planning
 
-| Component     | Status        | Notes         |
-| ------------- | ------------- | ------------- |
-| Autoloader | Finished  | Part of basic libraries |
-| Dispatcher | Finished  | Part of basic libraries |
-| Generic Controller | Designing | |
-| User controller | In dev | Working on auth controller part |
-| Generic Model | Designing | |
-| User model | In dev | Working on auth model |
-| Auth model | In dev | Working on auth model |
-| Group model | Not started | n/a |
+| Component           | Status        | Notes                           |
+| ------------------- | ------------- | ------------------------------- |
+| Autoloader          | Finished      | Part of basic libraries         |
+| Dispatcher          | Finished      | Part of basic libraries         |
+| Generic Controller  | In dev        | n/a.                            |
+| User controller     | In dev        | Working on auth controller part |
+| Generic Model       | In dev        |                                 |
+| User model          | In dev        | Working on auth model           |
+| Auth model          | In dev        | Working on auth model           |
+| Group model         | Not started   | n/a                             |
+| ------------------- | ------------- | ------------------------------- |
 
 
-# Server API Document
+## Server API Document
 
-## Types of responses
+### Types of responses
 
 All responses, regardless of types, will have header attribute of HTTP status 200.
 
