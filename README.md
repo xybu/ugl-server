@@ -51,8 +51,8 @@ Notes:
  | Group model         | Not started   | n/a                             |
 
 ### Next steps
+
  * Model the encryption mechanism for password
- * Moedel
 
 ## Server API Document
 
