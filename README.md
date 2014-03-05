@@ -193,3 +193,4 @@ refer to the Encryption section.
 * 103 - First name or last name is empty
 * 104 - Email already registered
 * 105 - You must agree to the terms of services to sign up (field "agree" != "true")
+* 106 - Password should be at least 6 chars
