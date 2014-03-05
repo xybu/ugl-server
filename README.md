@@ -146,11 +146,15 @@ Notes:
 Log a user in.
 
 ##### Request
-| Name   | Description                            |
-| ------ | -------------------------------------- |
-| Method | POST                                   |
-| URL    | `api/login`                            |
-| Data   | `email`=abc@abc.cc&`password`=pass     |
+**Format:**
+
+* Method: `POST`
+* URL: `api/login`
+* Data: `email`=abc@abc.cc&`password`=pass
+
+**Sanity check:**
+* `email` is a valid email address (RFC 2822)
+* `password` must be at least 6 chars long (server cannot check)
 
 ##### Response
 TBA.
@@ -159,6 +163,7 @@ TBA.
 * 100 - Email or password not provided
 * 101 - Invalid email address
 * 102 - User not found, or email and password do not match.
+* 103 - Password should not be empty
 
 #### 3. logout
 
@@ -177,7 +182,7 @@ Register an account.
 **Sanity check:**
 
 * `email` is a valid email address (RFC 2822)
-* `password` must be at least 6 chars long
+* `password` must be at least 6 chars long (server cannot check)
 * `password` and `confirm_pass` must match
 * `first_name` and `last_name` must not be empty
 * `agree` must be `true`
