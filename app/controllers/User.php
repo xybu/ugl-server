@@ -150,10 +150,13 @@ class User extends \Controller {
 	}
 	
 	function showDashboard($f3) {
-		$f3->set('page_title','Unified Group Life Demo');
+		if (!$f3->exists("SESSION.user"))
+			$f3->reroute("/");
+		
+		$f3->set('page_title','Dashboard | Ugli');
 		$f3->set('header','header.html');
 		$f3->set('footer','footer.html');
-		$this->setView("usercp.html");
+		$this->setView("dashboard.html");
 	}
 	
 	
