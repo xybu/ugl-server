@@ -1,6 +1,6 @@
 # Ugl-server
 
-** The server side code of project Ugl. **
+The server side code of project Ugl.
 
 ## Table of Contents
 
@@ -39,18 +39,20 @@ Notes:
 
 ### Planning
 
-| Component           | Status        | Notes                           |
-| ------------------- | ------------- | ------------------------------- |
-| Autoloader          | Finished      | Part of basic libraries         |
-| Dispatcher          | Finished      | Part of basic libraries         |
-| Generic Controller  | In dev        | n/a.                            |
-| User controller     | In dev        | Working on auth controller part |
-| Generic Model       | In dev        |                                 |
-| User model          | In dev        | Working on auth model           |
-| Auth model          | In dev        | Working on auth model           |
-| Group model         | Not started   | n/a                             |
-| ------------------- | ------------- | ------------------------------- |
+ | Component           | Status        | Notes                           |
+ | ------------------- | ------------- | ------------------------------- |
+ | Autoloader          | Finished      | Part of basic libraries         |
+ | Dispatcher          | Finished      | Part of basic libraries         |
+ | Generic Controller  | In dev        | n/a.                            |
+ | User controller     | In dev        | Working on auth controller part |
+ | Generic Model       | In dev        |                                 |
+ | User model          | In dev        | Working on auth model           |
+ | Auth model          | In dev        | Working on auth model           |
+ | Group model         | Not started   | n/a                             |
 
+### Next steps
+ * Model the encryption mechanism for password
+ * Moedel
 
 ## Server API Document
 
@@ -97,13 +99,13 @@ The client should be able to distinguish between these two types of messages by 
 #### 1. get_securityQuestions
 Return a list of security questions for user registration. Security questions are needed to reset the user password.
 
-###### Request
+##### Request
 | Name   | Description                 |
 | ------ | --------------------------- |
 | Method | GET                         |
 | URL    | `api/get_securityQuestions` |
 
-###### Response
+##### Response
 Here is a sample response:
 ```javascript
 {
@@ -123,27 +125,28 @@ Notes:
 #### 2. login
 Log a user in.
 
-###### Request
-| Name   | Description                 |
-| ------ | --------------------------- |
-| Method | POST                        |
-| URL    | `api/login`                 |
+##### Request
+ | Name   | Description                            |
+ | ------ | -------------------------------------- |
+ | Method | POST                                   |
+ | URL    | `api/login`                            |
+ | Data   | `email`=abc@abc.cc&`password`=pass     |
 
-###### Response
-TBD.
+##### Response
+TBA.
 
-###### Associated Errors
+##### Associated Errors
 * 100 - Email or password not provided
 * 101 - Invalid email address
 * 102 - User not found, or email and password do not match.
 
 #### 3. logout
 
-###### Associated Errors
+##### Associated Errors
 
 #### 4. register
 
-###### Associated Errors
+##### Associated Errors
 * 100 - Email, password, or name not provided
 * 101 - Invalid email address
 * 102 - Password and confirm password do not match
