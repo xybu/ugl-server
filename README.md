@@ -1,14 +1,12 @@
-Ugl-server
-==========
-The server side of project "Ugl".
+# Ugl-server
 
-# Table of Contents
+## Table of Contents
 
 * [Introduction](#introduction)
 * [Server API Document](#server-api-document)
  * [Quick Reference](#quick-reference)
 
-# Introduction
+## Introduction
 
 ## Architecture
  * written in PHP 5.5+ and run on Nginx 1.5+
