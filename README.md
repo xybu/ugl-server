@@ -39,16 +39,16 @@ Notes:
 
 ### Planning
 
- | Component           | Status        | Notes                           |
- | ------------------- | ------------- | ------------------------------- |
- | Autoloader          | Finished      | Part of basic libraries         |
- | Dispatcher          | Finished      | Part of basic libraries         |
- | Generic Controller  | In dev        | n/a.                            |
- | User controller     | In dev        | Working on auth controller part |
- | Generic Model       | In dev        |                                 |
- | User model          | In dev        | Working on auth model           |
- | Auth model          | In dev        | Working on auth model           |
- | Group model         | Not started   | n/a                             |
+| Component           | Status        | Notes                           |
+| ------------------- | ------------- | ------------------------------- |
+| Autoloader          | Finished      | Part of basic libraries         |
+| Dispatcher          | Finished      | Part of basic libraries         |
+| Generic Controller  | In dev        | n/a.                            |
+| User controller     | In dev        | Working on auth controller part |
+| Generic Model       | In dev        |                                 |
+| User model          | In dev        | Working on auth model           |
+| Auth model          | In dev        | Working on auth model           |
+| Group model         | Not started   | n/a                             |
 
 ### Next steps
 
