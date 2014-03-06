@@ -57,6 +57,16 @@ class User extends \Model {
 		} else return -1;
 	}
 	
+	/**
+	 * verifyToken
+	 * @param id: the user id
+	 * @param token: the client token
+	 * @param dt_str: the original date; will fetch from database if set null
+	 * 
+	 * Usage: 
+	 * verify if the token is valid for the user id
+	 * reset the token if dt_str is expired
+	 */
 	function verifyToken($id, $token, $dt_str = null){
 		if ($id === "" or $token === "") return false;
 		
@@ -67,24 +77,28 @@ class User extends \Model {
 					':id' => $id
 				)
 			);
+			if (count($result) != 1) return false;
 			$dt_str = $result[0]['token_active_at'];
 		}
 		
 		if (count($result) == 1){
-			if (date('c', strtotime("+" . $dt_str . " hour")) < time())
-				return false;
-			if (password_verify($this->token_salt . $dt_str, $token))
-				return true;
-			else return false;
-		} else return false;
+			if (password_verify($this->token_salt . $dt_str, $token)){
+				if (strtotime("+" . $this->token_expiration_time . " hour", $dt_str) < time()){
+					$new_token = $this->refreshToken($id);
+					return false;
+				} else return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	function refreshToken($id){
 		if ($id === "" or !is_numeric($id)) return null;
 		
-		if ($this->query("UPDATE users SET token_active_at=NOW() WHERE id=:id",
+		if ($this->queryDb("UPDATE users SET token_active_at=NOW() WHERE id=:id",
 			array(':id' => $id))) return $this->getUserToken($id);
-		else return null;
+		return null;
 	}
 	
 	function getUserToken($id, $str = null){

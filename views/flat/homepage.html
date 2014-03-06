@@ -89,28 +89,28 @@
 									<hr class="hr-or" />
 									<span class="span-or">or</span>
 								</div>
-								<form class="form-signin" role="form">
+								<form class="form-signin" role="form" method="post" action="/api/register" id="register-form">
 									<div class="row">
 										<div class="col-xs-12 col-sm-6 col-md-6 form-group">
-											<input type="text" name="first_name" id="first_name" class="form-control" placeholder="First Name" tabindex="1" autofocus required />
+											<input type="text" name="first_name" id="reg_first_name" class="form-control" placeholder="First Name" tabindex="1" data-placement="bottom" data-trigger="manual" title="Please enter your first name" autofocus required />
 										</div>
 										<div class="col-xs-12 col-sm-6 col-md-6 form-group">
-											<input type="text" name="last_name" id="last_name" class="form-control" placeholder="Last Name" tabindex="2" required />
+											<input type="text" name="last_name" id="reg_last_name" class="form-control" placeholder="Last Name" tabindex="2" data-placement="bottom" data-trigger="manual" title="Please enter your last name" required />
 										</div>
 									</div>
 									<div class="row">
 										<div class="col-xs-12 col-sm-12 col-md-12 form-group">
-											<input type="email" name="inputUserEmail" class="form-control" placeholder="Email address" tabindex="3" required />
+											<input type="email" name="email" id="reg_email" class="form-control" placeholder="Email address" tabindex="3" data-placement="bottom" data-trigger="manual" title="Please enter an email address" required />
 										</div>
 									</div>
 									<div class="row">
 										<div class="col-xs-12 col-sm-12 col-md-12 form-group text-center">
-											<input type="password" name="password" class="form-control firstInput" placeholder="Password" tabindex="4" required />
-											<input type="password" name="confirm_pass" class="form-control lastInput" placeholder="Confirm password" tabindex="5" required />
-											<input type="checkbox" name="agree" value="true" tabindex="6"> I agree to the terms of services.
+											<input type="password" name="password" id="reg_password" class="form-control firstInput" placeholder="Password" tabindex="4" data-placement="bottom" data-trigger="manual" title="Password must be at least 6 characters" required />
+											<input type="password" name="confirm_pass" id="reg_confirm_pass" class="form-control lastInput" placeholder="Confirm password" data-placement="bottom" data-trigger="manual" title="Confirm password must match password" tabindex="5" required />
+											<input type="checkbox" name="agree" id="reg_agree" value="true" tabindex="6" data-placement="bottom" data-trigger="manual" title="Please read the user agreement and make sure you agree with the terms"> I agree to the terms of services.
 										</div>
 										<div class="col-xs-12 col-sm-12 col-md-12">
-											<button class="btn btn-lg btn-success btn-block" type="submit" tabindex="7">Create my Account</button>
+											<button class="btn btn-lg btn-success btn-block" id="reg_submit" type="submit" tabindex="7">Create my Account</button>
 										</div>
 									</div>
 								</form>

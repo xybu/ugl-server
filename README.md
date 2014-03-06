@@ -166,6 +166,7 @@ TBA.
 * 103 - Password should not be empty
 
 #### 3. logout
+Logout is a webclient-only event. For mobile apps please use revokeToken event.
 
 ##### Associated Errors
 
@@ -199,3 +200,27 @@ refer to the Encryption section.
 * 104 - Email already registered
 * 105 - You must agree to the terms of services to sign up (field "agree" != "true")
 * 106 - Password should be at least 6 chars
+
+#### 5. revokeToken
+Revoke the token used currently.
+
+##### Request
+**Format:**
+
+* Method: POST
+* URL: `api/revokeToken`
+* Data: `user_id`=myid&`ugl_token`=mytoken
+
+**Sanity check:**
+none.
+
+##### Response
+A typical success message with data->message being "Token has been revoked.".
+
+**Note:**
+* This event is used to log out a user.
+* Only when the user id and token really match will the token be reset.
+
+##### Associated Errors
+* 1 - Authentication fields missing (`user_id` or `ugl_token` is empty or null)
+* 2 - User id should be a number (`user_id` is not a numeric value)

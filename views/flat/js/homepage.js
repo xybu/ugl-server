@@ -7,7 +7,7 @@ $(document).ready(function() {
 });
 */
 
-$("input").on('click', function(e){
+$("input").on('focus focusout', function(e){
 	$(this).tooltip('hide');
 });
 
@@ -45,12 +45,75 @@ $("#nav-login").submit(function(e){
 				var responseObj = jQuery.parseJSON(jqXHR.responseText);
 				if (responseObj.status == "error"){
 					$('#nav-login-btn').tooltip('destroy');
-					$('#nav-login-btn').tooltip({'title': responseObj.message});
+					$('#nav-login-btn').tooltip({'title': "<h5>" + responseObj.message + "</h5>", html: true});
 					$('#nav-login-btn').tooltip('show');
 					$('#nav-login-btn').focusout(function() {
 						$(this).tooltip('hide');
 					});
 				} else {
+					window.location.href = '/user/dashboard';
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown)
+			{
+				alert(errorThrown);
+			}
+		});
+		e.preventDefault(); //STOP default action
+	}
+});
+
+$("#register-form").submit(function(e){
+	if ($('#reg_first_name').val() === ""){
+		$('#reg_first_name').tooltip('show');
+		return false;
+	} else if ($('#reg_last_name').val() === ""){
+		$('#reg_last_name').tooltip('show');
+		return false;
+	} else if (!isEmail($('#reg_email').val())){
+		$('#reg_email').tooltip('show');
+		return false;
+	} else if (!isPassword($('#reg_password').val())){
+		$('#reg_password').tooltip('show');
+		return false;
+	} else if ($('#reg_confirm_pass').val() != $('#reg_password').val()){
+		$('#reg_confirm_pass').tooltip('show');
+		return false;
+	} else if (!$('#reg_agree').is(':checked')){
+		$('#reg_agree').tooltip('show');
+		return false;
+	} else {
+		var postData = $(this).serializeArray();
+		for (var item in postData){
+			var itemName = postData[item].name;
+			if (itemName == 'password' || itemName == 'confirm_pass'){
+				postData[item].value = hass_password(postData[item].value);
+			}
+		}
+	
+		var formURL = $(this).attr("action");
+		$.ajax(
+		{
+			url : formURL,
+			type: "POST",
+			data : postData,
+			beforeSend:function(){
+				$('#reg_submit').tooltip('destroy');
+				$('#reg_submit').tooltip({'title': "Submitting..."});
+				$('#reg_submit').tooltip('show');
+			},
+			success:function(data, textStatus, jqXHR)
+			{
+				var responseObj = jQuery.parseJSON(jqXHR.responseText);
+				if (responseObj.status == "error"){
+					$('#reg_submit').tooltip('destroy');
+					$('#reg_submit').tooltip({'title': responseObj.message});
+					$('#reg_submit').tooltip('show');
+					$('#reg_submit').focusout(function() {
+						$(this).tooltip('hide');
+					});
+				} else {
+					
 					window.location.href = '/user/dashboard';
 				}
 			},
