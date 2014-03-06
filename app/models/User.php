@@ -57,6 +57,25 @@ class User extends \Model {
 		} else return -1;
 	}
 	
+	function getUserProfile($id, $email = ""){
+		if ($email != "" and $this->isValidEmail($email)) $email = " email='" . $email . "'";
+		else $email = "";
+		
+		if (is_numeric($id)) $id = " id = " . $id . "";
+		else $id = "";
+		
+		if ($id == "" and $email == "") return null;
+		if ($id != "" and $email != "") $email = " AND" . $email;
+		
+		$result = $this->queryDb("SELECT id, email, first_name, last_name, avatar_url, created_at FROM users WHERE" . $id . $email . " LIMIT 1;", null, 3600);
+		
+		if (count($result) == 1){
+			return $result[0];
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * verifyToken
 	 * @param id: the user id
@@ -83,7 +102,7 @@ class User extends \Model {
 		
 		if (count($result) == 1){
 			if (password_verify($this->token_salt . $dt_str, $token)){
-				if (strtotime("+" . $this->token_expiration_time . " hour", $dt_str) < time()){
+				if (strtotime("+" . $this->token_expiration_time . " hour", strtotime($dt_str)) < time()){
 					$new_token = $this->refreshToken($id);
 					return false;
 				} else return true;

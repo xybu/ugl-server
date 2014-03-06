@@ -109,6 +109,7 @@ class User extends \Controller {
 					$f3->reroute("/user/dashboard");
 				}
 				
+				$provider  = $response['auth']['provider']; // replace 'callback' by the real provider
 				$provider_uid  = $response['auth']['uid'];
 				$email         = $response['auth']['info']['email'];
 				$first_name    = $response['auth']['info']['first_name'];
@@ -151,13 +152,30 @@ class User extends \Controller {
 	
 	function showDashboard($f3) {
 		if (!$f3->exists("SESSION.user"))
-			$f3->reroute("/");
+			$this->backToHomepage($f3);
 		
-		$f3->set('page_title','Dashboard | Ugli');
+		$user = new \models\User();
+		$me = $f3->get("SESSION.user");
+		
+		if (!$user->verifyToken($me["id"], $me["ugl_token"]))
+			$this->backToHomepage($f3);
+		
+		$my_profile = $user->getUserProfile($me["id"]);
+		if (!$my_profile) $this->backToHomepage($f3);
+		
+		var_dump($my_profile);
+		die();
+		
+		$f3->set('page_title','Unified Group Life Demo');
 		$f3->set('header','header.html');
 		$f3->set('footer','footer.html');
-		$this->setView("dashboard.html");
+		$f3->set('me', $my_profile); //hide the token in the view model
+		
+		$this->setView('homepage.html');
 	}
 	
-	
+	function backToHomepage($f3, $revokeSession = true){
+		if ($revokeSession) $f3->set("SESSION.user", null);
+		$f3->reroute("/");
+	}
 }
