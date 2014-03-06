@@ -77,29 +77,29 @@ class User extends \Controller {
 						$response = unserialize(base64_decode($_GET['opauth']));
 						break;
 					default:
-						throw new Exception("Unsupported callback_transport", 0);
+						throw new \Exception("Unsupported callback_transport", 0);
 						break;
 				}
 				
 				if (array_key_exists('error', $response))
-					throw new Exception("Authentication Error: " . $response['error'], 1);
+					throw new \Exception("Authentication Error: " . $response['error'], 1);
 				
 				if (empty($response['auth']) || empty($response['timestamp']) || empty($response['signature']) || empty($response['auth']['provider']) || empty($response['auth']['uid']))
-					throw new Exception("Invalid auth response: Missing key auth response components.", 2);
+					throw new \Exception("Invalid auth response: Missing key auth response components.", 2);
 				
 				if (!$opauth->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason))
-					throw new Exception("Invalid response: " . $reason, 3);
+					throw new \Exception("Invalid response: " . $reason, 3);
 				
 				// load user and authentication models
 				$authentication = new \models\Authentication();
 				$user = new \models\User();
 				
 				// check if user already has authenticated using this provider before				
-				$authentication_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
+				$oauth_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
 				
 				// if authentication already exists, reroute to dashboard
-				if ($authentication_info){
-					$f3->set("SESSION.user", $authentication_info["user_id"]);
+				if ($oauth_info){
+					$f3->set("SESSION.user", array("id" => $oauth_info["user_id"], "ugl_token" => $user->getUserToken($oauth_info["user_id"])));
 					$f3->reroute("/user/dashboard");
 				}
 				
@@ -119,24 +119,26 @@ class User extends \Controller {
 					
 					$user_info = $user->findByEmail($email);
 					$user_id = null;
-					
+					$user_token = null;
 					if ($user_info) {
 						// the user registered the email, but hasn't assoc with his account
 						$user_id = $user_info["id"];
+						$user_token = $user->getUserToken($user_id);
 						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					} else {
 						// the user hasn't registered the email
-						$password = rand();
-						$user_id = $user->createUser($email, $password, $first_name, $last_name, $avatar_url);
-						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
-						
+						// default password is empty
+						$user_creds = $user->createUser($email, "", $first_name, $last_name, $avatar_url);
+						$authentication->createAuth($user_creds["id"], $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
+						$user_id = $user_creds["id"];
+						$user_token = $user_creds["ugl_token"];
 						//TODO: can send an email later
 					}
 					
-					$f3->set("SESSION.user", $user_id);
+					$f3->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
 					$f3->reroute("/user/dashboard");
 				} else
-					throw new Exception("No email specified.", 101);	
+					throw new \Exception("No email specified.", 101);	
 			}
 		} catch( Exception $e ) {
 			//TODO: show a hint page and move on
