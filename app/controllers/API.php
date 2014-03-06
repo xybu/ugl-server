@@ -27,8 +27,8 @@ class API extends \Controller {
 			
 			// user found?
 			if ($user_data){
-				$f3->set("SESSION.user", $user_data["id"]);
-				$this->json_printResponse(array("user_id" => $user_data["id"]));
+				$f3->set("SESSION.user", $user_data);
+				$this->json_printResponse(array("user_id" => $user_data["id"], , "ugl_token" => $user_data["token"]));
 			} else 
 				throw new \Exception("User not found, or email and password do not match.", 102);
 			
@@ -76,10 +76,11 @@ class API extends \Controller {
 			if ($user_info)
 				throw new \Exception("Email already registered", 104);
 			
-			$new_user_id = $user->createUser($email, $password, $first_name, $last_name);
+			$new_user_creds = $user->createUser($email, $password, $first_name, $last_name);
 			
-			$f3->set("SESSION.user", $new_user_id);
-			$this->json_printResponse(array("user_id" => $user_data["id"]));
+			$f3->set("SESSION.user", $new_user_creds);
+			
+			$this->json_printResponse(array("user_id" => $new_user_creds["id"], "ugl_token" => $new_user_creds["ugl_token"]));
 		} catch (\Exception $e){
 			$this->json_printException($e);
 		}
