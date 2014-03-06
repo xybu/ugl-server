@@ -40,7 +40,7 @@ class API extends \Controller {
 	function logoutUser($f3){
 		if ($f3->exists("SESSION.user")){
 			$user_info = $f3->get("SESSION.user");
-			$f3->set("POST.user_id", $user_info["user_id"]);
+			$f3->set("POST.user_id", $user_info["id"]);
 			$f3->set("POST.ugl_token", $user_info["ugl_token"]);
 			$this->revokeToken($f3, true);
 			$f3->set("SESSION.user", null);
