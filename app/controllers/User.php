@@ -3,18 +3,12 @@ namespace controllers;
 
 class User extends \Controller {
 	
-	protected $session;
 	protected $user;
 	protected $auth;
 	protected $isUser = false;
 	
 	function __construct() {
 		parent::__construct();
-		
-		//$this->user = new \DB\SQL\Mapper($db, 'Users');
-		//$this->auth = new \Auth($user, array('id'=>'userId', 'pw'=>'userPass_hash'));
-		
-		//$this->isUser = $this->auth->login('admin','secret_pwd');
 	}
 	
 	/**
@@ -163,15 +157,12 @@ class User extends \Controller {
 		$my_profile = $user->getUserProfile($me["id"]);
 		if (!$my_profile) $this->backToHomepage($f3);
 		
-		var_dump($my_profile);
-		die();
-		
-		$f3->set('page_title','Unified Group Life Demo');
+		$f3->set('page_title','Dashboard | Ugli');
 		$f3->set('header','header.html');
 		$f3->set('footer','footer.html');
 		$f3->set('me', $my_profile); //hide the token in the view model
 		
-		$this->setView('homepage.html');
+		$this->setView('dashboard.html');
 	}
 	
 	function backToHomepage($f3, $revokeSession = true){

@@ -43,4 +43,10 @@ class Model {
 		// "" after hash
 		return $str && strlen($str) == 32 && $str != "c206cc8346228864f9176044b4792c6a";
 	}
+	
+	function isValidName($str){
+		return (!$str === "" && !strstr($str, "<") && !strstr($str, ">") &&
+				!strstr($str, ";") && !strstr($str, '"') &&
+				!strstr($str, "\n") && !strstr($str, "\t"));
+	}
 }

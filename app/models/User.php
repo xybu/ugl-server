@@ -25,7 +25,7 @@ class User extends \Model {
 		$sql = "SELECT * FROM users WHERE email = '$email' LIMIT 1";
 		$result = $this->queryDb($sql);
 		if (count($result) == 1){
-			if (password_verify($this->getUserToken(0, $password), $result[0]["password"]))
+			if (password_verify($this->token_salt . $password, $result[0]["password"]))
 				return array_merge($result[0], array("ugl_token" => $this->getUserToken($result[0]["id"], $result[0]["token_active_at"])));
 			else return null;
 		}

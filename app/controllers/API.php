@@ -28,7 +28,7 @@ class API extends \Controller {
 			// user found?
 			if ($user_data){
 				$f3->set("SESSION.user", $user_data);
-				$this->json_printResponse(array("user_id" => $user_data["id"], "ugl_token" => $user_data["token"]));
+				$this->json_printResponse(array("user_id" => $user_data["id"], "ugl_token" => $user_data["ugl_token"]));
 			} else 
 				throw new \Exception("User not found, or email and password do not match.", 102);
 			
@@ -75,8 +75,8 @@ class API extends \Controller {
 			$first_name = $f3->get("POST.first_name");
 			$last_name = $f3->get("POST.last_name");
 			
-			if ($first_name === "" or $last_name === "")
-				throw new \Exception("First name or last name is empty", 103);
+			if (!$user->isValidName($first_name) or !$user->isValidName($last_name))
+				throw new \Exception("First name or last name should be non-empty words", 103);
 			
 			$user_info = $user->findByEmail($email);
 			if ($user_info)

@@ -186,6 +186,7 @@ Register an account.
 * `password` must be at least 6 chars long (server cannot check)
 * `password` and `confirm_pass` must match
 * `first_name` and `last_name` must not be empty
+* `first_name` and `last_name` must not contain any one of the following chars: `<`, `>`, `;`, `"`, `\n`, `\t`, TBA.
 * `agree` must be `true`
 
 **Encryption:**
@@ -196,7 +197,7 @@ refer to the Encryption section.
 * 100 - Email, password, or name not provided
 * 101 - Invalid email address
 * 102 - Password and confirm password do not match
-* 103 - First name or last name is empty
+* 103 - First name or last name should be non-empty words (either empty or contain special chars)
 * 104 - Email already registered
 * 105 - You must agree to the terms of services to sign up (field "agree" != "true")
 * 106 - Password should be at least 6 chars
