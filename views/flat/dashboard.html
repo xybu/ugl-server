@@ -19,7 +19,7 @@
 	
 	<body>
 
-		<header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<header class="navbar navbar-default navbar-fixed-top" role="navigation">
 			<div class="container-fluid">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -33,16 +33,20 @@
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav navbar-right">
 						<li>
-							<a role="button">
+							<a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
 								<div class="avatar"><img alt="Avatar" src="views/flat/img/default-avatar.png"></div>
 								<div class="user">
 									<span class="hello">Welcome!</span>
 									<span class="name"><?php echo $me["first_name"] . " " . $me["last_name"]?></span>
 								</div>
 							</a>
+							<ul class="user-menu pull-right dropdown-menu">
+								<li><a href="#"><i class="fa fa-user"></i> Profile </a></li>
+								<li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>
+								<li class="divider"></li>
+								<li><a href="#"><i class="fa fa-sign-out"></i> Logout</a></li>
+							</ul>
 						</li>
-						<li><a><i class="fa fa-cog"></i> Settings</a></li>
-						<li><a href="#"><i class="fa fa-sign-out"></i> Logout</a></li>
 					</ul>
 					<form class="navbar-form navbar-right">
 						<input type="text" class="form-control" placeholder="Search...">
