@@ -2,7 +2,6 @@
 
 The server side code of project Ugl.
 
----
 # Table of Contents
 
  - [Introduction](#introduction)
@@ -23,8 +22,6 @@ The server side code of project Ugl.
      - [register](#4-register)
 	 - [revokeToken](#5-revoketoken)
 	 - [oauth_clientCallback](#6-oauth_clientcallback)
-
-----------
 
 # Introduction
 
