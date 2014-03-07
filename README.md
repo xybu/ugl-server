@@ -16,12 +16,12 @@ The server side code of project Ugl.
      - [One-way Encryption](#1-one-way-encryption)
      - [Two-way Encryption](#2-two-way-encryption)
   - [Events](#events)
-     - [get_SecurityQuestions](#1-get_securityQuestions)
+     - [get_securityQuestions](#1-get_securityQuestions)
      - [login](#2-login)
      - [logout](#3-logout)
      - [register](#4-register)
-	 - [revokeToken](#5-revoketoken)
-	 - [oauth_clientCallback](#6-oauth_clientcallback)
+     - [revokeToken](#5-revoketoken)
+     - [oauth_clientCallback](#6-oauth_clientcallback)
 
 # Introduction
 
