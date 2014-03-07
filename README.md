@@ -19,6 +19,8 @@ The server side code of project Ugl.
      - [login](#2-login)
      - [logout](#3-logout)
      - [register](#4-register)
+	 - [revokeToken](#5-revokeToken)
+	 - [oauth_clientCallback](#6-oauth_clientCallback)
 
 ## Introduction
 
@@ -143,7 +145,7 @@ Notes:
 * There is no error number associated with this event.
 
 #### 2. login
-Log a user in.
+Log a user in. **To be updated to reflect token-based system.**
 
 ##### Request
 **Format:**
@@ -166,12 +168,12 @@ TBA.
 * 103 - Password should not be empty
 
 #### 3. logout
-Logout is a webclient-only event. For mobile apps please use revokeToken event.
+Logout is a webclient-only event. For mobile apps please use revokeToken event. **To be updated to reflect token-based system.**
 
 ##### Associated Errors
 
 #### 4. register
-Register an account.
+Register an account. **To be updated to reflect token-based system.**
 
 ##### Request
 **Format:**
@@ -225,3 +227,67 @@ A typical success message with data->message being "Token has been revoked.".
 ##### Associated Errors
 * 1 - Authentication fields missing (`user_id` or `ugl_token` is empty or null)
 * 2 - User id should be a number (`user_id` is not a numeric value)
+
+#### 6. oauth_clientCallback
+native client-only API used for telling server that a user successfully authenticates 
+the app with the oauth provider.
+
+##### Request
+
+###### Step 1
+Organize the information to json text of the following format:
+
+```javascript
+{
+    "auth": {
+        "provider": "The provider with which the user authenticated, eg., \"Facebook\"",
+        "uid": "An identifier unique to the given provider, such as a Twitter user ID.",
+        "info": {
+            "name": "The display name of the user given by the provider. Usually a nickname or firstname",
+            "email": "The email of the authenticating user.",
+            "nickname": "nickname of the user returned by the provider",
+            "first_name": "",
+            "last_name": "",
+            "location": "",
+            "description": "",
+            "image": "",
+            "phone": "",
+            "urls": {
+                "facebook": "Eg., http:\/\/facebook.com\/uzyn.chua returned by Facebook",
+                "website": "Eg., http:\/\/xybu.me"
+            }
+        },
+        "credentials": {
+            "token": "Supplied by OAuth and OAuth 2.0 providers, the access token.",
+            "secret": "Supplied by OAuth providers, the access token secret."
+        }
+    },
+    "timestamp": "Time (in ISO 8601 format) when this auth was prepared.",
+    "signature": "see below"
+}
+```
+where
+* `signature` should be the string sha1("ugl_android" + `timestamp` above + `provider` above + `uid` above + `email` above)
+* `timestamp` has format of `2014-03-04T23:20:28+00:00` (ISO 8601)
+* other fields should be self-evident given the information returned by the server.
+
+###### Step 2
+Use AES-256 to encrypt the string got from step 1. Private keys TBD.
+
+Reference: http://stackoverflow.com/questions/10451068/encryption-mismatch-between-java-and-php
+
+###### Step 3
+Encode the data from step 2 with Base64.
+
+###### Step 4
+Send the data via
+
+* Method: POST
+* URL: api/TBD
+* Data: data
+
+##### Response
+TBD.
+
+##### Associated Errors
+TBD.
