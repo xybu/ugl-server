@@ -1,4 +1,12 @@
 <?php
+/**
+ * Home.php
+ * The home controller
+ * 
+ * @author	Xiangyu Bu
+ * @date	Mar 08, 2014
+ */
+
 namespace controllers;
 
 class Home extends \Controller {
@@ -10,4 +18,7 @@ class Home extends \Controller {
 		$this->setView('homepage.html');
 	}
 	
+	function showForgetPassword($f3){
+		
+	}
 }

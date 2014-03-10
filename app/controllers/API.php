@@ -110,4 +110,10 @@ class API extends \Controller {
 			if (!$no_output) $this->json_printException($e);
 		}
 	}
+	
+	function resetPasswordFor($f3){
+		
+	}
+	
+	
 }
