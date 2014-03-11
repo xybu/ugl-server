@@ -6,7 +6,7 @@ class User extends \Model {
 
 	const ENABLE_LOG = true;
 	const TOKEN_SALT = "ugl>salt.";
-	private $token_expiration_time = 168; // one week, in hrs
+	const TOKEN_VALID_HRS = 168; // one week, in hrs
 	
 	function __construct(){
 		parent::__construct();
@@ -15,22 +15,19 @@ class User extends \Model {
 	}
 	
 	function findById($id){
-		$sql = "SELECT * FROM users WHERE id = '$id' LIMIT 1";
-		$result = $this->queryDb($sql);
+		$result = $this->queryDb("SELECT * FROM users WHERE id=? LIMIT 1;", $id);
 		if (count($result) == 1) return $result[0];
 		return null;
 	}
 	
 	function findByEmail($email){
-		$sql = "SELECT * FROM users WHERE email = '$email' LIMIT 1";
-		$result = $this->queryDb($sql);
+		$result = $this->queryDb("SELECT * FROM users WHERE email=? LIMIT 1;", $email);
 		if (count($result) == 1) return $result[0];
 		return null;
 	}
 	
 	function findByEmailAndPassword($email, $password){
-		$sql = "SELECT * FROM users WHERE email = '$email' LIMIT 1";
-		$result = $this->queryDb($sql);
+		$result = $this->queryDb("SELECT * FROM users WHERE email=? LIMIT 1;", $email);
 		if (count($result) == 1){
 			if (password_verify(static::TOKEN_SALT . $password, $result[0]["password"]))
 				return array_merge($result[0], array("ugl_token" => $this->getUserToken($result[0]["id"], $result[0]["token_active_at"])));
@@ -118,6 +115,25 @@ class User extends \Model {
 		return null;
 	}
 	
+	function getUserPref($id){
+		if (!is_numeric($id)) return null;
+		
+		$result = $this->queryDb("SELECT preferences FROM users WHERE id=? LIMIT 1;", $id, 1800);
+		
+		if (count($result) == 1){
+			return new Preference($result[0]["preferences"], true);
+		}
+		return null;
+	}
+	
+	function setUserPref($id, Preference $pref){
+		if (!is_numeric($id) or $pref == null) return;
+		
+		$this->queryDb("UPDATE users SET preferences=:pref WHERE id=:id LIMIT 1;",
+						array(":id" => $id, "pref" => $pref->toJson())
+		);
+	}
+	
 	/**
 	 * verifyToken
 	 * @param id: the user id
@@ -132,19 +148,14 @@ class User extends \Model {
 		if ($id === "" or $token === "") return false;
 		
 		if (!$dt_str){
-			$result = $this->queryDb(
-				"SELECT token_active_at FROM users WHERE id=:id LIMIT 1;",
-				array(
-					':id' => $id
-				)
-			);
+			$result = $this->queryDb("SELECT token_active_at FROM users WHERE id=? LIMIT 1;", $id);
 			if (count($result) != 1) return false;
 			$dt_str = $result[0]['token_active_at'];
 		}
 		
 		if (count($result) == 1){
 			if (password_verify(static::TOKEN_SALT . $dt_str, $token)){
-				if (strtotime("+" . $this->token_expiration_time . " hour", strtotime($dt_str)) < time()){
+				if (strtotime("+" . static::TOKEN_VALID_HRS . " hour", strtotime($dt_str)) < time()){
 					$new_token = $this->refreshToken($id);
 					return false;
 				} else return true;
@@ -166,10 +177,7 @@ class User extends \Model {
 		if ($id === "" or !is_numeric($id)) return null;
 		
 		if (!$str){
-			$result = $this->queryDb(
-				"SELECT token_active_at FROM users WHERE id=:id LIMIT 1;",
-				array(':id' => $id)
-			);
+			$result = $this->queryDb("SELECT token_active_at FROM users WHERE id=? LIMIT 1;", $id);
 			if (count($result) == 1){
 				$str = $result[0]['token_active_at'];
 			} else return null;
