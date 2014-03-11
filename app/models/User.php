@@ -15,7 +15,7 @@ class User extends \Model {
 	}
 	
 	function findById($id){
-		$result = $this->queryDb("SELECT * FROM users WHERE id=? LIMIT 1;", $id);
+		$result = $this->queryDb("SELECT * FROM users WHERE id=? LIMIT 1;", $id, 1800);
 		if (count($result) == 1) return $result[0];
 		return null;
 	}
@@ -49,9 +49,12 @@ class User extends \Model {
 			$send_email = true;
 		}
 		
-		$this->queryDb(
-			"INSERT INTO users (email, password, first_name, last_name, avatar_url, created_at, token_active_at) " .
-			"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW());",
+		$result = $this->queryDb(
+			array(
+				"INSERT INTO users (email, password, first_name, last_name, avatar_url, created_at, token_active_at) " .
+				"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW());",
+				"SELECT id, token_active_at FROM users WHERE email=:email LIMIT 1;"
+			),
 			array(
 				':email' => $email,
 				':password' => $this->getUserToken(0, $password),
@@ -59,11 +62,6 @@ class User extends \Model {
 				':last_name' => $last_name,
 				':avatar_url' => $avatar_url
 			)
-		);
-		
-		$result = $this->queryDb(
-			"SELECT id, token_active_at FROM users WHERE email=:email LIMIT 1;",
-			array(':email' => $email)
 		);
 		
 		if ($send_email){
@@ -118,11 +116,10 @@ class User extends \Model {
 	function getUserPref($id){
 		if (!is_numeric($id)) return null;
 		
-		$result = $this->queryDb("SELECT preferences FROM users WHERE id=? LIMIT 1;", $id, 1800);
+		$result = $this->queryDb("SELECT * FROM users WHERE id=? LIMIT 1;", $id, 1800);
 		
-		if (count($result) == 1){
+		if (count($result) == 1)
 			return new Preference($result[0]["preferences"], true);
-		}
 		return null;
 	}
 	
