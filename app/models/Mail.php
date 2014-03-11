@@ -421,7 +421,6 @@ class Mail {
 	 * Formats a display address for emails according to RFC2822 e.g.
 	 * Name <address@domain.tld>
 	 *
-	 * @todo   Test this.
 	 * @param  string $email
 	 * @param  string $name
 	 * @return string
@@ -443,7 +442,6 @@ class Mail {
 	 * Removes any carriage return, line feed, tab, double quote, comma
 	 * and angle bracket characters before sanitizing the email address.
 	 *
-	 * @todo   Test this.
 	 * @param  string $email
 	 * @return string
 	 */
@@ -471,7 +469,6 @@ class Mail {
 	 * double quotes with single quotes and angle brackets with square
 	 * brackets, before sanitizing the string and stripping out html tags.
 	 *
-	 * @todo   Test this.
 	 * @param  string $name
 	 * @return string
 	 */
@@ -493,7 +490,6 @@ class Mail {
 	 *
 	 * Removes any carriage return, line feed or tab characters.
 	 *
-	 * @todo   Test this.
 	 * @param  string $data
 	 * @return string
 	 */
