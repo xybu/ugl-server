@@ -72,13 +72,13 @@ class User extends \Model {
 				$mail->addTo($email, $first_name . ' ' . $last_name);
 				$mail->setFrom($this->f3->get("EMAIL_SENDER_ADDR"), "UGL Team");
 				$mail->setSubject("Thanks for Using Ugl!");
-				$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n" .
+				$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n\n" .
 									"Thanks for using Ugl. At the first time you sign in with your " .
 									"social account, we assigned you a randomly generated password \"" . $original_password . "\"" .
-									" (without quotes). Please save the password, or change it to " . 
+									" (without quotes) so that you can use Ugl independently. Please save the password, or change it to " . 
 									"your own one at Ugl control panel.\n\n" .
 									"Again, thanks for using our service.\n\n" .
-									"UGL Team");
+									"Best,\nUGL Team");
 				$mail->send();
 			// log exceptions but do not behave
 			} catch (\InvalidArgumentException $e){

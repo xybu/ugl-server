@@ -21,4 +21,7 @@ class Home extends \Controller {
 	function showForgetPassword($f3){
 		
 	}
+	
+	function test($f3){
+	}
 }

@@ -6,7 +6,8 @@ The server side code of project Ugl.
 
  - [Introduction](#introduction)
   - [Architecture](#architecture)
-  - [File Structure](#file-structure)
+  - [Files](#files)
+  - [Keys](#keys)
   - [Planning](#planning)
  - [Server API Document](#server-api-document)
   - [Types of Responses](#types-of-responses)
@@ -39,13 +40,20 @@ Notes:
 * Xiangyu owns the root of the server so the infrastructure can be changed when needed
 * Web Client front-end is written in HTML5 and CSS3 built ono top of Bootstrap framework.
 
-## File Structure
+## Files
  * `app` stores the libraries, configuration files, controllers and models
  * `assets` has the public accessible files like images, css, and javascript
  * `data` stores logs and files uploaded by users
  * `tmp` if exists, will store temporary files like cache
  * `views` stores the view models
  * `vendor` if exists, stores reference libraries
+
+## Keys
+ * Mail Server:
+     * Refer to http://windows.microsoft.com/en-us/windows/outlook/send-receive-from-app
+	 * Username: ugl@sige.us
+	 * Password: Boilermaker!
+  
 
 ## Planning
 
