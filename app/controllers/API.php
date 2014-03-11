@@ -37,7 +37,7 @@ class API extends \Controller {
 		}
 	}
 	
-	function logoutUser($f3){
+	function web_logoutUser($f3){
 		if ($f3->exists("SESSION.user")){
 			$user_info = $f3->get("SESSION.user");
 			$f3->set("POST.user_id", $user_info["id"]);
@@ -96,7 +96,7 @@ class API extends \Controller {
 		try {
 			if (!$f3->exists("POST.user_id") or !$f3->exists("POST.ugl_token"))
 					throw new \Exception("Authentication fields missing", 1);
-		
+			
 			$user_id = $f3->get("POST.user_id");
 			$ugl_token = $f3->get("POST.ugl_token");
 			

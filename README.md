@@ -191,7 +191,7 @@ TBA.
 * 103 - Password should not be empty
 
 ### 3. logout
-Logout is a webclient-only event. For mobile apps please use revokeToken event. **To be updated to reflect token-based system.**
+Logout is a web client-only event. For mobile apps please use [revokeToken](#5-revoketoken) event.
 
 #### Associated Errors
 
