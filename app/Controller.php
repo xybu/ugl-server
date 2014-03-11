@@ -68,17 +68,4 @@ class Controller {
 		echo $s;
 		exit();
 	}
-	
-	/**
-	 * sendEmail
-	 * send an email via SMTP protocol
-	 * @param $from		the sender
-	 * @param $to		the receiver
-	 * @param $subject	the subject of the email
-	 * @param $body		the text of the email
-	 * @param $attach	attachments to include
-	 */
-	function sendEmail($from, $to, $subject, $body, $attach){
-		//TODO: finish this function
-	}
 }

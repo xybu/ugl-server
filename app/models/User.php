@@ -3,9 +3,16 @@
 namespace models;
 
 class User extends \Model {
-	
-	private $token_salt = "ugl>salt.";
+
+	const ENABLE_LOG = true;
+	const TOKEN_SALT = "ugl>salt.";
 	private $token_expiration_time = 168; // one week, in hrs
+	
+	function __construct(){
+		parent::__construct();
+		if (static::ENABLE_LOG)
+			$this->logger = new \Log("model.user.log");
+	}
 	
 	function findById($id){
 		$sql = "SELECT * FROM users WHERE id = '$id' LIMIT 1";
@@ -25,7 +32,7 @@ class User extends \Model {
 		$sql = "SELECT * FROM users WHERE email = '$email' LIMIT 1";
 		$result = $this->queryDb($sql);
 		if (count($result) == 1){
-			if (password_verify($this->token_salt . $password, $result[0]["password"]))
+			if (password_verify(static::TOKEN_SALT . $password, $result[0]["password"]))
 				return array_merge($result[0], array("ugl_token" => $this->getUserToken($result[0]["id"], $result[0]["token_active_at"])));
 			else return null;
 		}
@@ -33,8 +40,17 @@ class User extends \Model {
 	}
 	
 	function createUser($email, $password, $first_name, $last_name, $avatar_url = ""){
+		$send_email = false;
+		
 		if (!$avatar_url or $avatar_url == "")
 			$avatar_url = "/assets/img/default_avatar.png";
+		
+		// send email with random password if $password not set
+		if ($password === ""){
+			$password = getRandomStr(12);
+			$send_email = true;
+		}
+		
 		$this->queryDb(
 			"INSERT INTO users (email, password, first_name, last_name, avatar_url, created_at, token_active_at) " .
 			"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW());",
@@ -51,6 +67,27 @@ class User extends \Model {
 			"SELECT id, token_active_at FROM users WHERE email=:email LIMIT 1;",
 			array(':email' => $email)
 		);
+		
+		try {
+			$mail = new Mail();
+			$mail->addTo($email, $first_name . ' ' . $last_name);
+			$mail->setSubject("Thanks for Using Ugl!");
+			$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n" .
+								"Thanks for using Ugl. At the first time you sign in with your " .
+								"social account, we assigned you a randomly generated password \"" . $password . "\"" .
+								" (without quotes). Please save the password, or change it to " . 
+								"your own one at Ugl control panel.\n\n" .
+								"Again, thanks for using our service.\n\n" .
+								"UGL Team");
+			$mail->setFrom($this->f3->get("EMAIL_SENDER_ADDR"), "UGL Team");
+			$mail->send();
+		} catch (\InvalidArgumentException $e){
+			if (static::ENABLE_LOG)
+				$this->logger->write($e->__toString());
+		} catch (\RuntimeException $e){
+			if (static::ENABLE_LOG)
+				$this->logger->write($e->__toString());
+		}
 		
 		if (count($result) == 1){
 			return array("id" => $result[0]["id"], "ugl_token" => $this->getUserToken($result[0]["id"], $result[0]["token_active_at"]));
@@ -101,7 +138,7 @@ class User extends \Model {
 		}
 		
 		if (count($result) == 1){
-			if (password_verify($this->token_salt . $dt_str, $token)){
+			if (password_verify(static::TOKEN_SALT . $dt_str, $token)){
 				if (strtotime("+" . $this->token_expiration_time . " hour", strtotime($dt_str)) < time()){
 					$new_token = $this->refreshToken($id);
 					return false;
@@ -133,6 +170,6 @@ class User extends \Model {
 			} else return null;
 		}
 		
-		return password_hash($this->token_salt . $str, PASSWORD_DEFAULT);
+		return password_hash(static::TOKEN_SALT . $str, PASSWORD_DEFAULT);
 	}
 }

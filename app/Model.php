@@ -8,13 +8,13 @@
  */
 
 class Model {
+	protected $f3;
+	protected $cache;
 	protected $db = null;
-	protected $cache = null;
+	protected $logger = null;
 	
 	function __construct() {
-		$f3=Base::instance();
-		
-		
+		$this->f3=Base::instance();
 		$this->cache = \Cache::instance();
 	}
 	
@@ -48,5 +48,11 @@ class Model {
 		return (!$str === "" && !strstr($str, "<") && !strstr($str, ">") &&
 				!strstr($str, ";") && !strstr($str, '"') &&
 				!strstr($str, "\n") && !strstr($str, "\t"));
+	}
+	
+	function getRandomStr($len) {
+		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		
+		return substr(str_shuffle(substr(str_shuffle($chars), 0, $len / 2 + 1) . substr(str_shuffle($chars), 0, $len / 2 + 1)), 0, $len);
 	}
 }
