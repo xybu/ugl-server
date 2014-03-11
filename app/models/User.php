@@ -47,7 +47,8 @@ class User extends \Model {
 		
 		// send email with random password if $password not set
 		if ($password === ""){
-			$password = getRandomStr(12);
+			$original_password = $this->getRandomStr(12);
+			$password = md5(base64_encode(sha1(sha1($original_password)));
 			$send_email = true;
 		}
 		
@@ -76,7 +77,7 @@ class User extends \Model {
 				$mail->setSubject("Thanks for Using Ugl!");
 				$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n" .
 									"Thanks for using Ugl. At the first time you sign in with your " .
-									"social account, we assigned you a randomly generated password \"" . $password . "\"" .
+									"social account, we assigned you a randomly generated password \"" . $original_password . "\"" .
 									" (without quotes). Please save the password, or change it to " . 
 									"your own one at Ugl control panel.\n\n" .
 									"Again, thanks for using our service.\n\n" .
