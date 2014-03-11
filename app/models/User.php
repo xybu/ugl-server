@@ -48,7 +48,7 @@ class User extends \Model {
 		// send email with random password if $password not set
 		if ($password === ""){
 			$original_password = $this->getRandomStr(12);
-			$password = md5(base64_encode(sha1(sha1($original_password)));
+			$password = md5(base64_encode(sha1(sha1($original_password))));
 			$send_email = true;
 		}
 		
