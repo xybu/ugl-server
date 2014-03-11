@@ -68,27 +68,31 @@ class User extends \Model {
 			array(':email' => $email)
 		);
 		
-		try {
-			$mail = new Mail();
-			$mail->addTo($email, $first_name . ' ' . $last_name);
-			$mail->setSubject("Thanks for Using Ugl!");
-			$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n" .
-								"Thanks for using Ugl. At the first time you sign in with your " .
-								"social account, we assigned you a randomly generated password \"" . $password . "\"" .
-								" (without quotes). Please save the password, or change it to " . 
-								"your own one at Ugl control panel.\n\n" .
-								"Again, thanks for using our service.\n\n" .
-								"UGL Team");
-			$mail->setFrom($this->f3->get("EMAIL_SENDER_ADDR"), "UGL Team");
-			$mail->send();
-		} catch (\InvalidArgumentException $e){
-			if (static::ENABLE_LOG)
-				$this->logger->write($e->__toString());
-		} catch (\RuntimeException $e){
-			if (static::ENABLE_LOG)
-				$this->logger->write($e->__toString());
+		if ($send_email){
+			try {
+				$mail = new Mail();
+				$mail->addTo($email, $first_name . ' ' . $last_name);
+				$mail->setFrom($this->f3->get("EMAIL_SENDER_ADDR"), "UGL Team");
+				$mail->setSubject("Thanks for Using Ugl!");
+				$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n" .
+									"Thanks for using Ugl. At the first time you sign in with your " .
+									"social account, we assigned you a randomly generated password \"" . $password . "\"" .
+									" (without quotes). Please save the password, or change it to " . 
+									"your own one at Ugl control panel.\n\n" .
+									"Again, thanks for using our service.\n\n" .
+									"UGL Team");
+				$mail->send();
+			// log exceptions but do not behave
+			} catch (\InvalidArgumentException $e){
+				if (static::ENABLE_LOG)
+					$this->logger->write($e->__toString());
+			} catch (\RuntimeException $e){
+				if (static::ENABLE_LOG)
+					$this->logger->write($e->__toString());
+			}
 		}
 		
+		// can still work if failed to send email
 		if (count($result) == 1){
 			return array("id" => $result[0]["id"], "ugl_token" => $this->getUserToken($result[0]["id"], $result[0]["token_active_at"]));
 		} else return -1;

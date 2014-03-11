@@ -127,12 +127,11 @@ class User extends \Controller {
 						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					} else {
 						// the user hasn't registered the email
-						// default password is empty
+						// User model will generate a random password and send email
 						$user_creds = $user->createUser($email, "", $first_name, $last_name, $avatar_url);
 						$authentication->createAuth($user_creds["id"], $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 						$user_id = $user_creds["id"];
 						$user_token = $user_creds["ugl_token"];
-						//TODO: can send an email later
 					}
 					
 					$f3->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
