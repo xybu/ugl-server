@@ -55,7 +55,8 @@
   cursor: auto; }
 
 .mfp-ajax-cur {
-  cursor: progress; }
+  cursor: progress;
+}
 
 .mfp-zoom-out-cur, .mfp-zoom-out-cur .mfp-image-holder .mfp-close {
   cursor: -moz-zoom-out;

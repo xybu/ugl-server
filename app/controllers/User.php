@@ -170,4 +170,8 @@ class User extends \Controller {
 		if ($revokeSession) $f3->set("SESSION.user", null);
 		$f3->reroute("/");
 	}
+	
+	function showPreferencesPanel($f3){
+		$this->setView('user_prefs.html');
+	}
 }

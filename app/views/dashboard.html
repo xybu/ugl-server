@@ -10,6 +10,7 @@
 		<title><?php echo $page_title?></title>
 		<link href="assets/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="assets/css/font-awesome.min.css" rel="stylesheet" />
+		<link href="assets/css/magnific-popup.css" rel="stylesheet" />
 		<link href="assets/custom/dashboard.theme.css" rel="stylesheet" />
 		<!--[if lt IE 9]>
 			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -18,7 +19,6 @@
 	</head>
 	
 	<body>
-
 		<header class="navbar navbar-default navbar-fixed-top" role="navigation">
 			<div class="container-fluid">
 				<div class="navbar-header">
@@ -66,6 +66,20 @@
 						<li><a href="/user/dashboard"><i class="fa fa-credit-card fa-3x"></i> Wallet</a></li>
 					</ul>
 				</div>
+				<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+					<h1 class="page-header">Me</h1>
+					<div class="row">
+						<div class="col-xs-6 col-sm-6 col-md-6">
+						<a href="user/preferences" data-featherlight="ajax">Ajax</a>
+						<a id="show" href="user/preferences">Avgrund box</a>
+						<a class="ajax-popup-link" href="user/preferences">Load ajax box</a>
+						</div>
+						<div class="col-xs-6 col-sm-6 col-md-6">
+						222
+						</div>
+					</div>
+				</div>
+				
 				<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 					<h1 class="page-header">Dashboard</h1>
 
@@ -513,11 +527,15 @@ ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
 			
 			</div>
 		</div>
-		
+		<div class="avgrund-overlay"></div>
 		<script src="assets/js/jquery-1.11.0.min.js"></script>
 		<script src="assets/js/bootstrap.min.js"></script>
 		<script src="assets/js/holder.js"></script>
 		<script src="assets/custom/dashboard.js"></script>
 		<script src="assets/js/jquery.crypto.js"></script>
+		
+		<script src="assets/js/jquery.magnific-popup.min.js"></script>
+		<script src="assets/js/jquery.mousewheel.js"></script>
+		
 	</body>
 </html>

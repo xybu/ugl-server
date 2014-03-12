@@ -1,8 +1,12 @@
-/*
- * Base structure
- */
+html, body {
+	height: 100%;
+	overflow: auto;
+}
 
-/* Move down content because we have a fixed navbar that is 50px tall */
+html {
+	background: #222;
+}
+
 body {
   padding-top: 50px;
 }
@@ -577,4 +581,43 @@ body {
 }
 .todo ul li .todo-actions i:hover {
     color: #36a9e1;
+}
+
+
+#small-dialog {
+    background: none repeat scroll 0 0 #FFFFFF;
+    margin: 40px auto;
+    max-width: 400px;
+    padding: 20px 30px;
+    position: relative;
+    text-align: left;
+}
+
+.my-mfp-zoom-in .zoom-anim-dialog {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease-in-out 0s;
+}
+.my-mfp-zoom-in.mfp-ready .zoom-anim-dialog {
+    opacity: 1;
+    transform: scale(1);
+}
+.my-mfp-zoom-in.mfp-removing .zoom-anim-dialog {
+    opacity: 0;
+    transform: scale(0.8);
+}
+.my-mfp-zoom-in.mfp-bg {
+    opacity: 0;
+    transition: opacity 0.3s ease-out 0s;
+}
+.my-mfp-zoom-in.mfp-ready.mfp-bg {
+    opacity: 0.8;
+}
+.my-mfp-zoom-in.mfp-removing.mfp-bg {
+    opacity: 0;
+}
+.zoom-anim-dialog {
+    opacity: 0;
+    transform: translateY(0) perspective(600px) rotateX(10deg);
+    transition: all 0.2s ease-out 0s;
 }
