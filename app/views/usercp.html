@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<base href="<?php echo $SCHEME.'://'.$HOST.':'.$PORT.$BASE.'/'; ?>" />
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<title><?php echo ucfirst($panel)?> | Ugl</title>
+		<link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="assets/css/font-awesome.min.css" rel="stylesheet" />
+		<link href="assets/css/magnific-popup.css" rel="stylesheet" />
+		<link href="assets/custom/usercp.theme.css" rel="stylesheet" />
+		<!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+	</head>
+	
+	<body>
+		<header class="navbar navbar-default navbar-fixed-top" role="navigation">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="/my/dashboard">UGLi Dashboard</a>
+				</div>
+				<div class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+								<div class="avatar"><img alt="Avatar" src="assets/img/default-avatar.png"></div>
+								<div class="user">
+									<span class="hello">Welcome!</span>
+									<span class="name"><?php echo $me["first_name"] . " " . $me["last_name"]?></span>
+								</div>
+							</a>
+							<ul class="user-menu pull-right dropdown-menu">
+								<li><a href="#"><i class="fa fa-user"></i> Profile </a></li>
+								<li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>
+								<li class="divider"></li>
+								<li><a href="/" onclick="logOut();"><i class="fa fa-sign-out"></i> Logout</a></li>
+							</ul>
+						</li>
+					</ul>
+					<form class="navbar-form navbar-right">
+						<input type="text" class="form-control" placeholder="Search...">
+					</form>
+				</div>
+			</div>
+		</header>
+		
+		<div class="container-fluid sidebar touch-sidebar">
+			<div class="row nav nav-sidebar">
+				<div class="col-xs-12 col-sm-12">
+					<ul class="nav nav-sidebar">
+						<li><a href="/my/dashboard"><i class="fa fa-home fa-3x"></i></a></li>
+						<li><a href="/my/groups"><i class="fa fa-users fa-3x"></i></a></li>
+						<li><a href="/my/boards"><i class="fa fa-list-alt fa-3x"></i></a></li>
+						<li><a href="/my/items"><i class="fa fa-book fa-3x"></i></a></li>
+						<li><a href="/my/wallet"><i class="fa fa-credit-card fa-3x"></i></a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-1 sidebar wide-sidebar">
+					<ul class="nav nav-sidebar">
+						<li><a href="/my/dashboard"><i class="fa fa-home fa-3x"></i><br />Home</a></li>
+						<li><a href="/my/groups"><i class="fa fa-users fa-3x"></i><br />Groups</a></li>
+						<li><a href="/my/boards"><i class="fa fa-list-alt fa-3x"></i><br />Boards</a></li>
+						<li><a href="/my/items"><i class="fa fa-book fa-3x"></i><br />Items</a></li>
+						<li><a href="/my/wallet"><i class="fa fa-credit-card fa-3x"></i><br />Wallet</a></li>
+					</ul>
+				</div>
+				<div class="col-sm-10 col-sm-offset-1 col-md-11 main" id="main">
+					<?php
+						if (isset($panel))
+							echo $this->render('my_' . $panel . '.html');
+						else echo "Loading...";
+					?>
+				</div>
+			</div>
+		</div>
+		<script src="assets/js/jquery-1.11.0.min.js"></script>
+		<script src="assets/js/bootstrap.min.js"></script>
+		<script src="assets/js/holder.js"></script>
+		<script src="assets/js/jquery.crypto.js"></script>
+		<script src="assets/js/jquery.magnific-popup.min.js"></script>
+		<script src="assets/js/jquery.mousewheel.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.address/1.6/jquery.address.min.js"></script>
+		<script src="assets/custom/usercp.js"></script>
+	</body>
+</html>

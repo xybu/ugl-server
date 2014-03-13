@@ -51,7 +51,7 @@ $("#nav-login").submit(function(e){
 						$(this).tooltip('hide');
 					});
 				} else {
-					window.location.href = '/user/dashboard';
+					window.location.href = '/my/dashboard';
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown)
@@ -114,7 +114,7 @@ $("#register-form").submit(function(e){
 					});
 				} else {
 					
-					window.location.href = '/user/dashboard';
+					window.location.href = '/my/dashboard';
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown)

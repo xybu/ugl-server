@@ -8,13 +8,16 @@ html {
 }
 
 body {
-  padding-top: 50px;
+	padding-top: 50px;
 }
 
+#main .page-header {
+  margin-top: 0;
+}
 
-/*
- * Global add-ons
- */
+.page-divider {
+	margin: 20px 0;
+}
 
 .sub-header {
   padding-bottom: 10px;
@@ -32,21 +35,56 @@ body {
   padding: 10px;
 }
 
+#main {
+  padding: 20px;
+}
+
 @media (min-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 51px;
-    bottom: 0;
-    left: 0;
-    z-index: 1000;
-    display: block;
-    padding: 20px;
-    overflow-x: hidden;
-	overflow-y: hidden;
-    /*overflow-y: auto;  Scrollable contents if viewport is shorter than content. */
-    background-color: #f5f5f5;
-    border-right: 1px solid #eee;
-  }
+	#main {
+		padding-right: 40px;
+		padding-left: 40px;
+	}
+	
+	.sidebar {
+		position: fixed;
+		top: 51px;
+		bottom: 0;
+		left: 0;
+		z-index: 1000;
+		display: block;
+		padding: 20px;
+		overflow-x: hidden;
+		overflow-y: hidden;
+		/*overflow-y: auto;  Scrollable contents if viewport is shorter than content. */
+		background-color: #f5f5f5;
+		border-right: 1px solid #eee;
+	}
+  
+	.touch-sidebar{
+		display: none;
+	}
+}
+
+@media (max-width: 767px) {
+	.touch-sidebar{
+		display: block;
+	}
+	
+	.touch-sidebar .nav > li{
+		display: inline !important;
+		list-style-type: none;
+	}
+	
+	.touch-sidebar .nav > li > a{
+		display: inline-block !important;
+	}
+	
+	.touch-sidebar .nav > li > a > i{
+	}
+	
+	.wide-sidebar{
+		display: none;
+	}
 }
 
 /* Sidebar navigation */
@@ -60,35 +98,60 @@ body {
   padding-right: 20px;
   padding-left: 20px;
 }
-.nav-sidebar > .active > a {
+.nav-sidebar > li > a.active {
   color: #fff;
   background-color: #428bca;
 }
 
-.nav-sidebar > .active > a:hover {
+.nav-sidebar > a.active:hover {
   color: #fff;
   background-color: #317ab9;
 }
 
-
-
-/*
- * Main content
- */
-
-.main {
-  padding: 20px;
-}
-@media (min-width: 768px) {
-  .main {
-    padding-right: 40px;
-    padding-left: 40px;
-  }
-}
-.main .page-header {
-  margin-top: 0;
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+body.loading {
+    overflow: hidden;   
 }
 
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+body.loading .ajax-loading {
+    display: block;
+}
+
+.ajax-loading {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba(111, 111, 111, .8 ) 
+                50% 50% 
+                no-repeat;
+}
+
+.ajax-loading-icon{
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    animation: 0.5s linear 0s normal none infinite spin;
+    border-color: #fff rgba(0, 0, 0, 0) #fff #fff;
+    border-image: none;
+    border-radius: 50%;
+    border-style: solid;
+    border-width: 8px;
+    box-shadow: 0 0 25px 2px #eee;
+    height: 6em;
+    left: 50%;
+    margin: 0 0 0 -15px;
+    position: absolute;
+    top: 45%;
+    width: 6em;
+}
 
 /*
  * Placeholder dashboard ideas
@@ -111,9 +174,11 @@ body {
 
 .navbar-nav > li > a {
     padding-bottom: 5px;
-    padding-top: 18px;
+    /*padding-top: 18px;*/
 	margin-left: 0.3em;
 }
+
+
 
 .nav .avatar {
     float: left;
@@ -147,10 +212,17 @@ body {
 }
 
 .user-menu > li > a {
-    padding: 6px 14px;
-    font-size: 1.2em;
-    margin-right: 6px;
-	margin-left: 6px;
+    padding: 0.6em !important;
+    font-size: 1.4em !important;
+    margin: 0.1em 0.2em !important;
+}
+
+.user-menu > li > a > i {
+	margin-right: 0.1em;
+}
+
+.dropdown-menu .divider {
+	margin: 0.2em 0 !important;
 }
 
 .discussions ul {

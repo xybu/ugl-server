@@ -135,7 +135,7 @@ class User extends \Controller {
 					}
 					
 					$f3->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
-					$f3->reroute("/user/dashboard");
+					$f3->reroute("/my/dashboard");
 				} else
 					throw new \Exception("No email specified.", 101);	
 			}
@@ -145,12 +145,13 @@ class User extends \Controller {
 		}
 	}
 	
-	function showDashboard($f3) {
+	function showUserPanel($f3) {
 		if (!$f3->exists("SESSION.user"))
 			$this->backToHomepage($f3);
 		
 		$user = new \models\User();
 		$me = $f3->get("SESSION.user");
+		$panel = $f3->get("PARAMS.panel");
 		
 		if (!$user->verifyToken($me["id"], $me["ugl_token"]))
 			$this->backToHomepage($f3);
@@ -158,20 +159,67 @@ class User extends \Controller {
 		$my_profile = $user->getUserProfile($me["id"]);
 		if (!$my_profile) $this->backToHomepage($f3);
 		
-		$f3->set('page_title','Dashboard | Ugli');
-		$f3->set('header','header.html');
-		$f3->set('footer','footer.html');
+		switch ($panel){
+			case "dashboard":
+				break;
+			case "groups":
+				break;
+			case "boards":
+				break;
+			case "items":
+				break;
+			case "wallet":
+				break;
+			case "preferences":
+				break;
+			default:
+				die();
+		}
+		
+		$f3->set('panel', $panel);
 		$f3->set('me', $my_profile); //hide the token in the view model
 		
-		$this->setView('dashboard.html');
+		$this->setView('usercp.html');
 	}
 	
-	function backToHomepage($f3, $revokeSession = true){
+	function ajax_showPanel($f3){
+		if (!$f3->exists("SESSION.user"))
+			die();
+		
+		$user = new \models\User();
+		$me = $f3->get("SESSION.user");
+		$panel = $f3->get("PARAMS.panel");
+		
+		$my_profile = $user->getUserProfile($me["id"]);
+		if (!$my_profile) $this->backToHomepage($f3, true, false);
+		
+		$f3->set('me', $my_profile); //hide the token in the view model
+		$f3->set('panel', $panel);
+		
+		switch ($panel){
+			case "dashboard":
+				break;
+			case "groups":
+				break;
+			case "boards":
+				break;
+			case "items":
+				break;
+			case "wallet":
+				break;
+			case "preferences":
+				break;
+			default:
+				die();
+		}
+		
+		$this->setView('my_' . $panel . '.html');
+	}
+	
+	function backToHomepage($f3, $revokeSession = true, $redirect = true){
 		if ($revokeSession) $f3->set("SESSION.user", null);
-		$f3->reroute("/");
+		if ($redirect) $f3->reroute("/");
+		else die();
 	}
 	
-	function showPreferencesPanel($f3){
-		$this->setView('user_prefs.html');
-	}
 }
