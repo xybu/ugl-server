@@ -42,10 +42,12 @@ Notes:
 
 ## Files
  * `app` stores the libraries, configuration files, controllers and models
+ 	* `controllers` stores the controllers
+ 	* `models` saves all the model files
+ 	* `views` stores the views (templates)
  * `assets` has the public accessible files like images, css, and javascript
  * `data` stores logs and files uploaded by users
  * `tmp` if exists, will store temporary files like cache
- * `views` stores the view models
  * `vendor` if exists, stores reference libraries
 
 ## Keys
