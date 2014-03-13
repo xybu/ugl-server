@@ -285,7 +285,10 @@ TBD.
 
 
 ### 6. forgot_password
-Send an email to the user who requests to reset the password.
+Send an email to the user who requests to reset the password. 
+When the user clicks the link in the email, web client will send this user a new password with email.
+The UI will be handled by web client.
+Android client should go to log in activity.
 
 #### Request
 | Name   | Description                 |
