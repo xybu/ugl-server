@@ -14,6 +14,7 @@ class Controller {
 	// Cache is a singleton
 	protected $cache;
 	protected $view = null;
+	protected $logger = null;
 	protected $f3;
 	
 	function __construct() {

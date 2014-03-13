@@ -18,10 +18,21 @@ class Home extends \Controller {
 		$this->setView('homepage.html');
 	}
 	
-	function showForgetPassword($f3){
-		
-	}
-	
-	function test($f3){
+	function resetPassword_callBack($f3){
+		try {
+			if (!$f3->exists('PARAMS.ticket'))
+				throw new \Exception("Ticket not set", 1);
+			
+			$ticket_decrypt = API::api_decrypt($f3->get('PARAMS.ticket'), API::API_WIDE_KEY);
+			if ($ticket_decrypt == null)
+				throw new \Exception("Invalid ticket", 2);
+			
+			$ticket_json = json_decode($ticket_decrypt);
+			
+			//TODO: finish the rest
+			
+		} catch (\Exception $e) {
+			
+		}
 	}
 }

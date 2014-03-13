@@ -3,8 +3,25 @@ namespace controllers;
 
 class API extends \Controller {
 	
-	function get_SecurityQuestions($f3) {
-		$this->json_printResponse($f3->get("securityQuestions"), 24);
+	const ENABLE_LOG = true;
+	const RSTPWD_REQ_PER_SESSION = 3;
+	const API_WIDE_KEY = "1POm3YWVlVFriePu2aJfa+K5UElFA0ESeN+4Bb57YnYFyZGDit/Cw1o9rSWZQeFsA+sbsaGiff28JpSx5K9QOw==";
+	const API_ANDROID_CLI_KEY = "2IwehG2VEm3WhjLRMK/1aUPqAdW7KNvvRuskedxuOgOQ2jbO+wkKs5p5qJwh98GM0Nm50e9CcUxN0sI2R0MS2A==";
+	
+	function __construct(){	
+		parent::__construct();
+		if (static::ENABLE_LOG)
+			$this->logger = new \Log("controller.api.log");
+	}
+	
+	static function api_encrypt($str, $key){
+		return openssl_encrypt($str, "AES-256-ECB", $key);
+	}
+	
+	static function api_decrypt($str, $key){
+		$trial = openssl_decrypt($enc, "AES-256-ECB", $key);
+		if (openssl_error_string()) return null;
+		return $trial;
 	}
 	
 	function loginUser($f3){
@@ -54,8 +71,9 @@ class API extends \Controller {
 			if (!$f3->exists("POST.agree") or $f3->get("POST.agree") != "true")
 				throw new \Exception("You must agree to the terms of services to sign up", 105);
 		
-			if (!$f3->exists("POST.email") or !$f3->exists("POST.password") or !$f3->exists("POST.confirm_pass") or !$f3->exists("POST.first_name") or !$f3->exists("POST.last_name"))
-				throw new \Exception("Email, password, or name not provided", 100);
+			if (!$f3->exists("POST.email") or !$f3->exists("POST.password") or !$f3->exists("POST.confirm_pass") or 
+				!$f3->exists("POST.first_name") or !$f3->exists("POST.last_name"))
+					throw new \Exception("Email, password, or name not provided", 100);
 			
 			$user = new \models\User();
 			
@@ -106,13 +124,62 @@ class API extends \Controller {
 			$user = new \models\User();
 			$user->verifyToken($user_id, $ugl_token, "1970-1-1T00:00:00+0000");
 			if (!$no_output) $this->json_printResponse(array("message" => "Token has been revoked."));
-		}  catch (\Exception $e){
+		} catch (\Exception $e){
 			if (!$no_output) $this->json_printException($e);
 		}
 	}
 	
-	function resetPasswordFor($f3){
-		
+	function resetPassword($f3){
+		try {
+			if (!$f3->exists("POST.email"))
+				throw new \Exception("Please enter your email address", 1);
+			
+			if ($f3->exists("SESSION.resetPass_count") && intval($f3->get("SESSION.resetPass_count")) > static::RSTPWD_REQ_PER_SESSION)
+				throw new \Exception("Please try this operation later", 2);
+						
+			$user = new \models\User();
+			$email = $f3->get("POST.email");
+			if (!$user->isValidEmail($email))
+				throw new \Exception("Invalid email address", 3);
+			
+			$user_info = $user->findByEmail($email);
+			if (!$user_info)
+				throw new \Exception("Email not registered", 4);			
+			
+			$first_name = $user_info["first_name"];
+			$last_name = $user_info["last_name"];
+			
+			$ticket_info = array("email" => $email, "old_pass" => $user_info["password"], "time" => date());
+			
+			$url = $f3->get("WEB_APP_URL") . "/action/forgot_pass/" . static::api_encrypt(json_encode($ticket_info), static::API_WIDE_KEY);
+			
+			try {
+				$mail = new \models\Mail();
+				$mail->addTo($email, $first_name . ' ' . $last_name);
+				$mail->setFrom($this->f3->get("EMAIL_SENDER_ADDR"), "UGL Team");
+				$mail->setSubject("Reset Your Password");
+				$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n\n" .
+									"Thanks for using Ugl. To change your password, please open this link in your browser:\n" .
+									"" . $url . "\n\n" .
+									"Thanks for using our service.\n\n" .
+									"Best,\nUGL Team");
+				$mail->send();
+			// log exceptions but do not behave
+			} catch (\InvalidArgumentException $e){
+				if (static::ENABLE_LOG)
+					$this->logger->write($e->__toString());
+				throw new \Exception("Email did not send due to server error", 5);
+			} catch (\RuntimeException $e){
+				if (static::ENABLE_LOG)
+					$this->logger->write($e->__toString());
+				throw new \Exception("Email did not send due to server runtime error", 6);
+			}
+			
+			$this->json_printResponse(array("message" => "Email successfully sent. Please check"));
+			
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
 	}
 	
 	
