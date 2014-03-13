@@ -17,12 +17,12 @@ The server side code of project Ugl.
      - [One-way Encryption](#1-one-way-encryption)
      - [Two-way Encryption](#2-two-way-encryption)
   - [Events](#events)
-     - [get_securityQuestions](#1-get_securityQuestions)
-     - [login](#2-login)
-     - [logout](#3-logout)
-     - [register](#4-register)
-     - [revokeToken](#5-revoketoken)
-     - [oauth_clientCallback](#6-oauth_clientcallback)
+     - [login](#1-login)
+     - [logout](#2-logout)
+     - [register](#3-register)
+     - [revokeToken](#4-revoketoken)
+     - [oauth_clientCallback](#5-oauth_clientcallback)
+	 - [forgot_password](#6-forgot_password)
 
 # Introduction
 
@@ -143,33 +143,7 @@ In short `$str=base64_encode(aes256($str, $key))`
 
 ## Events
 
-### 1. get_securityQuestions
-(*Deprecated*) Return a list of security questions for user registration. Security questions are needed to reset the user password.
-
-#### Request
-| Name   | Description                 |
-| ------ | --------------------------- |
-| Method | GET                         |
-| URL    | `api/get_securityQuestions` |
-
-#### Response
-Here is a sample response:
-```javascript
-{
-    "status": "success",
-    "expiration": "2014-03-06T03:01:37+00:00",
-    "data": {
-        "sec_q01": "What was your childhood nickname?",
-        "sec_q02": "In what city or town was your first job?",
-        "sec_q03": "Where were you when you had your first kiss?"
-    }
-}
-```
-Notes:
-* This event can be cached for a long period of time.
-* There is no error number associated with this event.
-
-### 2. login
+### 1. login
 Log a user in. **To be updated to reflect token-based system.**
 
 #### Request
@@ -192,12 +166,12 @@ TBA.
 * 102 - User not found, or email and password do not match.
 * 103 - Password should not be empty
 
-### 3. logout
+### 2. logout
 Logout is a web client-only event. For mobile apps please use [revokeToken](#5-revoketoken) event.
 
 #### Associated Errors
 
-### 4. register
+### 3. register
 Register an account. **To be updated to reflect token-based system.**
 
 #### Request
@@ -229,7 +203,7 @@ refer to the Encryption section.
 * 105 - You must agree to the terms of services to sign up (field "agree" != "true")
 * 106 - Password should be at least 6 chars
 
-### 5. revokeToken
+### 4. revokeToken
 Revoke the token used currently.
 
 #### Request
@@ -253,7 +227,7 @@ A typical success message with data->message being "Token has been revoked.".
 * 1 - Authentication fields missing (`user_id` or `ugl_token` is empty or null)
 * 2 - User id should be a number (`user_id` is not a numeric value)
 
-### 6. oauth_clientCallback
+### 5. oauth_clientCallback
 native client-only API used for telling server that a user successfully authenticates 
 the app with the oauth provider.
 
@@ -308,3 +282,33 @@ TBD.
 
 #### Associated Errors
 TBD.
+
+
+### 6. forgot_password
+Send an email to the user who requests to reset the password.
+
+#### Request
+| Name   | Description                 |
+| ------ | --------------------------- |
+| Method | POST                        |
+| URL    | `api/resetPassword`         |
+| DATA   | `email`=abc@def.com         |
+
+#### Response
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-03-06T03:01:37+00:00",
+    "data": {
+        "message": "An email containing the steps to reset password has been sent to your email account."    
+    }
+}
+```
+
+#### Associated Errors
+* 1 - Please enter your email address
+* 2 - Please try this operation later (too many requests in one session period)
+* 3 - Invalid email address
+* 4 - Email not registered
+* 5 - Email did not send due to server error
+* 6 - Email did not send due to server runtime error
