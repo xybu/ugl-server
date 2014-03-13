@@ -134,7 +134,7 @@ Client can make this a function so that it can be called conveniently.
 All data that contains critical information and needs to be decoded should be encrypted in the following way before sending out:
 
 * S1: Organize the information in the specified way to a string
-* S2: Use AES-256 to encrypt the string got from step 1
+* S2: Use **AES-256-ECB** to encrypt the string got from step 1
  * Private key undecided or to be defined (event specific?).
  * Reference: http://stackoverflow.com/questions/10451068/encryption-mismatch-between-java-and-php
 * S3: Encode the data from step 2 with Base64 so that it can be sent out via HTTP protocol.
