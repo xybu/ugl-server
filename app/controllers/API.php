@@ -183,5 +183,73 @@ class API extends \Controller {
 		}
 	}
 	
+	/**
+	 * getUserStatus
+	 * verify the login status of the requeusted user
+	 *
+	 * @param $base	Base instance
+	 * @param $user	User model
+	 */
+	private function getUserStatus($base, $user){
+		$user_id = 0;
+		$token = "";
+		
+		if ($base->exists("POST.user_id") and $base->exists("POST.ugl_token")){
+			// app client POST API
+			$user_id = $base->get("POST.user_id");
+			$token = $base->get("POST.ugl_token");
+		} else if ($base->exists("SESSION.user")){
+			// web client session
+			$session_user = $base->get("SESSION.user");
+			$user_id = $session_user["id"];
+			$token = $session_user["ugl_token"];
+		} else throw new \Exception("You should log in to perform the request", 1);
+		
+		if (!$user->verifyToken($user_id, $token))
+			throw new \Exception("Unauthorized request", 2);
+		
+		return array("user_id" => $user_id, "ugl_token" => $token);
+	}
 	
+	/**
+	 * TODO: possibly allow someone to view others' group list?
+	 */
+	function listGroupsOf($base){
+		try {
+			
+			$user = new \models\User();
+			$user_status = $this->getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			$token = $user_status["ugl_token"];
+			$target_user_id = $user_id;
+			$public_group_only = false;
+			
+			if ($base->exists("PARAMS.user_id")){
+				$target_user_id = $base->get("PARAMS.user_id");
+				if (!is_numeric($target_user_id))
+					throw new \Exception("User id should be a number", 3);
+				
+				if ($target_user_id != $user_id){
+					$target_user = $user->findById($target_user_id);
+					if (!$target_user)
+						throw new \Exception("The user does not exist", 4);
+					
+					if (USER does not allow to request his list){
+						throw new \Exception("The user did not allow you to view his or her group list.", 5);
+					}
+					
+					$public_group_only = true;
+				}
+			}
+			
+			$group = new \models\Group();
+			$group_list = $group->listGroupsOfUserId($target_user_id, $public_group_only);
+			
+			var_dump($group_list);
+			die();
+			
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
+	}
 }
