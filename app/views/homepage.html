@@ -19,7 +19,7 @@
 </head>
 
 <body>
-	<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<header class="navbar navbar-default navbar-fixed-top" role="navigation">
 		<div class="container">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -42,7 +42,7 @@
 				</form>
 			</div><!--/.navbar-collapse -->
 		</div>
-    </div>
+    </header>
 	
 	<div class="jumbotron">
 		<div class="container">
@@ -63,6 +63,7 @@
 				<div class="col-md-4">
 					<div class="panel panel-primary" id="join-panel">
 						<div class="panel-heading">
+							<div class="pull-right"><a href="#" data-toggle="modal" data-target="#forgot_password_modal">Forget password?</a></div>
 							<h3 class="panel-title">Join UGLi</h3>
 						</div>
 						<div class="panel-body form-signin" id="register-panel">
@@ -177,9 +178,44 @@
 			
 		</div>
 	</div>
+	
+	<div id="forgot_password_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="forgot_password_modalLabel" aria-hidden="true">
+		<form id="forgot_password_form">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+						<h3 class="modal-title">Forgot Password</h3>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<h4>Please enter the email of your account:</h4>
+							<input type="email" name="email" id="rst_email" class="form-control" placeholder="Email address" tabindex="3" data-placement="bottom" data-trigger="manual" title="Please enter an email address" required />
+						</div>
+						<div id="rst_result" style="display:none;"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" type="submit">Proceed</button>
+						<button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<?php
+		if (isset($rt_notification_modal)){
+			echo "<script type=\"text/javascript\">\n" .
+					"		var show_notif_modal = true;\n" .
+					"		var notif_modal_type = \"" . $rt_notification_modal["type"] . "\";\n" .
+					"		var notif_modal_title = \"" . $rt_notification_modal["title"] . "\";\n" .
+					"		var notif_modal_msg = \"" . $rt_notification_modal["message"] . "\";\n" .
+				"	</script>\n";
+		}
+	?>
+	
 	<script src="assets/js/jquery-1.11.0.min.js"></script>
 	<script src="assets/js/bootstrap.min.js"></script>
-	<script src="assets/custom/homepage.js"></script>
 	<script src="assets/js/jquery.crypto.js"></script>
+	<script src="assets/custom/homepage.js"></script>
 </body>
 </html>

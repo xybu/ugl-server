@@ -36,6 +36,23 @@ class User extends \Model {
 		return null;
 	}
 	
+	function updatePassword($email, $original_password = ""){
+		if ($original_password == "")
+			$original_password = $this->getRandomStr(12);
+		
+		$password = md5(base64_encode(sha1(sha1($original_password))));
+		
+		$this->queryDb(
+			"UPDATE users SET password=:password WHERE email=:email LIMIT 1;",
+			array(
+				":email" => $email,
+				":password" => $password
+			)
+		);
+		
+		return $original_password;
+	}
+	
 	function createUser($email, $password, $first_name, $last_name, $avatar_url = ""){
 		$send_email = false;
 		

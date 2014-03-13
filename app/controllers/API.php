@@ -5,8 +5,9 @@ class API extends \Controller {
 	
 	const ENABLE_LOG = true;
 	const RSTPWD_REQ_PER_SESSION = 3;
-	const API_WIDE_KEY = "1POm3YWVlVFriePu2aJfa+K5UElFA0ESeN+4Bb57YnYFyZGDit/Cw1o9rSWZQeFsA+sbsaGiff28JpSx5K9QOw==";
-	const API_ANDROID_CLI_KEY = "2IwehG2VEm3WhjLRMK/1aUPqAdW7KNvvRuskedxuOgOQ2jbO+wkKs5p5qJwh98GM0Nm50e9CcUxN0sI2R0MS2A==";
+	const RSTPWD_REQ_EXPIRATION = 24; // in hrs
+	const API_WIDE_KEY = "1POm3YWVlVFriePu2aJfa+K5UElFA0ESeN+4Bb57YnYFyZGDit/Cw1o9rSWZQeFs";
+	const API_ANDROID_CLI_KEY = "2IwehG2VEm3WhjLRMK/1aUPqAdW7KNvvRuskedxuOgOQ2jbO+wkKs5p5qJwh98GM";
 	
 	function __construct(){	
 		parent::__construct();
@@ -19,8 +20,8 @@ class API extends \Controller {
 	}
 	
 	static function api_decrypt($str, $key){
-		$trial = openssl_decrypt($enc, "AES-256-ECB", $key);
-		if (openssl_error_string()) return null;
+		$trial = openssl_decrypt($str, "AES-256-ECB", $key);
+		if (!$trial) return null;
 		return $trial;
 	}
 	
@@ -136,7 +137,7 @@ class API extends \Controller {
 			
 			if ($f3->exists("SESSION.resetPass_count") && intval($f3->get("SESSION.resetPass_count")) > static::RSTPWD_REQ_PER_SESSION)
 				throw new \Exception("Please try this operation later", 2);
-						
+			
 			$user = new \models\User();
 			$email = $f3->get("POST.email");
 			if (!$user->isValidEmail($email))
@@ -149,34 +150,34 @@ class API extends \Controller {
 			$first_name = $user_info["first_name"];
 			$last_name = $user_info["last_name"];
 			
-			$ticket_info = array("email" => $email, "old_pass" => $user_info["password"], "time" => date());
+			$ticket_info = array("email" => $email, "old_pass" => $user_info["password"], "time" => date("c"));
 			
-			$url = $f3->get("WEB_APP_URL") . "/action/forgot_pass/" . static::api_encrypt(json_encode($ticket_info), static::API_WIDE_KEY);
+			$url = $f3->get("WEB_APP_URL") . "/forgot_pass?t=" . urlencode(base64_encode(static::api_encrypt(json_encode($ticket_info), static::API_WIDE_KEY)));
 			
-			try {
-				$mail = new \models\Mail();
-				$mail->addTo($email, $first_name . ' ' . $last_name);
-				$mail->setFrom($this->f3->get("EMAIL_SENDER_ADDR"), "UGL Team");
-				$mail->setSubject("Reset Your Password");
-				$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n\n" .
-									"Thanks for using Ugl. To change your password, please open this link in your browser:\n" .
-									"" . $url . "\n\n" .
-									"Thanks for using our service.\n\n" .
-									"Best,\nUGL Team");
-				$mail->send();
-			// log exceptions but do not behave
-			} catch (\InvalidArgumentException $e){
-				if (static::ENABLE_LOG)
-					$this->logger->write($e->__toString());
-				throw new \Exception("Email did not send due to server error", 5);
-			} catch (\RuntimeException $e){
-				if (static::ENABLE_LOG)
-					$this->logger->write($e->__toString());
-				throw new \Exception("Email did not send due to server runtime error", 6);
-			}
+			$mail = new \models\Mail();
+			$mail->addTo($email, $first_name . ' ' . $last_name);
+			$mail->setFrom($this->f3->get("EMAIL_SENDER_ADDR"), "UGL Team");
+			$mail->setSubject("Reset Your Password");
+			$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n\n" .
+								"Thanks for using Ugl. To change your password, please open this link in your browser:\n" .
+								"" . $url . "\n\n" .
+								
+								"If you did not request this email, please disregard this.\n\nThanks for using our service.\n\n" .
+								"Best,\nUGL Team");
+			$mail->send();
 			
-			$this->json_printResponse(array("message" => "Email successfully sent. Please check"));
+			$f3->set("SESSION.resetPass_count", intval($f3->get("SESSION.resetPass_count")) + 1);
 			
+			$this->json_printResponse(array("message" => "An email containing the steps to reset password has been sent to your email account."));
+			
+		} catch (\InvalidArgumentException $e){
+			if (static::ENABLE_LOG)
+				$this->logger->write($e->__toString());
+			throw new \Exception("Email did not send due to server error", 5);
+		} catch (\RuntimeException $e){
+			if (static::ENABLE_LOG)
+				$this->logger->write($e->__toString());
+			throw new \Exception("Email did not send due to server runtime error", 6);
 		} catch (\Exception $e){
 			$this->json_printException($e);
 		}
