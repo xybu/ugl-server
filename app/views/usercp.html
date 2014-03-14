@@ -1,4 +1,14 @@
-<!DOCTYPE html>
+<?php
+$menu_list = array(
+	"dashboard" => array("fa-home", "Home", ""),
+	"groups" => array("fa-users", "Groups", ""),
+	"boards" => array("fa-list-alt", "Boards", ""),
+	"items" => array("fa-book", "Items", ""),
+	"wallet" => array("fa-credit-card", "Wallet", ""),
+	"profile" => array("fa-cog", "Settings", ""),
+);
+$menu_list[$panel][2] = " active";
+?><!DOCTYPE html>
 <html lang="en">
 	<head>
 		<base href="<?php echo $SCHEME.'://'.$HOST.':'.$PORT.$BASE.'/'; ?>" />
@@ -59,12 +69,9 @@
 			<div class="row nav nav-sidebar">
 				<div class="col-xs-12 col-sm-12">
 					<ul class="nav nav-sidebar">
-						<li><a href="/my/dashboard"><i class="fa fa-home fa-3x"></i></a></li>
-						<li><a href="/my/groups"><i class="fa fa-users fa-3x"></i></a></li>
-						<li><a href="/my/boards"><i class="fa fa-list-alt fa-3x"></i></a></li>
-						<li><a href="/my/items"><i class="fa fa-book fa-3x"></i></a></li>
-						<li><a href="/my/wallet"><i class="fa fa-credit-card fa-3x"></i></a></li>
-						<li><a href="/my/profile"><i class="fa fa-cog fa-3x"></i></a></li>
+						<?php
+						foreach ($menu_list as $key => $val)
+							echo "<li><a class=\"" . $key . "-li" . $val[2] . "\" href=\"/my/" . $key . "\"><i class=\"fa ". $val[0] ." fa-3x\"></i></a></li>";?>
 					</ul>
 				</div>
 			</div>
@@ -74,12 +81,9 @@
 			<div class="row">
 				<div class="col-md-1 sidebar wide-sidebar">
 					<ul class="nav nav-sidebar">
-						<li><a href="/my/dashboard"><i class="fa fa-home fa-3x"></i><br />Home</a></li>
-						<li><a href="/my/groups"><i class="fa fa-users fa-3x"></i><br />Groups</a></li>
-						<li><a href="/my/boards"><i class="fa fa-list-alt fa-3x"></i><br />Boards</a></li>
-						<li><a href="/my/items"><i class="fa fa-book fa-3x"></i><br />Items</a></li>
-						<li><a href="/my/wallet"><i class="fa fa-credit-card fa-3x"></i><br />Wallet</a></li>
-						<li><a href="/my/profile"><i class="fa fa-cog fa-3x"></i><br />Settings</a></li>
+						<?php
+						foreach ($menu_list as $key => $val)
+							echo "<li><a class=\"" . $key . "-li" . $val[2] . "\" href=\"/my/" . $key . "\"><i class=\"fa ". $val[0] ." fa-3x\"></i><br />" . $val[1] . "</a></li>";?>
 					</ul>
 				</div>
 				<div class="col-sm-10 col-sm-offset-1 col-md-11 main" id="main">

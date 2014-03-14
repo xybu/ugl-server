@@ -138,7 +138,7 @@ body.loading .ajax-loading {
     -moz-border-left-colors: none;
     -moz-border-right-colors: none;
     -moz-border-top-colors: none;
-    animation: 0.5s linear 0s normal none infinite spin;
+    animation: 0.4s linear 0s normal none infinite spin;
     border-color: #fff rgba(0, 0, 0, 0) #fff #fff;
     border-image: none;
     border-radius: 50%;

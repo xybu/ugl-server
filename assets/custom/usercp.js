@@ -16,19 +16,12 @@ $(document).ready(function(){
 		cur_value = $.address.state().replace(/^\/$/, '') + event.value;
 		cur_event_value = event.value.replace("/", "");
 		
-		// Selects the proper navigation link
-		$('.nav-sidebar a').each(function() {
-			if ($(this).attr('href') == cur_value){
-				$(this).addClass('active');
-				//$(this).focusout();
-			} else {
-				$(this).removeClass('active');
-			}
-		});
-		
 		if (state && init) {
 			init = false;
 		} else {
+			$('.nav-sidebar .active').removeClass('active');
+			$('.' + cur_event_value + '-li').addClass('active');
+			
 			var body = $("body");
 			body.append("<div class=\"ajax-loading\"><div class=\"ajax-loading-icon\"></div></div>");
 			body.addClass("loading");
@@ -51,8 +44,9 @@ $(document).ready(function(){
 		}
 	});
 	
-	if (!ugl_panel_initialized && typeof window['init_' + cur_event_value] == 'function')
+	if (!ugl_panel_initialized && typeof window['init_' + cur_event_value] == 'function'){
 		window['init_' + cur_event_value]();
+	}
 	
 });
 
@@ -97,6 +91,7 @@ function init_dashboard(){
 		}
 	});
 	document.title = "Dashboard | Ugl";
+	
 	ugl_panel_initialized = true;
 }
 
@@ -117,6 +112,7 @@ function init_items(){
 
 function init_wallet(){
 	document.title = "Wallet | Ugl";
+	
 	ugl_panel_initialized = true;
 }
 
