@@ -9,22 +9,27 @@ The server side code of project Ugl.
   - [Files](#files)
   - [Keys](#keys)
   - [Planning](#planning)
- - [Server API Document](#server-api-document)
+ - [Server API Notes](#server-api-notes)
   - [Types of Responses](#types-of-responses)
      - [Success](#1-success)
      - [Error](#2-error)
   - [Encryption](#encryption)
      - [One-way Encryption](#1-one-way-encryption)
      - [Two-way Encryption](#2-two-way-encryption)
-  - [Events](#events)
-     - [login](#1-login)
-     - [logout](#2-logout)
-     - [register](#3-register)
-     - [revokeToken](#4-revoketoken)
-     - [oauth_clientCallback](#5-oauth_clientcallback)
-	 - [forgot_password](#6-forgot_password)
-	 - [getMyPrefs](#7-getMyPrefs)
-	 - [setMyPrefs](#8-setMyPrefs)
+ - [API Events](#api)
+	 - [User Identities](#1-user-identities)
+		 - [login](#1-login)
+		 - [logout](#2-logout)
+		 - [register](#3-register)
+		 - [revokeToken](#4-revoketoken)
+		 - [oauth_clientCallback](#5-oauth_clientcallback)
+		 - [forgot_password](#6-forgot_password)
+		 - [getMyPrefs](#7-getmyprefs)
+		 - [setMyPrefs](#8-setmyprefs)
+	 - [Groups](#2-groups)
+		 - [listGroupsOf](#1-list-groups-of)
+
+***
 
 # Introduction
 
@@ -74,7 +79,9 @@ Notes:
 | Auth model          | In dev        | Working on auth model           |
 | Group model         | Not started   | n/a                             |
 
-# Server API Document
+***
+
+# Server API Notes
 
 ## Types of responses
 
@@ -144,9 +151,13 @@ All data that contains critical information and needs to be decoded should be en
 
 In short `$str=urlencode(base64_encode(aes256($str, $key)))`
 
-## Events
+***
 
-### 1. login
+# API
+
+## 1. User Identities
+
+### 1) login
 Log a user in. **To be updated to reflect token-based system.**
 
 #### Request
@@ -169,12 +180,12 @@ TBA.
 * 102 - User not found, or email and password do not match.
 * 103 - Password should not be empty
 
-### 2. logout
+### 2) logout
 Logout is a web client-only event. For mobile apps please use [revokeToken](#5-revoketoken) event.
 
 #### Associated Errors
 
-### 3. register
+### 3) register
 Register an account. **To be updated to reflect token-based system.**
 
 #### Request
@@ -206,7 +217,7 @@ refer to the Encryption section.
 * 105 - You must agree to the terms of services to sign up (field "agree" != "true")
 * 106 - Password should be at least 6 chars
 
-### 4. revokeToken
+### 4) revokeToken
 Revoke the token used currently.
 
 #### Request
@@ -230,7 +241,9 @@ A typical success message with data->message being "Token has been revoked.".
 * 1 - Authentication fields missing (`user_id` or `ugl_token` is empty or null)
 * 2 - User id should be a number (`user_id` is not a numeric value)
 
-### 5. oauth_clientCallback
+### 5) oauth_clientCallback
+**Under Construction**
+
 native client-only API used for telling server that a user successfully authenticates 
 the app with the oauth provider.
 
@@ -270,14 +283,14 @@ Organize the oauth response information to json text of the following format:
 
 where
 
-* `signature` should be the string sha1("ugl_android" + `timestamp` above + `provider` above + `uid` above + `email` above)
+* `signature` should be the SHA-128 code of the string of the `auth` part above.
 * `timestamp` has format of `2014-03-04T23:20:28+00:00` (ISO 8601)
 * other fields should be self-evident given the information returned by the server.
 
 And then use two-way encryption to encode the json text above. Let $data denote the encrypted data.
 
 * Method: POST
-* URL: api/oauth_clientCallback
+* URL: /api/oauth/callback
 * Data: $data
 
 #### Response
@@ -286,7 +299,7 @@ TBD.
 #### Associated Errors
 TBD.
 
-### 6. forgot_password
+### 6) forgot_password
 Send an email to the user who requests to reset the password. 
 When the user clicks the link in the email, web client will send this user a new password with email.
 The UI will be handled by web client.
@@ -318,7 +331,7 @@ Android client should go to log in activity.
 * 5 - Email did not send due to server error
 * 6 - Email did not send due to server runtime error
 
-### 7. getMyPrefs
+### 7) getMyPrefs
 Get the preferences of the requester. He / she cannot see others' preferences.
 
 #### Available User Preferences
@@ -330,17 +343,81 @@ Get the preferences of the requester. He / she cannot see others' preferences.
 	 * `0`: no one can see what groups I am in
 
 #### Request
+| Name   | Description                       |
+| ------ | --------------------------------- |
+| Method | POST                              |
+| URL    | `api/getMyPrefs`                  |
+| DATA   | `user_id`=123&`ugl_token`=mytoken |
+
+where the `DATA` is actually the credential to log the user in.
 
 #### Response
+TBA.
 
 #### Associated Errors
+* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
+* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
 
-
-### 8. setMyPrefs
+### 8) setMyPrefs
 Update the preferences of the requester. He / she cannot modify others' preferences.
 
 #### Request
+| Name   | Description                                             |
+| ------ | ------------------------------------------------------- |
+| Method | POST                                                    |
+| URL    | `api/setMyPrefs`                                        |
+| DATA   | `user_id`=123&`ugl_token`=mytoken&`autoAcceptInvitation`=1&`showMyPublicGroups`=0         |
+
+POST each preference field in the format of `key=value`. Not necessary to POST fields of default values since server will append the missing fields with their default values.
 
 #### Response
+TBA.
 
 #### Associated Errors
+* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
+* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+
+***
+
+## 2. Group API
+
+The data fields for group model are defined as below:
+
+* **Group ID**: the unique ID for the group
+* **Group Name (alias)**: A user-defined identifier of the group. Its length must be greater than 1 but no greater than 64, and can contain only *letters*, *digits*, '*-*', and '*_*' (any match of `[^\-_a-zA-Z0-9]` should make the string invalid as group name).
+* **Group Description**: The description (brief introduction) of the group. All HTML escape characters should be escaped by the client (when displaying the field, strings inside "<" and ">" must no execute in face of XSS attacks, etc.). and the after-filtering string has a maximum length of *200* chars.
+* **Visibility**: A visibility of *0* means the group is private (only the group members can access the group), and *1* means the group is public to everyone (guests can check out the profile of the group).
+
+### 1) listGroupsOf
+List the groups a user has joined.
+
+* When the requester is not the "target user" (the one whose groups to be listed), then upon this user's preference, either only his / her public groups are listed, or no groups are shown (Refer to `showMyPublicGroups` preference).
+* When the requester is the target user, all his / her groups will be listed.
+
+#### Request
+| Name   | Description                                             |
+| ------ | ------------------------------------------------------- |
+| Method | POST                                                    |
+| URL    | `api/listGroupsOf/@target_user_id`                      |
+| DATA   | `user_id`=123&`ugl_token`=mytoken                       |
+
+In the URL, `@target_user_id` is the id of the user whose groups are to be listed. For example, to get the groups of user whose id is `444`, the URL should be `api/listGroupsOf/444`.
+
+`user_id` and `ugl_token` are the log in credentials of the requester. No guest can perform the operation.
+
+#### Response
+TBA.
+
+#### Associated Errors
+* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
+* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 3 - User id should be a number (`@target_user_id` is not numerical)
+* 4 - The user does not exist (user whose id is `@target_user_id` does not exist)
+
+### 2) createGroup
+
+### 3) deleteGroup
+
+### 4) editGroupProfile
+
+### 5) editGroupMembers
