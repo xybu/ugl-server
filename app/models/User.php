@@ -87,7 +87,7 @@ class User extends \Model {
 			try {
 				$mail = new Mail();
 				$mail->addTo($email, $first_name . ' ' . $last_name);
-				$mail->setFrom($this->base->get("EMAIL_SENDER_ADDR"), "UGL Team");
+				$mail->setFrom($this->base->get("SMTP_FROM"), "UGL Team");
 				$mail->setSubject("Thanks for Using Ugl!");
 				$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n\n" .
 									"Thanks for using Ugl. At the first time you sign in with your " .

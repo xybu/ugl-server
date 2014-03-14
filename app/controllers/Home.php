@@ -54,7 +54,7 @@ class Home extends \Controller {
 			
 			$mail = new \models\Mail();
 			$mail->addTo($email, $first_name . ' ' . $last_name);
-			$mail->setFrom($this->base->get("EMAIL_SENDER_ADDR"), "UGL Team");
+			$mail->setFrom($this->base->get("SMTP_FROM"), "UGL Team");
 			$mail->setSubject("Your New Password");
 			$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n\n" .
 								"Thanks for using Ugl. Your password for account \"" . $email . "\" " .
