@@ -1,16 +1,19 @@
 <?php
 /**
- * Prefernce.php
- * A general model for preferences field
- 
- * @author	Xiangyu Bu
- * @date	Mar 12, 2014
+ * Preference
+ * A general model for preferences field.
+ *
+ * To use it in a specific model, the model class must have
+ * a default associative defined as the normal data set.
+ *
+ * @author	Xiangyu Bu <xybu92@live.com>
+ * @version	1.1
  */
 
 namespace models;
 
 class Preference {
-	private $data = array();
+	protected $data = array();
 	
 	/**
 	 * Constructor
@@ -18,8 +21,8 @@ class Preference {
 	 * @param isJson	if true, str will be parsed as JSON text
 	 *					otherwise, parsed as a serialized array
 	 */
-	public function __construct($str, $isJson = false){
-		if ($str != "") {
+	public function __construct($str = null, $isJson = false){
+		if (!empty($str)){
 			if ($isJson) $this->data = json_decode($str, true); // to associative array
 			else $this->data = unserialize($str);
 		}
@@ -47,12 +50,23 @@ class Preference {
 		unset($this->data[$f]);
 	}
 	
-	public function toJson(){
-		return json_encode($this->data);
+	/**
+	 * normalize
+	 * Given the default key-value pairs, add the missing keys to
+	 * current data array.
+	 * 
+	 * @param def	The default key-value pair
+	 */
+	public function normalize($def){
+		$this->data = array_merge($def, $this->data);
 	}
 	
 	public function toString(){
 		return serialize($this->data);
+	}
+	
+	public function toJson(){
+		return json_encode($this->data);
 	}
 	
 	public function toArray(){

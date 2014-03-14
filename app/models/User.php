@@ -8,7 +8,7 @@ class User extends \Model {
 	const TOKEN_SALT = "ugl>salt.";
 	const TOKEN_VALID_HRS = 168; // one week, in hrs
 	
-	private static $DEFAULT_USER_PREFERENCES = array("autoAcceptInvitation" => 0, "showMyPublicGroups" => 1);
+	public static $DEFAULT_USER_PREFERENCES = array("autoAcceptInvitation" => 0, "showMyPublicGroups" => 1);
 	
 	function __construct(){
 		parent::__construct();
@@ -146,6 +146,10 @@ class User extends \Model {
 		$p->normalize(self::$DEFAULT_USER_PREFERENCES);
 		
 		return $p;
+	}
+	
+	function getDefaultPrefArray(){
+		return self::$DEFAULT_USER_PREFERENCES;
 	}
 	
 	function getUserPref($id){

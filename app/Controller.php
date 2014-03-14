@@ -15,7 +15,7 @@ class Controller {
 	protected $cache;
 	protected $view = null;
 	protected $logger = null;
-	protected $f3;
+	protected $base;
 	
 	function __construct() {
 		$this->cache = \Cache::instance();
@@ -26,8 +26,8 @@ class Controller {
 	}
 	
 	//! HTTP route pre-processor
-	function beforeroute($f3) {
-		$this->f3=$f3;
+	function beforeroute($base) {
+		$this->base=$base;
 	}
 
 	//! HTTP route post-processor

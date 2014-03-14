@@ -11,19 +11,19 @@ namespace controllers;
 
 class Home extends \Controller {
 	
-	function showHomepage($f3) {
-		$f3->set('page_title','Unified Group Life');
-		$f3->set('header','header.html');
-		$f3->set('footer','footer.html');
+	function showHomepage($base) {
+		$base->set('page_title','Unified Group Life');
+		$base->set('header','header.html');
+		$base->set('footer','footer.html');
 		$this->setView('homepage.html');
 	}
 	
-	function resetPassword_callBack($f3){
+	function resetPassword_callBack($base){
 		try {
-			if (!$f3->exists('GET.t'))
+			if (!$base->exists('GET.t'))
 				throw new \Exception("Ticket not set", 1);
 			
-			$ticket_decrypt = API::api_decrypt(base64_decode(urldecode($f3->get('GET.t'))), API::API_WIDE_KEY);
+			$ticket_decrypt = API::api_decrypt(base64_decode(urldecode($base->get('GET.t'))), API::API_WIDE_KEY);
 			if ($ticket_decrypt == null)
 				throw new \Exception("Invalid ticket", 2);
 			
@@ -54,7 +54,7 @@ class Home extends \Controller {
 			
 			$mail = new \models\Mail();
 			$mail->addTo($email, $first_name . ' ' . $last_name);
-			$mail->setFrom($this->f3->get("EMAIL_SENDER_ADDR"), "UGL Team");
+			$mail->setFrom($this->base->get("EMAIL_SENDER_ADDR"), "UGL Team");
 			$mail->setSubject("Your New Password");
 			$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n\n" .
 								"Thanks for using Ugl. Your password for account \"" . $email . "\" " .
@@ -64,7 +64,7 @@ class Home extends \Controller {
 								"Best,\nUGL Team");
 			$mail->send();
 			
-			$f3->set("rt_notification_modal", array(
+			$base->set("rt_notification_modal", array(
 				"type" => "success", 
 				"title" => "Resetting your Password", 
 				"message" => "An email containing your new password " .
@@ -80,14 +80,14 @@ class Home extends \Controller {
 				$this->logger->write($e->__toString());
 			throw new \Exception("Email did not send due to server runtime error", 8);
 		} catch (\Exception $e) {
-			$f3->set("rt_notification_modal", array(
+			$base->set("rt_notification_modal", array(
 				"type" => "warning", 
 				"title" => "Resetting your Password", 
 				"message" => $e->getMessage())
 			);
 		}
 		
-		$f3->set('page_title','Unified Group Life');
+		$base->set('page_title','Unified Group Life');
 		$this->setView('homepage.html');
 	}
 }

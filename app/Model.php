@@ -8,19 +8,19 @@
  */
 
 class Model {
-	protected $f3;
+	protected $base;
 	protected $cache;
 	protected $db = null;
 	protected $logger = null;
 	
-	function __construct() {
-		$this->f3=Base::instance();
+	function __construct(){
+		$this->base=Base::instance();
 		$this->cache = \Cache::instance();
 	}
 	
-	function connectDb() {
+	function connectDb(){
 		if (!$this->db)
-			$this->db=new DB\SQL("mysql:host=localhost;port=3306;dbname=ugl_test","root","");
+			$this->db = new DB\SQL("mysql:host=localhost;port=3306;dbname=ugl_test","root","");
 			//$this->db=new DB\SQL("mysql:host=localhost;port=3306;dbname=ugli_wdyBzpxs","ugli_pJmjACwx","KjwfF4Sp");
 		//new DB\SQL\Session($db); // Use database-managed sessions
 		

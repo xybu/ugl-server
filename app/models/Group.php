@@ -17,8 +17,8 @@ class Group extends \Model {
 	function findByGroupName($name){
 	}
 	
-	function listGroupsOfUserId($user_id, $public_only = false){
-		$result = $this->queryDb("SELECT * FROM groups WHERE users LIKE '%\"" . $user_id . "\":%';");
+	function listGroupsOfUserId($user_id, $visibility = 0){
+		$result = $this->queryDb("SELECT * FROM groups WHERE visibility >= " . $visibility . " AND users LIKE '%\"" . $user_id . "\"%';");
 		if (count($result) > 0)
 			return $result;
 		return null;

@@ -23,6 +23,8 @@ The server side code of project Ugl.
      - [revokeToken](#4-revoketoken)
      - [oauth_clientCallback](#5-oauth_clientcallback)
 	 - [forgot_password](#6-forgot_password)
+	 - [getMyPrefs](#7-getMyPrefs)
+	 - [setMyPrefs](#8-setMyPrefs)
 
 # Introduction
 
@@ -133,13 +135,14 @@ Client can make this a function so that it can be called conveniently.
 
 All data that contains critical information and needs to be decoded should be encrypted in the following way before sending out:
 
-* S1: Organize the information in the specified way to a string
+* S1: Organize the information in the specified way to a string (event-dependent)
 * S2: Use **AES-256-ECB** to encrypt the string got from step 1
- * Private key undecided or to be defined (event specific?).
- * Reference: http://stackoverflow.com/questions/10451068/encryption-mismatch-between-java-and-php
-* S3: Encode the data from step 2 with Base64 so that it can be sent out via HTTP protocol.
+	 * For android client, the private key to encrypt string should be `2IwehG2VEm3WhjLRMK/1aUPqAdW7KNvvRuskedxuOgOQ2jbO+wkKs5p5qJwh98GM`.
+	 * Reference: http://stackoverflow.com/questions/10451068/encryption-mismatch-between-java-and-php
+* S3: Encode the data from step 2 with Base64 and URLencode so that it can be sent out via HTTP protocol.
+* S4: **If the method to send data is POST and this encryption is used, android client should post field `from=ugl_android`; web client should post field `from=ugl_web`.
 
-In short `$str=base64_encode(aes256($str, $key))`
+In short `$str=urlencode(base64_encode(aes256($str, $key)))`
 
 ## Events
 
@@ -283,7 +286,6 @@ TBD.
 #### Associated Errors
 TBD.
 
-
 ### 6. forgot_password
 Send an email to the user who requests to reset the password. 
 When the user clicks the link in the email, web client will send this user a new password with email.
@@ -315,3 +317,30 @@ Android client should go to log in activity.
 * 4 - Email not registered
 * 5 - Email did not send due to server error
 * 6 - Email did not send due to server runtime error
+
+### 7. getMyPrefs
+Get the preferences of the requester. He / she cannot see others' preferences.
+
+#### Available User Preferences
+* `autoAcceptInvitation`
+	 * `1`: accept group invitations automatically
+	 * `0`: send me an email when I receive invitations
+* `showMyPublicGroups`
+	 * `1`: allow others to view the **public** groups I am in
+	 * `0`: no one can see what groups I am in
+
+#### Request
+
+#### Response
+
+#### Associated Errors
+
+
+### 8. setMyPrefs
+Update the preferences of the requester. He / she cannot modify others' preferences.
+
+#### Request
+
+#### Response
+
+#### Associated Errors

@@ -47,9 +47,9 @@ class User extends \Controller {
 		);
 	}
 	
-	function oauth_connectWith($f3) {
-		$provider = $f3->get('PARAMS.provider');
-		$action = $f3->get('PARAMS.action');
+	function oauth_connectWith($base) {
+		$provider = $base->get('PARAMS.provider');
+		$action = $base->get('PARAMS.action');
 		
 		if ($provider == "callback")
 			$oauth_run = false;
@@ -57,7 +57,7 @@ class User extends \Controller {
 		
 		try {
 			
-			$opauth = new \opauth\Opauth($f3, $this->oauth_getConfig(), array(
+			$opauth = new \opauth\Opauth($base, $this->oauth_getConfig(), array(
 				"strategy" => strtolower($provider),
 				"action" => $action
 			), $oauth_run);
@@ -67,8 +67,8 @@ class User extends \Controller {
 				
 				switch($opauth->env['callback_transport']){	
 					case 'session':
-						$response = $f3->get('SESSION.opauth');;
-						$f3->set('SESSION.opauth', null);
+						$response = $base->get('SESSION.opauth');;
+						$base->set('SESSION.opauth', null);
 						break;
 					case 'post':
 						$response = unserialize(base64_decode($_POST['opauth']));
@@ -99,8 +99,8 @@ class User extends \Controller {
 				
 				// if authentication already exists, reroute to dashboard
 				if ($oauth_info){
-					$f3->set("SESSION.user", array("id" => $oauth_info["user_id"], "ugl_token" => $user->getUserToken($oauth_info["user_id"])));
-					$f3->reroute("/user/dashboard");
+					$base->set("SESSION.user", array("id" => $oauth_info["user_id"], "ugl_token" => $user->refreshToken($oauth_info["user_id"])));
+					$base->reroute("/user/dashboard");
 				}
 				
 				$provider  = $response['auth']['provider']; // replace 'callback' by the real provider
@@ -134,8 +134,8 @@ class User extends \Controller {
 						$user_token = $user_creds["ugl_token"];
 					}
 					
-					$f3->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
-					$f3->reroute("/my/dashboard");
+					$base->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
+					$base->reroute("/my/dashboard");
 				} else
 					throw new \Exception("No email specified.", 101);	
 			}
@@ -145,19 +145,19 @@ class User extends \Controller {
 		}
 	}
 	
-	function showUserPanel($f3) {
-		if (!$f3->exists("SESSION.user"))
-			$this->backToHomepage($f3);
+	function showUserPanel($base) {
+		if (!$base->exists("SESSION.user"))
+			$this->backToHomepage($base);
 		
 		$user = new \models\User();
-		$me = $f3->get("SESSION.user");
-		$panel = $f3->get("PARAMS.panel");
+		$me = $base->get("SESSION.user");
+		$panel = $base->get("PARAMS.panel");
 		
 		if (!$user->verifyToken($me["id"], $me["ugl_token"]))
-			$this->backToHomepage($f3);
+			$this->backToHomepage($base);
 		
 		$my_profile = $user->getUserProfile($me["id"]);
-		if (!$my_profile) $this->backToHomepage($f3);
+		if (!$my_profile) $this->backToHomepage($base);
 		
 		switch ($panel){
 			case "dashboard":
@@ -176,25 +176,25 @@ class User extends \Controller {
 				die();
 		}
 		
-		$f3->set('panel', $panel);
-		$f3->set('me', $my_profile); //hide the token in the view model
+		$base->set('panel', $panel);
+		$base->set('me', $my_profile); //hide the token in the view model
 		
 		$this->setView('usercp.html');
 	}
 	
-	function ajax_showPanel($f3){
-		if (!$f3->exists("SESSION.user"))
+	function ajax_showPanel($base){
+		if (!$base->exists("SESSION.user"))
 			die();
 		
 		$user = new \models\User();
-		$me = $f3->get("SESSION.user");
-		$panel = $f3->get("PARAMS.panel");
+		$me = $base->get("SESSION.user");
+		$panel = $base->get("PARAMS.panel");
 		
 		$my_profile = $user->getUserProfile($me["id"]);
-		if (!$my_profile) $this->backToHomepage($f3, true, false);
+		if (!$my_profile) $this->backToHomepage($base, true, false);
 		
-		$f3->set('me', $my_profile); //hide the token in the view model
-		$f3->set('panel', $panel);
+		$base->set('me', $my_profile); //hide the token in the view model
+		$base->set('panel', $panel);
 		
 		switch ($panel){
 			case "dashboard":
@@ -216,9 +216,9 @@ class User extends \Controller {
 		$this->setView('my_' . $panel . '.html');
 	}
 	
-	function backToHomepage($f3, $revokeSession = true, $redirect = true){
-		if ($revokeSession) $f3->set("SESSION.user", null);
-		if ($redirect) $f3->reroute("/");
+	function backToHomepage($base, $revokeSession = true, $redirect = true){
+		if ($revokeSession) $base->set("SESSION.user", null);
+		if ($redirect) $base->reroute("/");
 		else die();
 	}
 	
