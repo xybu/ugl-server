@@ -11,6 +11,18 @@ namespace models;
 
 class Group extends \Model {
 	
+	/**
+	 * isValidGroupName
+	 * Check if the string contains chars other than alphanumerical, -, _
+	 * and non-empty, and length not greater than 65.
+	 */
+	static function isValidGroupName($str){
+		if ($str === "") return false;
+		if (preg_match('/[^\-_A-Za-z0-9]/', $str)) return false;
+		if (strlen($str) < 65) return false;
+		return true;
+	}
+	
 	function findByGroupId($id){
 	}
 	
