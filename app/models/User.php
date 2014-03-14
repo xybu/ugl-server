@@ -8,6 +8,8 @@ class User extends \Model {
 	const TOKEN_SALT = "ugl>salt.";
 	const TOKEN_VALID_HRS = 168; // one week, in hrs
 	
+	private static $DEFAULT_USER_PREFERENCES = array("autoAcceptInvitation" => 0, "showMyPublicGroups" => 1);
+	
 	function __construct(){
 		parent::__construct();
 		if (static::ENABLE_LOG)
@@ -30,7 +32,7 @@ class User extends \Model {
 		$result = $this->queryDb("SELECT * FROM users WHERE email=? LIMIT 1;", $email);
 		if (count($result) == 1){
 			if (password_verify(static::TOKEN_SALT . $password, $result[0]["password"]))
-				return array_merge($result[0], array("ugl_token" => $this->getUserToken($result[0]["id"], $result[0]["token_active_at"])));
+				return array_merge($result[0], array("ugl_token" => $this->refreshToken($result[0]["id"])));
 			else return null;
 		}
 		return null;
@@ -46,7 +48,7 @@ class User extends \Model {
 			"UPDATE users SET password=:password WHERE email=:email LIMIT 1;",
 			array(
 				":email" => $email,
-				":password" => $password
+				":password" => $this->getUserToken(0, $password)
 			)
 		);
 		
@@ -85,7 +87,7 @@ class User extends \Model {
 			try {
 				$mail = new Mail();
 				$mail->addTo($email, $first_name . ' ' . $last_name);
-				$mail->setFrom($this->f3->get("EMAIL_SENDER_ADDR"), "UGL Team");
+				$mail->setFrom($this->base->get("EMAIL_SENDER_ADDR"), "UGL Team");
 				$mail->setSubject("Thanks for Using Ugl!");
 				$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n\n" .
 									"Thanks for using Ugl. At the first time you sign in with your " .
@@ -130,18 +132,37 @@ class User extends \Model {
 		return null;
 	}
 	
+	/**
+	 * fixUserPref
+	 * add all missing keys used by User object to the Preference object
+	 * remove all undefined keys from the Preference object
+	 */
+	private function fixUserPref(Preference $p){
+		foreach($p->toArray() as $key => $val){
+			if (!array_key_exists($key, self::$DEFAULT_USER_PREFERENCES))
+				$p->unsetField($key);
+		}
+		
+		$p->normalize(self::$DEFAULT_USER_PREFERENCES);
+		
+		return $p;
+	}
+	
 	function getUserPref($id){
 		if (!is_numeric($id)) return null;
 		
 		$result = $this->queryDb("SELECT * FROM users WHERE id=? LIMIT 1;", $id, 1800);
 		
-		if (count($result) == 1)
-			return new Preference($result[0]["preferences"], true);
+		if (count($result) == 1){
+			return $this->fixUserPref(new Preference($result[0]["preferences"], true));
+		}
 		return null;
 	}
 	
 	function setUserPref($id, Preference $pref){
 		if (!is_numeric($id) or $pref == null) return;
+		
+		$pref = $this->fixUserPref($pref);
 		
 		$this->queryDb("UPDATE users SET preferences=:pref WHERE id=:id LIMIT 1;",
 						array(":id" => $id, "pref" => $pref->toJson())
@@ -158,23 +179,21 @@ class User extends \Model {
 	 * verify if the token is valid for the user id
 	 * reset the token if dt_str is expired
 	 */
-	function verifyToken($id, $token, $dt_str = null){
+	function verifyToken($id, $token){
 		if ($id === "" or $token === "") return false;
 		
-		if (!$dt_str){
-			$result = $this->queryDb("SELECT token_active_at FROM users WHERE id=? LIMIT 1;", $id);
-			if (count($result) != 1) return false;
-			$dt_str = $result[0]['token_active_at'];
+		$result = $this->queryDb("SELECT token_active_at FROM users WHERE id=? LIMIT 1;", $id);
+		if (count($result) != 1) return false;
+		
+		$dt_str = $result[0]['token_active_at'];
+		
+		if (strtotime("+" . static::TOKEN_VALID_HRS . " hour", strtotime($dt_str)) < time()){
+			$new_token = $this->refreshToken($id);
+			return false;
 		}
 		
-		if (count($result) == 1){
-			if (password_verify(static::TOKEN_SALT . $dt_str, $token)){
-				if (strtotime("+" . static::TOKEN_VALID_HRS . " hour", strtotime($dt_str)) < time()){
-					$new_token = $this->refreshToken($id);
-					return false;
-				} else return true;
-			}
-		}
+		if (password_verify(static::TOKEN_SALT . $dt_str, $token))
+			return true;
 		
 		return false;
 	}
