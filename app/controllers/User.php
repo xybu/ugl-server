@@ -145,6 +145,10 @@ class User extends \Controller {
 		}
 	}
 	
+	function oauth_clientCallback($base){
+		
+	}
+	
 	function showUserPanel($base) {
 		if (!$base->exists("SESSION.user"))
 			$this->backToHomepage($base);
