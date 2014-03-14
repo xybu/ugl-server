@@ -1,4 +1,11 @@
 <?php
+/**
+ * The API controller for project Ugl.
+ *
+ * @author	Xiangyu Bu <xybu92@live.com>
+ * @version	0.3
+ */
+
 namespace controllers;
 
 class API extends \Controller {

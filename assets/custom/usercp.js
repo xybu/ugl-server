@@ -119,3 +119,8 @@ function init_wallet(){
 	document.title = "Wallet | Ugl";
 	ugl_panel_initialized = true;
 }
+
+function init_profile(){
+	document.title = "Settings | Ugl";
+	ugl_panel_initialized = true;
+}

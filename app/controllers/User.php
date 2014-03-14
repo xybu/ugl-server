@@ -172,6 +172,8 @@ class User extends \Controller {
 				break;
 			case "preferences":
 				break;
+			case "profile":
+				break;
 			default:
 				die();
 		}
@@ -182,7 +184,7 @@ class User extends \Controller {
 		$this->setView('usercp.html');
 	}
 	
-	function ajax_showPanel($base){
+	function loadUserPanel($base){
 		if (!$base->exists("SESSION.user"))
 			die();
 		
@@ -208,6 +210,8 @@ class User extends \Controller {
 			case "wallet":
 				break;
 			case "preferences":
+				break;
+			case "profile":
 				break;
 			default:
 				die();
