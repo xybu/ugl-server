@@ -1,10 +1,9 @@
 <?php
 /**
- * Group.php
- * The group data model
+ * The group model used in the system
  *
  * @author	Xiangyu Bu
- * @date	Mar 10, 2014
+ * @version	0.2
  */
 
 namespace models;
@@ -24,9 +23,25 @@ class Group extends \Model {
 	}
 	
 	function findByGroupId($id){
+		$result = $this->queryDb("SELECT * FROM groups WHERE id=?;", $id, 360);
+		if (count($result) == 1)
+			return $result[0];
+		return null;
 	}
 	
-	function findByGroupName($name){
+	function findByGroupAlias($alias){
+		$result = $this->queryDb("SELECT * FROM groups WHERE alias=?;", $alias, 360);
+		if (count($result) == 1)
+			return $result[0];
+		return null;
+	}
+	
+	// public only
+	function findByKeyword($keyword){
+		$result = $this->queryDb("SELECT * FROM groups WHERE visibility >= 1 AND CONCAT_WS(' ', alias, description, tags) LIKE '?';", "%" . $keyword . "%");
+		if (count($result) > 0)
+			return $result;
+		return null;
 	}
 	
 	function listGroupsOfUserId($user_id, $visibility = 0){
@@ -36,15 +51,49 @@ class Group extends \Model {
 		return null;
 	}
 	
-	function updateGroupProfile($settings){
+	function updateGroupProfile($id, $visibility, $alias, $description, $tags){
+		$this->queryDb(
+			"UPDATE groups SET visibility=:visibility, alias=:alias, description=:description, tags=:tags WHERE id=:id LIMIT 1;",
+			array(
+				":id" => $id,
+				":visibility" => $visibility,
+				":alias" => $alias,
+				":description" => $description,
+				":tags" => $tags,
+			)
+		);
 	}
 	
-	function addGroupMembers($names){
+	function updateCreatorUserId($gid, $uid){
+		$this->queryDb(
+			"UPDATE groups SET creator_user_id=:uid WHERE id=:gid LIMIT 1;",
+			array(
+				":gid" => $gid,
+				":uid" => $uid
+			)
+		);
 	}
 	
-	function deleteGroupMembers($names){
+	function updateGroupUsers($id, $users){
+		$this->queryDb(
+			"UPDATE groups SET users=:users WHERE id=:id LIMIT 1;",
+			array(
+				":id" => $id,
+				":users" => $users
+			)
+		);
 	}
 	
-	function updateGroupMembers($list){
+	function addGroupUser($gid, $uid, $role){
+		
 	}
+	
+	function updateUserRole($gid, $uid, $role){
+		
+	}
+	
+	function deleteGroupMember($gid, $uid){
+		
+	}
+	
 }
