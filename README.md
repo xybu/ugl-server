@@ -400,10 +400,12 @@ TBA.
 
 The data fields for group model are defined as below:
 
-* **Group ID**: the unique ID for the group
-* **Group Name (alias)**: A user-defined identifier of the group. Its length must be greater than 1 but no greater than 64, and can contain only *letters*, *digits*, '*-*', and '*_*' (any match of `[^\-_a-zA-Z0-9]` should make the string invalid as group name).
-* **Group Description**: The description (brief introduction) of the group. All HTML escape characters should be escaped by the client (when displaying the field, strings inside "<" and ">" must no execute in face of XSS attacks, etc.). and the after-filtering string has a maximum length of *200* chars.
-* **Visibility**: A visibility of *0* means the group is private (only the group members can access the group), and *1* means the group is public to everyone (guests can check out the profile of the group).
+* **id**: the unique ID for the group
+* **alias**: A user-defined identifier of the group. Its length must be greater than 1 but no greater than 64, and can contain only *letters*, *digits*, '*-*', and '*_*' (any match of `[^\-_a-zA-Z0-9]` should make the string invalid as group name).
+* **description**: The description (brief introduction) of the group. All HTML escape characters should be escaped by the client (when displaying the field, strings inside "<" and ">" must no execute in face of XSS attacks, etc.). and the after-filtering string has a maximum length of *200* chars.
+* **visibility**: A visibility of *0* means the group is private (only the group members can access the group), and *1* means the group is public to everyone (guests can check out the profile of the group).
+* **creator_user_id**: The user id of the creator
+* **users**: a list of users in the group, categorized by their roles
 
 ### 1) listGroupsOf
 List the groups a user has joined.
@@ -423,7 +425,32 @@ In the URL, `@target_user_id` is the id of the user whose groups are to be liste
 `user_id` and `ugl_token` are the log in credentials of the requester. No guest can perform the operation.
 
 #### Response
-TBA.
+As of Mar 15, 2014, the API response to `/api/listGroupsOf/2` looks like
+
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-03-15T07:59:31+00:00",
+    "data": [
+        {
+            "id": "1",
+            "alias": "admin",
+            "description": "",
+            "visibility": "0",
+            "creator_user_id": "3",
+            "users": "{\"admin\": [\"2\"]}"
+        },
+        {
+            "id": "2",
+            "alias": "ugl-dev",
+            "description": "UGL Developers",
+            "visibility": "1",
+            "creator_user_id": "2",
+            "users": "{\"admin\": [\"2\"], \"member\": [\"3\"]}"
+        }
+    ]
+}
+```
 
 #### Associated Errors
 * 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
