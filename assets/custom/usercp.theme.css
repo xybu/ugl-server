@@ -1,18 +1,20 @@
-html, body {
-	height: 100%;
-	overflow: auto;
-}
 
-html {
-	background: #222;
-}
 
 body {
-	padding-top: 50px;
+	padding-top: 48px;
+	min-width: 320px;
 }
 
-#main .page-header {
-  margin-top: 0;
+#main h1 {
+	margin-top: 0;
+}
+
+#main section {
+	margin-bottom: 30px;
+}
+
+#main section h4 {
+	margin-bottom: 0;
 }
 
 .page-divider {
@@ -63,11 +65,27 @@ body {
 	.touch-sidebar{
 		display: none;
 	}
+	
+	.tablet-only{
+		display: none;
+	}
+	
+	.wider-screen{
+		display:block;
+	}
 }
 
 @media (max-width: 767px) {
 	.touch-sidebar{
 		display: block;
+	}
+	
+	.tablet-only{
+		display: block;
+	}
+	
+	.wider-screen{
+		display: none;
 	}
 	
 	.touch-sidebar .nav > li{
@@ -153,32 +171,11 @@ body.loading .ajax-loading {
     width: 6em;
 }
 
-/*
- * Placeholder dashboard ideas
- */
-
-.placeholders {
-  margin-bottom: 30px;
-  text-align: center;
-}
-.placeholders h4 {
-  margin-bottom: 0;
-}
-.placeholder {
-  margin-bottom: 20px;
-}
-.placeholder img {
-  display: inline-block;
-  border-radius: 50%;
-}
-
 .navbar-nav > li > a {
     padding-bottom: 5px;
     /*padding-top: 18px;*/
 	margin-left: 0.3em;
 }
-
-
 
 .nav .avatar {
     float: left;
