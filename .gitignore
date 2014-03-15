@@ -24,3 +24,4 @@ $RECYCLE.BIN/
 tmp/
 tools/
 trash/
+app/conf/*.prod
