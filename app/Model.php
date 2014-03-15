@@ -4,7 +4,7 @@
  *
  * The base model class
  * @author	Xiangyu Bu
- * @date	Mar 03, 2014
+ * @date	Mar 16, 2014
  */
 
 class Model {
@@ -16,21 +16,10 @@ class Model {
 	function __construct(){
 		$this->base=Base::instance();
 		$this->cache = \Cache::instance();
-	}
-	
-	function connectDb(){
-		if (!$this->db)
-			$this->db = new DB\SQL("mysql:host=localhost;port=3306;dbname=ugl_test","root","");
-			//$this->db=new DB\SQL("mysql:host=localhost;port=3306;dbname=ugli_wdyBzpxs","ugli_pJmjACwx","KjwfF4Sp");
-		//new DB\SQL\Session($db); // Use database-managed sessions
-		
-		//$this->db=$db;
+		$this->db = new DB\SQL("mysql:host=" . $this->base->get("DB_HOST") . ";port=" . $this->base->get("DB_PORT") . ";dbname=" . $this->base->get("DB_NAME") . "", $this->base->get("DB_USER"), $this->base->get("DB_PASS"));
 	}
 	
 	function queryDb($cmds, $args=NULL, $ttl=0, $log=TRUE) {
-		//TODO: always connect to improve performance
-		if (!$this->db) $this->connectDb();
-		
 		return $this->db->exec($cmds, $args, $ttl, $log);
 	}
 	
