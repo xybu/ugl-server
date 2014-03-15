@@ -28,7 +28,7 @@ The server side code of project Ugl.
 		 - [setMyPrefs](#8-setmyprefs)
 	 - [Groups](#2-groups)
 		 - [listGroupsOf](#1-list-groups-of)
-
+	 - [News](#3-news)
 ***
 
 # Introduction
@@ -465,3 +465,31 @@ As of Mar 15, 2014, the API response to `/api/listGroupsOf/2` looks like
 ### 4) editGroupProfile
 
 ### 5) editGroupMembers
+
+## 3. News API
+
+News model and associated APIs are introduced to cope with the requests when a user wants 
+to see what is happening to the whole system, a group, the user him/herself, etc (e.g., 
+"Xiangyu created a group named ugl-dev at 2014-03-14T01:22:33."). Think of `News` as events 
+taking place in the system.
+
+The data fields are defined as below:
+* id: the News id
+* user_id: the user who created the News
+* group_id: the group associated with the News
+* visibility: 
+	 * 0 means private, user only news
+	 * 1 means friend-wide visibility
+	 * 2 means group-wide visibility
+	 * 63 means public to everyone
+* category (max length 32 chars):
+	 * group means `created by group controller or API`
+	 * user means `created by user controller or API`
+	 * wallet means `created by wallet controller or API`
+	 * board means `created by board controller or API`
+	 * others TBA.
+* description: the one-sentence description of the News. max length 384 chars.
+* created_at: the timestamp when the News was created
+
+News will be cleaned up every two months (or manually, TBD).
+
