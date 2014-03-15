@@ -49,12 +49,14 @@ Notes:
 * Web Client front-end is written in HTML5 and CSS3 built ono top of Bootstrap framework.
 
 ## Files
- * `app` stores the libraries, configuration files, controllers and models
- 	* `controllers` stores the controllers
- 	* `models` saves all the model files
- 	* `views` stores the views (templates)
- * `assets` has the public accessible files like images, css, and javascript
- * `data` stores logs and files uploaded by users
+ * `app` (0750) stores the libraries, configuration files, controllers and models
+	 * `controllers` stores the controllers
+	 * `models` saves all the model files
+	 * `views` stores the views (templates)
+ * `assets` (0750) has the public accessible files like images, css, and javascript
+ * `data` (0774) stores logs and files uploaded by users
+	 * `log` (0755) system log
+	 * `upload` (0774) user upload files
  * `tmp` if exists, will store temporary files like cache
  * `vendor` if exists, stores reference libraries
 
@@ -63,22 +65,6 @@ Notes:
      * Refer to http://windows.microsoft.com/en-us/windows/outlook/send-receive-from-app
 	 * Username: ugl@sige.us
 	 * Password: Boilermaker!
-  
-
-## Planning
-
-| Component           | Status        | Notes                           |
-| ------------------- | ------------- | ------------------------------- |
-| Autoloader          | Finished      | Part of basic libraries         |
-| Dispatcher          | Finished      | Part of basic libraries         |
-| Cacher              | Finished      | Part of basic libraries         |
-| Generic Controller  | In dev        | n/a.                            |
-| User controller     | In dev        | Working on auth controller part |
-| Group contoller     | Not started   | n/a.                            |
-| Generic Model       | In dev        |                                 |
-| User model          | In dev        | Working on auth model           |
-| Auth model          | In dev        | Working on auth model           |
-| Group model         | Not started   | n/a                             |
 
 ***
 
