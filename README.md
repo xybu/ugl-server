@@ -29,6 +29,7 @@ The server side code of project Ugl.
 	 - [Groups](#2-groups)
 		 - [listGroupsOf](#1-list-groups-of)
 	 - [News](#3-news)
+
 ***
 
 # Introduction
