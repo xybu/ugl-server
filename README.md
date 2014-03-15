@@ -162,15 +162,17 @@ In short `$str=urlencode(base64_encode(aes256($str, $key)))`
 Log a user in. **To be updated to reflect token-based system.**
 
 #### Request
-**Format:**
 
-* Method: `POST`
-* URL: `api/login`
-* Data: `email`=abc@abc.cc&`password`=pass
+| Name   | Description                        |
+| ------ | ---------------------------------- |
+| Method | POST                               |
+| URL    | `api/login`                        |
+| DATA   | `email`=abc@abc.cc&`password`=pass |
 
 **Sanity check:**
 * `email` is a valid email address (RFC 2822)
-* `password` must be at least 6 chars long (server cannot check)
+* `password` equals `pass` which is the one-way encrypted string of the original 
+   password. The original password must be at least 6 chars long (server cannot check).
 
 #### Response
 For example,
