@@ -336,4 +336,19 @@ class API extends \Controller {
 			$this->json_printException($e);
 		}
 	}
+	
+	function createGroup($base){
+	}
+	
+	function deleteGroup($base){
+	}
+	
+	function editGroupProfile($base){
+	}
+	
+	function editGroupMembers($base){
+	}
+	
+	function inviteUserToJoinGroup($base){
+	}
 }

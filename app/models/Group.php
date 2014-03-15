@@ -84,6 +84,10 @@ class Group extends \Model {
 		);
 	}
 	
+	function inviteUserToGroup($uid, $gid){
+		
+	}
+	
 	function addGroupUser($gid, $uid, $role){
 		
 	}
