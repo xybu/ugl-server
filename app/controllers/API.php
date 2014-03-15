@@ -165,7 +165,7 @@ class API extends \Controller {
 			
 			$ticket_info = array("email" => $email, "old_pass" => $user_info["password"], "time" => date("c"));
 			
-			$url = $base->get("WEB_APP_URL") . "/forgot_pass?t=" . urlencode(base64_encode(static::api_encrypt(json_encode($ticket_info), static::API_WIDE_KEY)));
+			$url = $base->get("APP_URL") . "/forgot_pass?t=" . urlencode(base64_encode(static::api_encrypt(json_encode($ticket_info), static::API_WIDE_KEY)));
 			
 			$mail = new \models\Mail();
 			$mail->addTo($email, $first_name . ' ' . $last_name);
