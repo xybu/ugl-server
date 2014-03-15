@@ -15,7 +15,7 @@ class API extends \Controller {
 	const RSTPWD_REQ_EXPIRATION = 24; // in hrs
 	const API_WIDE_KEY = "1POm3YWVlVFriePu2aJfa+K5UElFA0ESeN+4Bb57YnYFyZGDit/Cw1o9rSWZQeFs";
 	
-	private static $API_KEYS = array(
+	public static $API_KEYS = array(
 		"ugl_android" => "7wR+GgG/r2Mm7hkymXXeMGuXU9ojN2HV5AlIuoJqg+TZ41DlwCIQpf93A3MJs2hI",
 		"ugl_web" => "2IwehG2VEm3WhjLRMK/1aUPqAdW7KNvvRuskedxuOgOQ2jbO+wkKs5p5qJwh98GM"
 	);

@@ -172,7 +172,21 @@ Log a user in. **To be updated to reflect token-based system.**
 * `password` must be at least 6 chars long (server cannot check)
 
 #### Response
-TBA.
+For example,
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-02-16T20:58:30+00:00",
+    "data": {
+		"user_id": 12345,
+		"ugl_token": a_long_hashed_string_token
+    }
+}
+```
+
+The client should save the `user_id` and `ugl_token` and send them back to the server 
+so that the server can identify the user as logged in. Think of the `ugl_token` as a 
+special, volatile password associated with the user.
 
 #### Associated Errors
 * 100 - Email or password not provided
@@ -207,6 +221,9 @@ Register an account. **To be updated to reflect token-based system.**
 **Encryption:**
 
 refer to the Encryption section.
+
+#### Response
+Same as the log in response.
 
 #### Associated Errors
 * 100 - Email, password, or name not provided
@@ -291,10 +308,10 @@ And then use two-way encryption to encode the json text above. Let $data denote 
 
 * Method: POST
 * URL: /api/oauth/callback
-* Data: $data
+* Data: `from`=ugl_android&`data`=$data
 
 #### Response
-TBD.
+Same as the log in response.
 
 #### Associated Errors
 TBD.

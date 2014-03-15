@@ -139,17 +139,78 @@ class User extends \Controller {
 				} else
 					throw new \Exception("No email specified.", 101);	
 			}
-		} catch( Exception $e ) {
+		} catch (\Exception $e) {
 			//TODO: show a hint page and move on
 			$this->json_printException($e);
 		}
 	}
 	
 	function oauth_clientCallback($base){
-		
+		try {
+			if (!$base->exists("POST.data") or !$base->exists("POST.from"))
+				throw new \Exception("Missing required POST fields", 1);
+			if (!array_key_exists($base->get("POST.from"), API::$API_KEYS))
+				throw new \Exception("Unrecognized client", 2);
+			
+			$oauth_str = urldecode($base->get("POST.data"));
+			$oauth_str = base64_decode($oauth_str);
+			$oauth_str = API::api_decrypt($oauth_str, API::$API_KEYS[$base->get("POST.from")]);
+			if (empty($oauth_str))
+				throw new \Exception("Failed to decrypt the information", 3);
+			
+			
+			$oauth_obj = new \models\OAuthObject();
+			$oauth_obj->loadJSON($oauth_str);
+			$response = $oauth_obj->toArray();
+			
+			$authentication = new \models\Authentication();
+			$user = new \models\User();
+			
+			$oauth_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
+			$user_id = null;
+			$user_token = null;
+			// if authentication already exists, reroute to dashboard
+			if ($oauth_info){
+				$user_id = $oauth_info["user_id"];
+				$user_token = $user->refreshToken($oauth_info["user_id"]);
+			} else {
+				$provider = $response['auth']['provider']; // replace 'callback' by the real provider
+				$provider_uid = $response['auth']['uid'];
+				$email = $response['auth']['info']['email'];
+				$first_name = $response['auth']['info']['first_name'];
+				$last_name = $response['auth']['info']['last_name'];
+				$display_name = $response['auth']['info']['name'];
+				$avatar_url = $response['auth']['info']['image'];
+				
+				if (array_key_exists('website', $response['auth']['info']['urls']))
+					$website_url   = $response['auth']['info']['urls']['website'];
+				else $website_url = "";
+				
+				if ($email){
+					$user_info = $user->findByEmail($email);
+					
+					if ($user_info) {
+						// the user registered the email, but hasn't assoc with his account
+						$user_id = $user_info["id"];
+						$user_token = $user->refreshToken($user_id);
+						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
+					} else {
+						// the user hasn't registered the email
+						// User model will generate a random password and send email
+						$user_creds = $user->createUser($email, "", $first_name, $last_name, $avatar_url);
+						$authentication->createAuth($user_creds["id"], $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
+						$user_id = $user_creds["id"];
+						$user_token = $user_creds["ugl_token"];
+					}
+				} else throw new \Exception("Email does not exist in the fields", 4);
+			}
+			$this->json_printResponse(array("user_id" => $user_id, "ugl_token" => $user_token));
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
 	}
 	
-	function showUserPanel($base) {
+	function showUserPanel($base){
 		if (!$base->exists("SESSION.user"))
 			$this->backToHomepage($base);
 		
