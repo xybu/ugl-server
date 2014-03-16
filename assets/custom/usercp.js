@@ -97,7 +97,7 @@ function init_dashboard(){
 
 function init_groups(){
 	document.title = "Groups | Ugl";
-	
+	/*
 	// load group list
 	$.post("/api/listGroupsOf/me", function(data){
 		if (data.status == "success"){
@@ -130,7 +130,7 @@ function init_groups(){
 	}).fail(function(xhr, textStatus, errorThrown) {
 		$("#group-loader").html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
     });
-	
+	*/
 	ugl_panel_initialized = true;
 }
 

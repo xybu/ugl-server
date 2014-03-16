@@ -230,6 +230,9 @@ class User extends \Controller {
 			case "dashboard":
 				break;
 			case "groups":
+				$group = new \models\Group();
+				$group_list = $group->listGroupsOfUserId($me["id"], 0);
+				$base->set("groupList", $group_list);
 				break;
 			case "boards":
 				break;
@@ -269,6 +272,9 @@ class User extends \Controller {
 			case "dashboard":
 				break;
 			case "groups":
+				$group = new \models\Group();
+				$group_list = $group->listGroupsOfUserId($me["id"], 0);
+				$base->set("groupList", $group_list);
 				break;
 			case "boards":
 				break;

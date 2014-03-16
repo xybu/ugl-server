@@ -79,14 +79,14 @@ $menu_list[$panel][2] = " active";
 		
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-md-1 sidebar wide-sidebar">
+				<div class="col-sm-2 col-md-1 sidebar wide-sidebar">
 					<ul class="nav nav-sidebar">
 						<?php
 						foreach ($menu_list as $key => $val)
 							echo "<li><a class=\"" . $key . "-li" . $val[2] . "\" href=\"/my/" . $key . "\"><i class=\"fa ". $val[0] ." fa-3x\"></i><br />" . $val[1] . "</a></li>";?>
 					</ul>
 				</div>
-				<div class="col-sm-10 col-sm-offset-1 col-md-11 main" id="main">
+				<div class="col-sm-10 col-sm-offset-2 col-md-offset-1 col-md-11 main" id="main">
 					<?php
 						if (isset($panel))
 							echo $this->render('my_' . $panel . '.html');

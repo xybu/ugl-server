@@ -10,12 +10,27 @@
 			<section class="row tablet-only">
 				<button type="button" class="btn btn-primary"><i class="fa fa-plus-square"></i> Create</button>
 				<button type="button" class="btn btn-info"><i class="fa fa-sign-in"></i> Join</button>
-				<button type="button" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
 			</section>
 			<section class="row" id="group-list">
-				<div class="col-md-12 text-center" id="group-loader">
-					<img src="assets/img/loader.gif" />
-				</div>
+				<?php
+				if (count($groupList) == 0){
+					echo "<div class=\"col-md-12 text-center\"><span class=\"alert alert-info\">Oops... You don't have any groups yet.</span></div>";
+				} else {
+					foreach($groupList as $item){
+						if (empty($item["avatar_url"])) $item["avatar_url"] = "assets/img/default-avatar-group.png";
+						echo "<div class=\"col-sm-6 col-md-4\" id=\"group_" . $item["id"] . "\" data-visibility=\"" . $item["visibility"] . "\" data-creator=\"" . $item["creator_user_id"] . "\">" .
+							"<div class=\"thumbnail\"><img class=\"avatar\" src=\"" . $item["avatar_url"] . "\" />" .
+							"<div class=\"caption text-center\">" .
+							"<h3 class=\"group_alias\">" . $item["alias"] . "</h3>" .
+							"<p class=\"group_desc\">" . $item["description"] . "</p>" .
+							"<div><a class=\"btn btn-primary\" role=\"button\">Enter</a> " .
+							"<a class=\"btn btn-default\" role=\"button\">Profile</a> <a class=\"btn btn-warning\" role=\"button\">Leave</a></div>" .
+							"<div id=\"group_members\" class=\"hidden\">" . $item["users"] . "</div>" .
+							"<div id=\"group_tags\" class=\"hidden\">" . $item["tags"] . "</div>" .
+							"</div></div></div>";
+					}
+				}
+				?>
 			</section>
 		</div>
 	</div>
@@ -50,56 +65,50 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
-				<h3 class="modal-title"><i class="fa fa-plus-square"></i> Create a new group</h3>
+				<h3 class="modal-title">
+					<i class="fa fa-plus-square"></i> Create a new group
+					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button></h3>
 			</div>
 			<form class="form-horizontal">
 				<div class="modal-body">
-					<div class="control-group">
-						<label class="control-label" for="alias">Name</label>
-						<div class="controls">
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Name</div>
+						<div class="col-sm-8 col-md-9">
 							<input id="alias" name="alias" placeholder="Name of your group." class="input-xlarge" required="" type="text">
 							<p class="help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</p>
 						</div>
 					</div>
-					<div class="control-group">
-						<label class="control-label" for="description">Description</label>
-						<div class="controls">                     
-							<textarea id="description" name="description" placeholder="A brief introduction to your group..."></textarea>
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Description</div>
+						<div class="col-sm-8 col-md-9">                     
+							<textarea id="description" name="description" maxlength="150" oninput="$('#desc_counter').text(150 - $('#description').val().length)"></textarea>
+							<p class="help-block"><span id="desc_counter">150</span> character(s) left</p>
 						</div>
 					</div>
-					<div class="control-group">
-						<label class="control-label" for="tags">Tags</label>
-						<div class="controls">
-							<input id="tags" name="tags" placeholder="programming purdue other tags" class="input-xlarge" type="text">
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Tags</div>
+						<div class="col-sm-8 col-md-9">
+							<input id="tags" name="tags" placeholder="programming purdue other tags" class="input-xxlarge" type="text">
 							<p class="help-block">Tags can help others find your group.</p>
 						</div>
 					</div>
-					<div class="control-group">
-						<label class="control-label" for="avatar">Avatar</label>
-						<div class="controls">
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Avatar</div>
+						<div class="col-sm-8 col-md-9">
 							<input id="avatar" name="avatar" class="input-file" type="file">
 						</div>
 					</div>
-					<div class="control-group">
-						<label class="control-label" for="visibility">Visibility</label>
-						<div class="controls">
-							<label class="radio inline" for="visibility-0">
-								<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
-								This group is private and no one can view or join it unless invited by me.
-							</label>
-							<label class="radio inline" for="visibility-1">
-								<input name="visibility" id="visibility-1" value="1" type="radio">
-								This group is public, but joining it requires my invitation.
-							</label>
-							<label class="radio inline" for="visibility-2">
-								<input name="visibility" id="visibility-2" value="2" type="radio">
-								This group is public, but one needs to apply to join.
-							</label>
-							<label class="radio inline" for="visibility-3">
-								<input name="visibility" id="visibility-3" value="64" type="radio">
-								This group is public and open to everyone.
-							</label>
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Visibility</div>
+						<div class="col-sm-8 col-md-9">
+							<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
+							<label for="visibility-0">Private - only members can view the group.</label><br>
+							<input name="visibility" id="visibility-1" value="1" type="radio">
+							<label for="visibility-1">Public - joining requires my invitation.</label><br>
+							<input name="visibility" id="visibility-2" value="2" type="radio">
+							<label for="visibility-2">Public - people can apply to join.</label><br>
+							<input name="visibility" id="visibility-3" value="64" type="radio">
+							<label for="visibility-3">Public - open to everyone.</label>
 						</div>
 					</div>
 				</div>
@@ -113,23 +122,23 @@
 </div>
 
 <div id="join_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="join_group_modalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
-					<h3 class="modal-title"><i class="fa fa-sign-in"></i> Join a Group</h3>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+				<h3 class="modal-title"><i class="fa fa-sign-in"></i> Join a Group</h3>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<h4>Please paste the invitation key provided by the group admin:</h4>
+					<input type="text" name="ticket" id="ticket" class="form-control" tabindex="3" data-placement="bottom" required />
 				</div>
-				<div class="modal-body">
-					<div class="form-group">
-						<h4>Please enter the email of your account:</h4>
-						<input type="email" name="email" id="rst_email" class="form-control" placeholder="Email address" tabindex="3" data-placement="bottom" data-trigger="manual" title="Please enter an email address" required />
-					</div>
-					<div id="rst_result" style="display:none;"></div>
-				</div>
-				<div class="modal-footer">
-					<button class="btn btn-primary" type="submit">Proceed</button>
-					<button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
-				</div>
+				<div id="rst_result" style="display:none;"></div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" type="submit">Proceed</button>
+				<button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
 			</div>
 		</div>
+	</div>
 </div>
