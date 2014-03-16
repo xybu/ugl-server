@@ -23,14 +23,14 @@ class Group extends \Model {
 	}
 	
 	function findByGroupId($id){
-		$result = $this->queryDb("SELECT * FROM groups WHERE id=?;", $id, 360);
+		$result = $this->queryDb("SELECT * FROM groups WHERE id=?;", $id, 1800);
 		if (count($result) == 1)
 			return $result[0];
 		return null;
 	}
 	
 	function findByGroupAlias($alias){
-		$result = $this->queryDb("SELECT * FROM groups WHERE alias=?;", $alias, 360);
+		$result = $this->queryDb("SELECT * FROM groups WHERE alias=?;", $alias, 1800);
 		if (count($result) == 1)
 			return $result[0];
 		return null;
@@ -38,14 +38,14 @@ class Group extends \Model {
 	
 	// public only
 	function findByKeyword($keyword){
-		$result = $this->queryDb("SELECT * FROM groups WHERE visibility >= 1 AND CONCAT_WS(' ', alias, description, tags) LIKE '?';", "%" . $keyword . "%");
+		$result = $this->queryDb("SELECT * FROM groups WHERE visibility >= 1 AND CONCAT_WS(' ', alias, description, tags) LIKE '?';", "%" . $keyword . "%", 7200);
 		if (count($result) > 0)
 			return $result;
 		return null;
 	}
 	
 	function listGroupsOfUserId($user_id, $visibility = 0){
-		$result = $this->queryDb("SELECT * FROM groups WHERE visibility >= " . $visibility . " AND users LIKE '%\"" . $user_id . "\"%';");
+		$result = $this->queryDb("SELECT * FROM groups WHERE visibility>=? AND users LIKE '%\"" . $user_id . "\"%';", $visibility, 1800);
 		if (count($result) > 0)
 			return $result;
 		return null;

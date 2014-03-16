@@ -242,7 +242,7 @@ class User extends \Controller {
 				break;
 			case "preferences":
 				break;
-			case "profile":
+			case "settings":
 				break;
 			default:
 				die();
@@ -284,7 +284,7 @@ class User extends \Controller {
 				break;
 			case "preferences":
 				break;
-			case "profile":
+			case "settings":
 				break;
 			default:
 				die();

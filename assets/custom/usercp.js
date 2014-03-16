@@ -150,7 +150,8 @@ function init_wallet(){
 	ugl_panel_initialized = true;
 }
 
-function init_profile(){
+function init_settings(){
 	document.title = "Settings | Ugl";
+	$('#settingsTab a:first').tab('show');
 	ugl_panel_initialized = true;
 }

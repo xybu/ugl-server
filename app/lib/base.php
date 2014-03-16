@@ -37,7 +37,7 @@ class Base extends Prefab {
 
 	//@{ Framework details
 	const
-		PACKAGE='Fat-Free Framework',
+		PACKAGE='Ugl Server',
 		VERSION='3.2.1-Release';
 	//@}
 

@@ -1,0 +1,130 @@
+<div class="container-fluid">
+	<h1 class="page-header">Settings</h1>
+	<div class="row">
+	<div class="col-md-12">
+		<ul class="nav nav-tabs" id="settingsTab">
+			<li class="active"><a href="#profile" data-toggle="tab">Profile</a></li>
+			<li><a href="#preferences" data-toggle="tab">Preferences</a></li>
+			<li><a href="#accounts" data-toggle="tab">Accounts &amp; Devices</a></li>
+			<li><a href="#stat" data-toggle="tab">Statistics</a></li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane active" id="profile">
+				<h3 class="sub-header">Profile</h3>
+				<div class="row form-group">
+					<label class="col-sm-3 col-md-2">First Name</label>
+					<div class="col-sm-9 col-md-10">
+						<input id="alias" name="alias" placeholder="Name of your group." class="col-md-7 col-sm-6 col-xs-6" required="" type="text">
+						<div class="col-md-5 col-sm-6 col-xs-6">error prompt</div>
+						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</div>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label class="col-sm-3 col-md-2">Last Name</label>
+					<div class="col-sm-9 col-md-10">
+						<input id="alias" name="alias" placeholder="Name of your group." class="col-md-7 col-sm-6 col-xs-6" required="" type="text">
+						<div class="col-md-5 col-sm-6 col-xs-6">error prompt</div>
+						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</div>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label class="col-sm-3 col-md-2">Main email</label>
+					<div class="col-sm-9 col-md-10">
+						<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
+						<label for="visibility-0">aaa@bbb.com</label><br>
+						<input name="visibility" id="visibility-1" value="1" type="radio">
+						<label for="visibility-1">ccc@ddd.com</label><br>
+						<input name="visibility" id="visibility-1" value="1" type="radio">
+						<label for="visibility-1">Add a new one</label><br>
+						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Main email address is the email you use to log in and receive notifications.</div>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label class="col-sm-3 col-md-2">Phone</label>
+					<div class="col-sm-9 col-md-10">
+						<input id="alias" name="alias" placeholder="Name of your group." class="col-md-7 col-sm-6 col-xs-6" required="" type="text">
+						<div class="col-md-5 col-sm-6 col-xs-6">error prompt</div>
+					</div>
+				</div>
+				<h3 class="sub-header">Extra</h3>
+				<div class="row form-group">
+					<label class="col-sm-3 col-md-2">Nickname</label>
+					<div class="col-sm-9 col-md-10">
+						<input id="alias" name="alias" placeholder="Name of your group." class="col-md-7 col-sm-6 col-xs-6" required="" type="text">
+						<div class="col-md-5 col-sm-6 col-xs-6">error prompt</div>
+						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</div>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label class="col-sm-3 col-md-2">Avatar</label>
+					<div class="col-sm-9 col-md-10">
+						<input id="alias" name="alias" placeholder="Name of your group." class="col-md-7 col-sm-6 col-xs-6" required="" type="text">
+						<div class="col-md-5 col-sm-6 col-xs-6">error prompt</div>
+						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</div>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label class="col-sm-3 col-md-2">Description</label>
+					<div class="col-sm-9 col-md-10">
+						<textarea id="description" name="description" maxlength="150" oninput="$('#desc_counter').text(150 - $('#description').val().length)"></textarea>
+						<div class="col-md-12 col-sm-12 col-xs-12 help-block"><span id="desc_counter">150</span> character(s) left</div>
+					</div>
+				</div>
+			</div>
+			<div class="tab-pane" id="preferences">
+				<h3 class="sub-header">Group Preferences</h3>
+				<div class="row form-group">
+					<label class="col-sm-4 col-md-4">Allow others to see the list of my public groups:</label>
+					<div class="col-sm-8 col-md-8">
+						<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
+						<label for="visibility-0">Yes. Others can see the public groups I am in.</label><br>
+						<input name="visibility" id="visibility-1" value="1" type="radio">
+						<label for="visibility-1">No. No one can see what groups I am in.</label><br>
+						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Note: private groups are always hidden.</div>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label class="col-sm-4 col-md-4">Automatically accept group invitations:</label>
+					<div class="col-sm-8 col-md-8">
+						<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
+						<label for="visibility-0">Yes. When I receive invitations, simply add me to the group.</label><br>
+						<input name="visibility" id="visibility-1" value="1" type="radio">
+						<label for="visibility-1">No. Let me decide whether to join or not.</label><br>
+					</div>
+				</div>
+			</div>
+			<div class="tab-pane" id="accounts">
+				<h3 class="sub-header">Accounts</h3>
+				<div class="row form-group">
+					<label class="col-sm-4 col-md-4">Delete my account:</label>
+					<div class="col-sm-8 col-md-8">
+						<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
+						<label for="visibility-0">Yes. When I receive invitations, simply add me to the group.</label><br>
+						<input name="visibility" id="visibility-1" value="1" type="radio">
+						<label for="visibility-1">No. Let me decide whether to join or not.</label><br>
+					</div>
+				</div>
+				<h3 class="sub-header">Registered Devices</h3>
+				<div class="row form-group">
+					<div class="col-md-12">You have no registered devices yet.</div>
+				</div>
+			</div>
+			<div class="tab-pane" id="stat">
+				<h3 class="sub-header">Statistics</h3>
+				<div class="row form-group">
+					<label class="col-sm-4 col-md-4">Groups I am in</label>
+					<div class="col-sm-8 col-md-8">
+						0
+					</div>
+				</div>
+				<div class="row form-group">
+					<label class="col-sm-4 col-md-4">Groups I created</label>
+					<div class="col-sm-8 col-md-8">
+						0
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
