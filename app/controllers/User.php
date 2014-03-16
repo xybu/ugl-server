@@ -31,10 +31,6 @@ class User extends \Controller {
 					'client_id' => '1066850527889-9bkq0vhvljp8ou765vagouk2jbgdrt9t.apps.googleusercontent.com',
 					'client_secret' => 'ewKUAvKJhm9OmAXW7f5Apisj'
 				),
-				'Twitter' => array(
-					'key' => 'YOUR CONSUMER KEY',
-					'secret' => 'YOUR CONSUMER SECRET'
-				),
 				'GitHub' => array(
 					'client_id' => '613dce24298b1abd2c39',
 					'client_secret' => '60f896c4c4a3f4c6e8eb83ed9c266657e7f4ba3e'
@@ -106,6 +102,9 @@ class User extends \Controller {
 					$base->reroute("@usercp(@panel=dashboard)");
 				}
 				
+				if (!array_key_exists("email", $response['auth']['info']))
+					throw new \Exception("Sorry, your provide did not share your email address with Ugl. Please register directly.", 101);
+				
 				$provider  = $response['auth']['provider']; // replace 'callback' by the real provider
 				$provider_uid  = $response['auth']['uid'];
 				$email         = $response['auth']['info']['email'];
@@ -118,30 +117,27 @@ class User extends \Controller {
 					$website_url   = $response['auth']['info']['urls']['website'];
 				else $website_url = "";
 				
-				if ($email){
-					$user_info = $user->findByEmail($email);
-					$user_id = null;
-					$user_token = null;
-					if ($user_info) {
-						// the user registered the email, but hasn't assoc with his account
-						$user_id = $user_info["id"];
-						$user_token = $user->getUserToken($user_id);
-						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
-					} else {
-						// the user hasn't registered the email
-						// User model will generate a random password and send email
-						$user_creds = $user->createUser($email, "", $first_name, $last_name, $avatar_url);
-						$user_id = $user_creds["id"];
-						$user_token = $user_creds["ugl_token"];
-						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
-					}
-					$base->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
-					$base->reroute("@usercp(@panel=dashboard)");
-				} else
-					throw new \Exception("No email specified.", 101);	
+				$user_info = $user->findByEmail($email);
+				$user_id = null;
+				$user_token = null;
+				if ($user_info) {
+					// the user registered the email, but hasn't assoc with his account
+					$user_id = $user_info["id"];
+					$user_token = $user->getUserToken($user_id);
+					$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
+				} else {
+					// the user hasn't registered the email
+					// User model will generate a random password and send email
+					$user_creds = $user->createUser($email, "", $first_name, $last_name, $avatar_url);
+					$user_id = $user_creds["id"];
+					$user_token = $user_creds["ugl_token"];
+					$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
+				}
+				$base->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
+				$base->reroute("@usercp(@panel=dashboard)");
+					
 			}
 		} catch (\Exception $e) {
-			//TODO: show a hint page and move on
 			$base->set("rt_notification_modal", array(
 				"type" => "warning", 
 				"title" => "Authentication failed", 

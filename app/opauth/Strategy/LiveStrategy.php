@@ -35,7 +35,7 @@ class LiveStrategy extends \opauth\OpauthStrategy {
 	 */
 	public $defaults = array(
 		'redirect_uri' => '{complete_url_to_strategy}oauth2callback',
-		'scope' => 'wl.basic'
+		'scope' => 'wl.basic wl.emails'
 	);
 	
 	/**
