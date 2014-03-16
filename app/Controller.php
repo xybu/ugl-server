@@ -26,12 +26,12 @@ class Controller {
 	}
 	
 	//! HTTP route pre-processor
-	function beforeroute($base) {
+	function beforeRoute($base) {
 		$this->base=$base;
 	}
 
 	//! HTTP route post-processor
-	function afterroute() {
+	function afterRoute($base) {
 		// Render HTML layout
 		//echo Template::instance()->render('layout.htm');
 		if ($this->view)

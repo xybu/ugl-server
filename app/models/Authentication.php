@@ -20,14 +20,12 @@ class Authentication extends \Model {
 	function createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url){ 
 		
 		$result = $this->queryDb(
-			array(
-				"INSERT INTO authentications (user_id, provider, provider_uid, email, display_name, first_name, last_name, avatar_url, website_url, created_at) VALUES (:user_id, :provider, :provider_uid, :email, :display_name, :first_name, :last_name, :avatar_url, :website_url, NOW())",
-				"SELECT id FROM authentications WHERE user_id=:user_id AND provider_uid=:provider_uid LIMIT 1"
-			), 
+			"INSERT INTO authentications (user_id, provider, provider_uid, email, display_name, first_name, last_name, avatar_url, website_url, created_at) VALUES (:user_id, :provider, :provider_uid, :email, :display_name, :first_name, :last_name, :avatar_url, :website_url, NOW()); " .
+			"SELECT id FROM authentications WHERE user_id=:user_id AND provider_uid=:provider_uid LIMIT 1;", 
 			array(
 				':user_id' => $user_id, 
 				':provider' => $provider, 
-				':provider_uid' => , $provider_uid,
+				':provider_uid' => $provider_uid,
 				':email' => $email, 
 				':display_name' => $display_name, 
 				':first_name' => $first_name, 

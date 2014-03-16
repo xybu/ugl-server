@@ -81,8 +81,11 @@ class User extends \Controller {
 						break;
 				}
 				
+				if (empty($response))
+					throw new \Exception("Error occurred during authentication. Please retry.");
+				
 				if (array_key_exists('error', $response))
-					throw new \Exception("Authentication Error: " . $response['error'], 1);
+					throw new \Exception("Authentication Error: " . $response['error']['message'], 1);
 				
 				if (empty($response['auth']) || empty($response['timestamp']) || empty($response['signature']) || empty($response['auth']['provider']) || empty($response['auth']['uid']))
 					throw new \Exception("Invalid auth response: Missing key auth response components.", 2);
@@ -100,30 +103,31 @@ class User extends \Controller {
 				// if authentication already exists, reroute to dashboard
 				if ($oauth_info){
 					$base->set("SESSION.user", array("id" => $oauth_info["user_id"], "ugl_token" => $user->refreshToken($oauth_info["user_id"])));
-					$base->reroute("/user/dashboard");
+					$base->reroute("@usercp(@panel=dashboard)");
 				}
 				
 				$provider  = $response['auth']['provider']; // replace 'callback' by the real provider
 				$provider_uid  = $response['auth']['uid'];
 				$email         = $response['auth']['info']['email'];
-				$first_name    = $response['auth']['info']['first_name'];
-				$last_name     = $response['auth']['info']['last_name'];
+				$first_name    = array_key_exists("first_name", $response['auth']['info']) ? $response['auth']['info']['first_name'] : "";
+				$last_name     = array_key_exists("last_name", $response['auth']['info']) ? $response['auth']['info']['last_name'] : "";
 				$display_name  = $response['auth']['info']['name'];
 				$avatar_url   = $response['auth']['info']['image'];
-
+				
 				if (array_key_exists('website', $response['auth']['info']['urls']))
 					$website_url   = $response['auth']['info']['urls']['website'];
 				else $website_url = "";
 				
 				if ($email){
-					
 					$user_info = $user->findByEmail($email);
 					$user_id = null;
 					$user_token = null;
 					if ($user_info) {
 						// the user registered the email, but hasn't assoc with his account
+						
 						$user_id = $user_info["id"];
 						$user_token = $user->getUserToken($user_id);
+						
 						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					} else {
 						// the user hasn't registered the email
@@ -135,13 +139,19 @@ class User extends \Controller {
 					}
 					
 					$base->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
-					$base->reroute("/my/dashboard");
+					$base->reroute("@usercp(@panel=dashboard)");
 				} else
 					throw new \Exception("No email specified.", 101);	
 			}
 		} catch (\Exception $e) {
 			//TODO: show a hint page and move on
-			$this->json_printException($e);
+			$base->set("rt_notification_modal", array(
+				"type" => "warning", 
+				"title" => "Authentication failed", 
+				"message" => $e->getMessage())
+			);
+			$base->set('page_title','Unified Group Life');
+			$this->setView('homepage.html');
 		}
 	}
 	

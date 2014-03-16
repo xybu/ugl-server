@@ -116,7 +116,8 @@ class GitHubStrategy extends \opauth\OpauthStrategy {
 				'code' => 'oauth2callback_error',
 				'raw' => $_GET
 			);
-			
+			if (isset($_GET["error_description"]))
+				$error["message"] = $_GET["error_description"];
 			$this->errorCallback($error);
 		}
 	}
