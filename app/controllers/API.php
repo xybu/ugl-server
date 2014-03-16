@@ -53,8 +53,14 @@ class API extends \Controller {
 				throw new \Exception("Invalid email address", 101);
 			
 			$password = $base->get("POST.password");
-			if (!$user->isValidPassword($password))
+			if (!$user->isValidPassword($password)){
+				if ($base->exists("SESSION.loginFail_count"))
+					$count = intval($base->get("SESSION.loginFail_count"));
+				else $count = 0;
+				$base->set("SESSION.loginFail_count", $count + 1);
+				
 				throw new \Exception("Password should not be empty", 103);
+			}
 			
 			$user_data = $user->findByEmailAndPassword($email, $password);
 			
@@ -67,13 +73,6 @@ class API extends \Controller {
 				throw new \Exception("User not found, or email and password do not match.", 102);
 			
 		} catch (\Exception $e){
-			
-			if ($base->exists("SESSION.loginFail_count"))
-				$count = intval($base->get("SESSION.loginFail_count"));
-			else $count = 0;
-			
-			$base->set("SESSION.loginFail_count", $count + 1);
-			
 			$this->json_printException($e);
 		}
 	}
