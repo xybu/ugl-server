@@ -64,7 +64,7 @@ class User extends \Controller {
 				switch($opauth->env['callback_transport']){	
 					case 'session':
 						$response = $base->get('SESSION.opauth');;
-						//$base->set('SESSION.opauth', null);
+						$base->clear('SESSION.opauth');
 						break;
 					case 'post':
 						$response = unserialize(base64_decode($_POST['opauth']));
@@ -86,8 +86,8 @@ class User extends \Controller {
 				if (empty($response['auth']) || empty($response['timestamp']) || empty($response['signature']) || empty($response['auth']['provider']) || empty($response['auth']['uid']))
 					throw new \Exception("Invalid auth response: Missing key auth response components.", 2);
 				
-				//if (!$opauth->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason))
-				//	throw new \Exception("Invalid response: " . $reason, 3);
+				if (!$opauth->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason))
+					throw new \Exception("Invalid response: " . $reason, 3);
 				
 				// load user and authentication models
 				$authentication = new \models\Authentication();
@@ -216,6 +216,9 @@ class User extends \Controller {
 		if (!$base->exists("SESSION.user"))
 			$this->backToHomepage($base);
 		
+		if ($base->exists("SESSION.loginFail_count"))
+			$base->clear("SESSION.loginFail_count");
+			
 		$user = new \models\User();
 		$me = $base->get("SESSION.user");
 		$panel = $base->get("PARAMS.panel");
@@ -294,7 +297,7 @@ class User extends \Controller {
 	}
 	
 	function backToHomepage($base, $revokeSession = true, $redirect = true){
-		if ($revokeSession) $base->set("SESSION.user", null);
+		if ($revokeSession) $base->clear("SESSION.user");
 		if ($redirect) $base->reroute("/");
 		else die();
 	}

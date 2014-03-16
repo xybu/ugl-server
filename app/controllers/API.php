@@ -12,6 +12,7 @@ class API extends \Controller {
 	
 	const ENABLE_LOG = true;
 	const RSTPWD_REQ_PER_SESSION = 3;
+	const LOGIN_REQ_PER_SESSMION = 5;
 	const RSTPWD_REQ_EXPIRATION = 24; // in hrs
 	const API_WIDE_KEY = "1POm3YWVlVFriePu2aJfa+K5UElFA0ESeN+4Bb57YnYFyZGDit/Cw1o9rSWZQeFs";
 	
@@ -38,6 +39,9 @@ class API extends \Controller {
 	
 	function loginUser($base){
 		try {
+			if ($base->exists("SESSION.loginFail_count") && intval($base->get("SESSION.loginFail_count")) > static::LOGIN_REQ_PER_SESSMION)
+				throw new \Exception("Your account is temporarily on held for security concern. Please retry later or use social account to log in", 104);
+			
 			if (!$base->exists("POST.email") or !$base->exists("POST.password"))
 				throw new \Exception("Email or password not provided", 100);
 			
@@ -57,11 +61,19 @@ class API extends \Controller {
 			// user found?
 			if ($user_data){
 				$base->set("SESSION.user", $user_data);
+				if ($base->exists("SESSION.loginFail_count")) $base->clear("SESSION.loginFail_count");
 				$this->json_printResponse(array("user_id" => $user_data["id"], "ugl_token" => $user_data["ugl_token"]));
 			} else 
 				throw new \Exception("User not found, or email and password do not match.", 102);
 			
 		} catch (\Exception $e){
+			
+			if ($base->exists("SESSION.loginFail_count"))
+				$count = intval($base->get("SESSION.loginFail_count"));
+			else $count = 0;
+			
+			$base->set("SESSION.loginFail_count", $count + 1);
+			
 			$this->json_printException($e);
 		}
 	}
@@ -72,7 +84,7 @@ class API extends \Controller {
 			$base->set("POST.user_id", $user_info["id"]);
 			$base->set("POST.ugl_token", $user_info["ugl_token"]);
 			$this->revokeToken($base, true);
-			$base->set("SESSION.user", null);
+			$base->clear("SESSION.user");
 		}
 		$this->json_printResponse(array("message" => "You have successfully logged out"));
 	}

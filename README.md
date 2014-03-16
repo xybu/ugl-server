@@ -180,8 +180,9 @@ special, volatile password associated with the user.
 #### Associated Errors
 * 100 - Email or password not provided
 * 101 - Invalid email address
-* 102 - User not found, or email and password do not match.
+* 102 - User not found, or email and password do not match
 * 103 - Password should not be empty
+* 104 - Your account is temporarily on held for security concern. Please retry later or use social account to log in (too many failed attempts)
 
 ### 2) logout
 Logout is a web client-only event. For mobile apps please use [revokeToken](#5-revoketoken) event.
