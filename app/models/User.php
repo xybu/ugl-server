@@ -68,12 +68,9 @@ class User extends \Model {
 			$send_email = true;
 		}
 		
-		$result = $this->queryDb(
-			array(
-				"INSERT INTO users (email, password, first_name, last_name, avatar_url, created_at, token_active_at) " .
-				"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW());",
-				"SELECT id, token_active_at FROM users WHERE email=:email LIMIT 1;"
-			),
+		$this->queryDb(
+			"INSERT INTO users (email, password, first_name, last_name, avatar_url, created_at, token_active_at) " .
+			"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW()); ",
 			array(
 				':email' => $email,
 				':password' => $this->getUserToken(0, $password),
@@ -83,6 +80,8 @@ class User extends \Model {
 			)
 		);
 		
+		$result = $this->findByEmail($email);
+				
 		if ($send_email){
 			try {
 				$mail = new Mail();
@@ -110,7 +109,7 @@ class User extends \Model {
 		// can still work if failed to send email
 		if (count($result) == 1){
 			return array("id" => $result[0]["id"], "ugl_token" => $this->getUserToken($result[0]["id"], $result[0]["token_active_at"]));
-		} else return -1;
+		} else return null;
 	}
 	
 	function getUserProfile($id, $email = ""){

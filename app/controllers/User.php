@@ -28,8 +28,8 @@ class User extends \Controller {
 					'app_secret' => 'e4d275c92c9f73fa4924e15deee55d23'
 				),
 				'Google' => array(
-					'client_id' => 'YOUR CLIENT ID',
-					'client_secret' => 'YOUR CLIENT SECRET'
+					'client_id' => '1066850527889-9bkq0vhvljp8ou765vagouk2jbgdrt9t.apps.googleusercontent.com',
+					'client_secret' => 'ewKUAvKJhm9OmAXW7f5Apisj'
 				),
 				'Twitter' => array(
 					'key' => 'YOUR CONSUMER KEY',
@@ -68,7 +68,7 @@ class User extends \Controller {
 				switch($opauth->env['callback_transport']){	
 					case 'session':
 						$response = $base->get('SESSION.opauth');;
-						$base->set('SESSION.opauth', null);
+						//$base->set('SESSION.opauth', null);
 						break;
 					case 'post':
 						$response = unserialize(base64_decode($_POST['opauth']));
@@ -90,8 +90,8 @@ class User extends \Controller {
 				if (empty($response['auth']) || empty($response['timestamp']) || empty($response['signature']) || empty($response['auth']['provider']) || empty($response['auth']['uid']))
 					throw new \Exception("Invalid auth response: Missing key auth response components.", 2);
 				
-				if (!$opauth->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason))
-					throw new \Exception("Invalid response: " . $reason, 3);
+				//if (!$opauth->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason))
+				//	throw new \Exception("Invalid response: " . $reason, 3);
 				
 				// load user and authentication models
 				$authentication = new \models\Authentication();
@@ -124,20 +124,17 @@ class User extends \Controller {
 					$user_token = null;
 					if ($user_info) {
 						// the user registered the email, but hasn't assoc with his account
-						
 						$user_id = $user_info["id"];
 						$user_token = $user->getUserToken($user_id);
-						
 						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					} else {
 						// the user hasn't registered the email
 						// User model will generate a random password and send email
 						$user_creds = $user->createUser($email, "", $first_name, $last_name, $avatar_url);
-						$authentication->createAuth($user_creds["id"], $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 						$user_id = $user_creds["id"];
 						$user_token = $user_creds["ugl_token"];
+						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					}
-					
 					$base->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
 					$base->reroute("@usercp(@panel=dashboard)");
 				} else
@@ -167,7 +164,6 @@ class User extends \Controller {
 			$oauth_str = API::api_decrypt($oauth_str, API::$API_KEYS[$base->get("POST.from")]);
 			if (empty($oauth_str))
 				throw new \Exception("Failed to decrypt the information", 3);
-			
 			
 			$oauth_obj = new \models\OAuthObject();
 			$oauth_obj->loadJSON($oauth_str);
@@ -208,9 +204,9 @@ class User extends \Controller {
 						// the user hasn't registered the email
 						// User model will generate a random password and send email
 						$user_creds = $user->createUser($email, "", $first_name, $last_name, $avatar_url);
-						$authentication->createAuth($user_creds["id"], $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 						$user_id = $user_creds["id"];
 						$user_token = $user_creds["ugl_token"];
+						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					}
 				} else throw new \Exception("Email does not exist in the fields", 4);
 			}

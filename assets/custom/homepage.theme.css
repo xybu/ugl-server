@@ -144,12 +144,12 @@ body {
 	color: #3c89ed;
 }
 
-#linkedin-icon {
-	color: #007bb6;
+#gplus-icon {
+	color: #d34332;
 }
 
-#linkedin-icon:active, #linkedin-icon:hover {
-	color: #005f8d;
+#gplus-icon:active, #gplus-icon:hover {
+	color: #e35342;
 }
 
 #github-icon {
