@@ -207,7 +207,7 @@ class Mail {
 		}
 		
 		$this->addMailHeader('From', $email, $name);
-		
+		$this->addMailHeader('Reply-To', $email, $name);
 		return $this;
 	}
 	
