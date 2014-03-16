@@ -58,8 +58,8 @@ class User extends \Model {
 	function createUser($email, $password, $first_name, $last_name, $avatar_url = ""){
 		$send_email = false;
 		
-		if (!$avatar_url or $avatar_url == "")
-			$avatar_url = "/assets/img/default_avatar.png";
+		if (!$avatar_url)
+			$avatar_url = "";
 		
 		// send email with random password if $password not set
 		if ($password === ""){
@@ -79,8 +79,6 @@ class User extends \Model {
 				':avatar_url' => $avatar_url
 			)
 		);
-		
-		$result = $this->findByEmail($email);
 				
 		if ($send_email){
 			try {
@@ -105,6 +103,8 @@ class User extends \Model {
 					$this->logger->write($e->__toString());
 			}
 		}
+		
+		$result = $this->queryDb("SELECT * FROM users WHERE email=? LIMIT 1;", $email);
 		
 		// can still work if failed to send email
 		if (count($result) == 1){
