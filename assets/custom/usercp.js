@@ -97,6 +97,40 @@ function init_dashboard(){
 
 function init_groups(){
 	document.title = "Groups | Ugl";
+	
+	// load group list
+	$.post("/api/listGroupsOf/me", function(data){
+		if (data.status == "success"){
+			var numOfGroups = 0;
+			$.each(data.data, function(k, v){
+				++numOfGroups;
+				var group_avatar = v.avatar_url;
+				var group_identity = "group_" + v.id;
+				if (!group_avatar) 
+					group_avatar = "assets/img/default-avatar-group.png";
+				$("#group-list").append("<div class=\"col-xs-6 col-sm-4 col-md-3\">" +
+										"<div class=\"thumbnail\"><img class=\"avatar\" id=\"" + group_identity + "_avatar\" src=\"" + group_avatar + "\" />" +
+										"<div class=\"caption text-center\">" + 
+										"<h3 id=\"" + group_identity + "_alias\" data-visibility=\"" + v.visibility + "\" data-creator=\"" + v.creator_user_id + "\">" + v.alias + "</h3>" +
+										"<p id=\"" + group_identity + "_desc\">" + v.description + "</p>" +
+										"<div><a class=\"btn btn-primary\" role=\"button\">Enter</a>" +
+										"<a class=\"btn btn-default\" role=\"button\">Profile</a></div>" +
+										"<div id=\"" + group_identity + "_members\" class=\"hidden\">" + v.users + "</div>" + 
+										"<div id=\"" + group_identity + "_tags\" class=\"hidden\">" + v.tags + "</div>" + 
+										"</div></div></div>");
+			});
+			if (numOfGroups == 0){
+				$("#group-loader").html("<span class=\"alert alert-info\">Oops, you don't have any groups yet...</span>");
+			} else {
+				$("#group-loader").remove();
+			}
+		} else {
+			$("#group-loader").html("<span class=\"alert alert-warning\">Oops, error happened loading your groups...</span>");
+		}
+	}).fail(function(xhr, textStatus, errorThrown) {
+		$("#group-loader").html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+    });
+	
 	ugl_panel_initialized = true;
 }
 

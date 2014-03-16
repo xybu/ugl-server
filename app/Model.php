@@ -33,10 +33,19 @@ class Model {
 		return $str && strlen($str) == 32 && $str != "c206cc8346228864f9176044b4792c6a";
 	}
 	
+	function filterHtmlChars($str){
+		$str = str_replace("\t", "", $str);
+		$str = str_replace("\n", "", $str);
+		$str = str_replace("&", "", $str);
+		$str = str_replace("\"", "", $str);
+		$str = str_replace("'", "", $str);
+		return $str;
+	}
+	
 	function isValidName($str){
-		return (!$str === "" && !strstr($str, "<") && !strstr($str, ">") &&
-				!strstr($str, ";") && !strstr($str, '"') &&
-				!strstr($str, "\n") && !strstr($str, "\t"));
+		return (!empty($str) and !strpos($str, "<") and !strpos($str, ">") and
+				!strpos($str, ";") and !strpos($str, '"') and
+				!strpos($str, "\n") and !strpos($str, "\t"));
 	}
 	
 	function getRandomStr($len) {

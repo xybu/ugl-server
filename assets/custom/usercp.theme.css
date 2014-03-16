@@ -1,7 +1,5 @@
-
-
 body {
-	padding-top: 48px;
+	padding-top: 44px;
 	min-width: 320px;
 }
 
@@ -22,10 +20,13 @@ body {
 }
 
 .sub-header {
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #eee;
 }
 
+.hidden{
+	display: none;
+}
 
 /*
  * Sidebar
@@ -689,4 +690,13 @@ body.loading .ajax-loading {
     opacity: 0;
     transform: translateY(0) perspective(600px) rotateX(10deg);
     transition: all 0.2s ease-out 0s;
+}
+
+#group-list .avatar {
+	margin-top: 0.3em;
+	max-width: 150px;
+	max-height: 150px;
+	box-shadow: 0 0 3px rgba(0, 0, 0, .8);
+	-webkit-box-shadow: 0 0 3px rgba(0, 0, 0, .8);
+	-moz-box-shadow: 0 0 3px rgba(0, 0, 0, .8);
 }

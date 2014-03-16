@@ -12,8 +12,10 @@
 				<button type="button" class="btn btn-info"><i class="fa fa-sign-in"></i> Join</button>
 				<button type="button" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
 			</section>
-			<section class="row" id="group_list">
-				<div class="text-center">Loading...</div>
+			<section class="row" id="group-list">
+				<div class="col-md-12 text-center" id="group-loader">
+					<img src="assets/img/loader.gif" />
+				</div>
 			</section>
 		</div>
 	</div>
@@ -28,44 +30,89 @@
 					<input type="text" placeholder="Search..." class="form-control">
 				</div>
 			</section>
-			<section class="row" id="find_result">
+			<section class="row" id="find-result">
 			</section>
 		</div>
 		<div class="col-sm-6 col-md-5">
 			<h2 class="sub-header"><i class="fa fa-bullhorn"></i> News</h2>
-			<section class="row" id="news_list">
-				<div class="text-center">Loading...</div>
+			<section class="row" id="news-list">
+				<div class="text-center">
+					<div class="col-md-12 text-center" id="news-loader">
+						<img src="assets/img/loader.gif" />
+					</div>
+				</div>
 			</section>
 		</div>
 	</div>
 </div>
 
 <div id="create_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="create_group_modalLabel" aria-hidden="true">
-	<form id="forgot_password_form">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
-					<h3 class="modal-title"><i class="fa fa-plus-square"></i> Create a new group</h3>
-				</div>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+				<h3 class="modal-title"><i class="fa fa-plus-square"></i> Create a new group</h3>
+			</div>
+			<form class="form-horizontal">
 				<div class="modal-body">
-					<div class="form-group">
-						<h4>Please enter the email of your account:</h4>
-						<input type="email" name="email" id="rst_email" class="form-control" placeholder="Email address" tabindex="3" data-placement="bottom" data-trigger="manual" title="Please enter an email address" required />
+					<div class="control-group">
+						<label class="control-label" for="alias">Name</label>
+						<div class="controls">
+							<input id="alias" name="alias" placeholder="Name of your group." class="input-xlarge" required="" type="text">
+							<p class="help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</p>
+						</div>
 					</div>
-					<div id="rst_result" style="display:none;"></div>
+					<div class="control-group">
+						<label class="control-label" for="description">Description</label>
+						<div class="controls">                     
+							<textarea id="description" name="description" placeholder="A brief introduction to your group..."></textarea>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="tags">Tags</label>
+						<div class="controls">
+							<input id="tags" name="tags" placeholder="programming purdue other tags" class="input-xlarge" type="text">
+							<p class="help-block">Tags can help others find your group.</p>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="avatar">Avatar</label>
+						<div class="controls">
+							<input id="avatar" name="avatar" class="input-file" type="file">
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="visibility">Visibility</label>
+						<div class="controls">
+							<label class="radio inline" for="visibility-0">
+								<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
+								This group is private and no one can view or join it unless invited by me.
+							</label>
+							<label class="radio inline" for="visibility-1">
+								<input name="visibility" id="visibility-1" value="1" type="radio">
+								This group is public, but joining it requires my invitation.
+							</label>
+							<label class="radio inline" for="visibility-2">
+								<input name="visibility" id="visibility-2" value="2" type="radio">
+								This group is public, but one needs to apply to join.
+							</label>
+							<label class="radio inline" for="visibility-3">
+								<input name="visibility" id="visibility-3" value="64" type="radio">
+								This group is public and open to everyone.
+							</label>
+						</div>
+					</div>
 				</div>
 				<div class="modal-footer">
-					<button class="btn btn-primary" type="submit">Proceed</button>
+					<button class="btn btn-primary" type="submit">Create</button>
 					<button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
 				</div>
-			</div>
+			</form>
 		</div>
-	</form>
+	</div>
 </div>
 
 <div id="join_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="join_group_modalLabel" aria-hidden="true">
-	<form id="forgot_password_form">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -85,5 +132,4 @@
 				</div>
 			</div>
 		</div>
-	</form>
 </div>

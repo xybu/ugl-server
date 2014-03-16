@@ -102,8 +102,8 @@ class API extends \Controller {
 			if ($password != $confirm_password)
 				throw new \Exception("Password and confirm password do not match", 102);
 			
-			$first_name = $base->get("POST.first_name");
-			$last_name = $base->get("POST.last_name");
+			$first_name = $user->filterHtmlChars($base->get("POST.first_name"));
+			$last_name = $user->filterHtmlChars($base->get("POST.last_name"));
 			
 			if (!$user->isValidName($first_name) or !$user->isValidName($last_name))
 				throw new \Exception("First name or last name should be non-empty words", 103);
@@ -311,6 +311,10 @@ class API extends \Controller {
 			
 			if ($base->exists("PARAMS.user_id")){
 				$target_user_id = $base->get("PARAMS.user_id");
+				
+				if ($target_user_id == "me")
+					$target_user_id = $user_id;
+				
 				if (!is_numeric($target_user_id))
 					throw new \Exception("User id should be a number", 3);
 				
