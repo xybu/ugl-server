@@ -178,4 +178,16 @@ class Group extends \Controller {
 			
 		}
 	}
+	
+	function html_showGroupPageFragment($base){
+		$this->setView('group_homepage.html');
+	}
+	
+	function html_showGroupPage($base){
+		$base->set('page_title','Unified Group Life');
+		$base->set('group_header','group_header.html');
+		$base->set('group_footer','group_footer.html');
+		$this->html_showGroupPageFragment($base);
+	}
+	
 }
