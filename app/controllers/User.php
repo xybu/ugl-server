@@ -120,6 +120,7 @@ class User extends \Controller {
 				$user_info = $user->findByEmail($email);
 				$user_id = null;
 				$user_token = null;
+				$reroute_panel = "dashboard";
 				if ($user_info) {
 					// the user registered the email, but hasn't assoc with his account
 					$user_id = $user_info["id"];
@@ -132,9 +133,10 @@ class User extends \Controller {
 					$user_id = $user_creds["id"];
 					$user_token = $user_creds["ugl_token"];
 					$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
+					$reroute_panel = "settings";
 				}
 				$base->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
-				$base->reroute("@usercp(@panel=dashboard)");
+				$base->reroute("@usercp(@panel=". $reroute_panel .")");
 					
 			}
 		} catch (\Exception $e) {
