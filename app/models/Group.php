@@ -27,7 +27,11 @@ class Group extends \Model {
 	}
 	
 	static function isValidVisibility($v){
-		return is_numeric($v) and $v >= 0 and $v < 65;
+		return is_numeric($v) and $v >= 0 and $v < 64;
+	}
+	
+	static function isPubliclyVisible($v){
+		return $v > 0;
 	}
 	
 	static function filterDescription($str){

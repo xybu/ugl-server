@@ -20,13 +20,21 @@
  * 	description: the one-sentence description of the News. max length 384 chars
  * 	created_at: the timestamp when the News is created
  *
- * @author	Xiangyu Bu <xybu92@live.com
+ * @author	Xiangyu Bu <xybu92@live.com>
  * @version	0.1
  */
 
 namespace models;
 
 class News extends \Model{
+
+	const VIS_PRIVATE = 0;
+	const VIS_FRIEND_ONLY = 1;
+	const VIS_GROUP_WIDE = 2;
+	const VIS_PUBLIC = 63;
+	
+	const NEWS_CREAT = 0;
+	
 	
 	public function __construct(){
 	}
@@ -41,7 +49,7 @@ class News extends \Model{
 	}
 	
 	public function deleteByGroupId($gid, $time = time()){
-		$this->queryDb("DELETE FROM groups WHERE group_id=:gid AND created_at < :time;", 
+		$this->queryDb("DELETE FROM news WHERE group_id=:gid AND created_at < :time;", 
 			array(":gid" => $gid, ":time" => $time));
 	}
 	
@@ -54,7 +62,40 @@ class News extends \Model{
 	public function findByCreationTime($time, $visibility = 63){
 	}
 	
-	public function create($uid, $gid, $visibility, $category, $content){
+	public function parse($item){
+		$user = new User();
+		switch ($item["category"]){
+			case "user":
+				break;
+			case "group":
+				$user_info = $user->findById($item["user_id"]);
+				$group = new Group();
+				$group_info = $group->findById($item["group_id"]);
+				switch ($item["descriptor"]){
+					case static::NEWS_CREAT:
+						return $user_info["first_name"] . " " . $user_info["last_name"] . " created a group " .  . "";
+					default:
+						
+						break;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+	
+	public function create($uid, $gid, $visibility, $category, $descriptor){
+		$this->queryDb(
+			"INSERT INTO news (user_id, group_id, visibility, category, descriptor, created_at) " .
+			"VALUES (:user_id, :group_id, :visibility, :category, :descriptor, NOW()); ",
+			array(
+				':user_id' => $uid,
+				':group_id' => $gid,
+				':visibility' => $visibility,
+				':category' => $category,
+				':descriptor' => $descriptor,
+			)
+		);
 	}
 	
 	public function delete($eid){

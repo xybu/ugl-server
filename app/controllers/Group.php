@@ -87,6 +87,11 @@ class Group extends \Controller {
 			
 			$group_data = $group->create($user_id, $group_name, $group_description, $group_tags, $group_visibility);
 			
+			//if ($group->isPubliclyVisible($visibility)){
+			//	$news = new \models\News();
+			//	$news->create($user_id, $group_data["id"], $news::VIS_PUBLIC, "group", $description);
+			//}
+			
 			$this->json_printResponse(array("message" => "Successfully created a new group", "group_data" => $group_data));
 			
 		} catch (\Exception $e){

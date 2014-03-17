@@ -403,7 +403,7 @@ The data fields for group model are defined as below:
 	 * `0`: the group is private (only the group members can access the group)
 	 * `1`: non-members can see the group, but cannot join it unless invited
 	 * `2`: non-members can see the group, and can apply to join
-	 * `64`: open group which everyone can see and join
+	 * `63`: open group which everyone can see and join
 * **creator_user_id**: The user id of the creator
 * **num_of_users**: The number of users in the group
 * **avatar_url**: The URL of the group avatar image. Empty means using default one.
