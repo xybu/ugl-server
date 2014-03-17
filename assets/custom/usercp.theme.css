@@ -169,10 +169,10 @@ body.loading .ajax-loading {
     border-width: 8px;
     box-shadow: 0 0 25px 2px #eee;
     height: 6em;
-    left: 50%;
     margin: 0 0 0 -15px;
     position: absolute;
     top: 45%;
+	left: 50%;
     width: 6em;
 }
 

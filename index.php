@@ -14,4 +14,5 @@ $base->config('app/conf/settings.ini');
 $base->set('ONERROR', function($base){
 	echo \Template::instance()->render('error.html');
 });
+
 $base->run();
