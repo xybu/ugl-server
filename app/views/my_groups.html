@@ -1,7 +1,24 @@
-<div class="container-fluid">
+<?php
+	$group_str = "";
+	if ($groupList["count"] == 0){
+		$group_str = "<div id=\"no_group_alert\" class=\"col-md-12 text-center\"><span class=\"alert alert-info\">Oops... You don't have any groups yet.</span></div>";
+	} else {
+		foreach($groupList["groups"] as $item){
+			if (empty($item["avatar_url"])) $item["avatar_url"] = "assets/img/default-avatar-group.png";
+			$group_str = $group_str . "<div class=\"col-sm-6 col-md-4\" id=\"group_" . $item["id"] . "\" data-visibility=\"" . $item["visibility"] . "\" data-creator=\"" . $item["creator_user_id"] . "\">" .
+				"<div class=\"thumbnail\"><img class=\"avatar\" src=\"" . $item["avatar_url"] . "\" />" .
+				"<div class=\"caption text-center\">" .
+				"<h3 class=\"group_alias\">" . $item["alias"] . "</h3>" .
+				"<p class=\"group_desc\">" . $item["description"] . "</p>" .
+				"<div><a class=\"btn btn-primary\" role=\"button\">Enter</a> " .
+				"<a class=\"btn btn-default\" role=\"button\">Profile</a> <a class=\"btn btn-warning\" role=\"button\">Leave</a></div>" .
+				"</div></div></div>";
+		}
+	}
+?><div class="container-fluid">
 	<div class="row">
 		<div class="col-md-12">
-			<h1 class="page-header">My Groups
+			<h1 class="page-header">My Groups <span class="badge" id="group_count"><?php echo $groupList["count"]?></span>
 				<div class="pull-right wider-screen">
 					<button type="button" data-toggle="modal" data-target="#create_group_modal" class="btn btn-primary"><i class="fa fa-plus-square fa-fw"></i> Create</button>
 					<button type="button" data-toggle="modal" data-target="#join_group_modal" class="btn btn-success"><i class="fa fa-sign-in fa-fw"></i> Join</button>
@@ -12,25 +29,7 @@
 				<button type="button" class="btn btn-info"><i class="fa fa-sign-in"></i> Join</button>
 			</section>
 			<section class="row" id="group-list">
-				<?php
-				if (count($groupList) == 0){
-					echo "<div class=\"col-md-12 text-center\"><span class=\"alert alert-info\">Oops... You don't have any groups yet.</span></div>";
-				} else {
-					foreach($groupList as $item){
-						if (empty($item["avatar_url"])) $item["avatar_url"] = "assets/img/default-avatar-group.png";
-						echo "<div class=\"col-sm-6 col-md-4\" id=\"group_" . $item["id"] . "\" data-visibility=\"" . $item["visibility"] . "\" data-creator=\"" . $item["creator_user_id"] . "\">" .
-							"<div class=\"thumbnail\"><img class=\"avatar\" src=\"" . $item["avatar_url"] . "\" />" .
-							"<div class=\"caption text-center\">" .
-							"<h3 class=\"group_alias\">" . $item["alias"] . "</h3>" .
-							"<p class=\"group_desc\">" . $item["description"] . "</p>" .
-							"<div><a class=\"btn btn-primary\" role=\"button\">Enter</a> " .
-							"<a class=\"btn btn-default\" role=\"button\">Profile</a> <a class=\"btn btn-warning\" role=\"button\">Leave</a></div>" .
-							"<div id=\"group_members\" class=\"hidden\">" . $item["users"] . "</div>" .
-							"<div id=\"group_tags\" class=\"hidden\">" . $item["tags"] . "</div>" .
-							"</div></div></div>";
-					}
-				}
-				?>
+				<?php echo $group_str?>
 			</section>
 		</div>
 	</div>
@@ -69,33 +68,27 @@
 					<i class="fa fa-plus-square"></i> Create a new group
 					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button></h3>
 			</div>
-			<form class="form-horizontal">
+			<form class="form-horizontal" action="post" id="create_group_form">
 				<div class="modal-body">
 					<div class="row form-group">
 						<div class="col-sm-4 col-md-3 itemLabel">Name</div>
 						<div class="col-sm-8 col-md-9">
-							<input id="alias" name="alias" placeholder="Name of your group." class="input-xlarge" required="" type="text">
-							<p class="help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</p>
+							<input type="text" id="alias" name="alias" placeholder="Name of your group." required maxlength="32">
+							<p class="help-block">Required. Allow letters, digits, "-", and "_". No more than 32 characters.</p>
 						</div>
 					</div>
 					<div class="row form-group">
 						<div class="col-sm-4 col-md-3 itemLabel">Description</div>
 						<div class="col-sm-8 col-md-9">                     
-							<textarea id="description" name="description" maxlength="150" oninput="$('#desc_counter').text(150 - $('#description').val().length)"></textarea>
+							<textarea id="description" name="description" maxlength="150" oninput="limitTextArea('description', 'desc_counter', 150);"></textarea>
 							<p class="help-block"><span id="desc_counter">150</span> character(s) left</p>
 						</div>
 					</div>
 					<div class="row form-group">
 						<div class="col-sm-4 col-md-3 itemLabel">Tags</div>
 						<div class="col-sm-8 col-md-9">
-							<input id="tags" name="tags" placeholder="programming purdue other tags" size="40" type="text">
-							<p class="help-block">Tags can help others find your group.</p>
-						</div>
-					</div>
-					<div class="row form-group">
-						<div class="col-sm-4 col-md-3 itemLabel">Avatar</div>
-						<div class="col-sm-8 col-md-9">
-							<input id="avatar" name="avatar" class="input-file" type="file">
+							<input type="text" id="tags" name="tags" placeholder="eg., purdue cs php" size="40">
+							<p class="help-block">Optional. Words separated by spaces.</p>
 						</div>
 					</div>
 					<div class="row form-group">
@@ -110,6 +103,8 @@
 							<input name="visibility" id="visibility-3" value="64" type="radio">
 							<label for="visibility-3">Public - open to everyone.</label>
 						</div>
+					</div>
+					<div class="row hidden text-center" id="create_group_prompt">
 					</div>
 				</div>
 				<div class="modal-footer">

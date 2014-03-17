@@ -97,41 +97,58 @@ function init_dashboard(){
 
 function init_groups(){
 	document.title = "Groups | Ugl";
-	/*
-	// load group list
-	$.post("/api/listGroupsOf/me", function(data){
-		if (data.status == "success"){
-			var numOfGroups = 0;
-			$.each(data.data, function(k, v){
-				++numOfGroups;
-				var group_avatar = v.avatar_url;
-				var group_identity = "group_" + v.id;
-				if (!group_avatar) 
-					group_avatar = "assets/img/default-avatar-group.png";
-				$("#group-list").append("<div class=\"col-xs-6 col-sm-4 col-md-3\">" +
-										"<div class=\"thumbnail\"><img class=\"avatar\" id=\"" + group_identity + "_avatar\" src=\"" + group_avatar + "\" />" +
-										"<div class=\"caption text-center\">" + 
-										"<h3 id=\"" + group_identity + "_alias\" data-visibility=\"" + v.visibility + "\" data-creator=\"" + v.creator_user_id + "\">" + v.alias + "</h3>" +
-										"<p id=\"" + group_identity + "_desc\">" + v.description + "</p>" +
-										"<div><a class=\"btn btn-primary\" role=\"button\">Enter</a>" +
-										"<a class=\"btn btn-default\" role=\"button\">Profile</a></div>" +
-										"<div id=\"" + group_identity + "_members\" class=\"hidden\">" + v.users + "</div>" + 
-										"<div id=\"" + group_identity + "_tags\" class=\"hidden\">" + v.tags + "</div>" + 
-										"</div></div></div>");
-			});
-			if (numOfGroups == 0){
-				$("#group-loader").html("<span class=\"alert alert-info\">Oops, you don't have any groups yet...</span>");
-			} else {
-				$("#group-loader").remove();
-			}
-		} else {
-			$("#group-loader").html("<span class=\"alert alert-warning\">Oops, error happened loading your groups...</span>");
-		}
-	}).fail(function(xhr, textStatus, errorThrown) {
-		$("#group-loader").html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
-    });
-	*/
+	
+	$("#create_group_form").submit(function(e){
+		var prompt_dom = $("#create_group_prompt");
+		prompt_dom.html("<img src=\"assets/img/loader.gif\" />").removeClass("hidden");
+		$.post(
+			"/api/group/create", 
+			$("#create_group_form").serialize(),
+			function(data){
+				if (data.status == "success"){
+					if ($('#no_group_alert'))
+						$('#no_group_alert').remove();
+					console.log(data.groups);
+					renderGroupListItem("group-list", data.data.group_data);
+					$("#create_group_modal").modal('hide');
+					$("#group_count").text(parseInt($("#group_count").text()) + 1);
+					$('#group_' + data.data.group_data.id).addClass('animated flash');
+					prompt_dom.html("");
+				} else {
+					prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
+				}
+			}).fail(function(xhr, textStatus, errorThrown) {
+				prompt_dom.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+		});
+		e.preventDefault(); //STOP default action
+	});
+	
 	ugl_panel_initialized = true;
+}
+
+function renderGroupListItem(listId, groupObject, hide){
+	var listDom = $("#" + listId);
+	console.log(groupObject);
+	
+	if (typeof groupObject == "string")
+		groupObject = jQuery.parseJSON(groupObject);
+	
+	if (typeof groupObject != "object")
+		return false;
+	
+	if (hide == 1) hide = " hidden";
+	else hide = "";
+	
+	if (!groupObject.avatar_url) groupObject.avatar_url = "assets/img/default-avatar-group.png";
+	
+	listDom.append("<div class=\"col-sm-6 col-md-4" + hide + "\" id=\"group_" + groupObject.id + "\" data-visibility=\"" + groupObject.visibility + "\" data-creator=\"" + groupObject.creator_user_id + "\">" +
+		"<div class=\"thumbnail\"><img class=\"avatar\" src=\"" + groupObject.avatar_url + "\" />" +
+		"<div class=\"caption text-center\">" +
+		"<h3 class=\"group_alias\">" + groupObject.alias + "</h3>" +
+		"<p class=\"group_desc\">" +groupObject.description + "</p>" +
+		"<div><a class=\"btn btn-primary\" role=\"button\">Enter</a> " +
+		"<a class=\"btn btn-default\" role=\"button\">Profile</a> <a class=\"btn btn-warning\" role=\"button\">Leave</a></div>" +
+		"</div></div></div>");
 }
 
 function init_boards(){
@@ -154,4 +171,15 @@ function init_settings(){
 	document.title = "Settings | Ugl";
 	$('#settingsTab a:first').tab('show');
 	ugl_panel_initialized = true;
+}
+
+function limitTextArea(elId, counterId, max){
+	// update counter
+	el = $("#" + elId);
+	ct = $("#" + counterId);
+	ct.text(max - $('<div/>').text(el.val()).html().length);
+	if (parseInt(ct.text()) < 0){
+		el.val(function (i, t) {return t.slice(0, -1); });
+		ct.text(max - $('<div/>').text(el.val()).html().length);
+	}
 }

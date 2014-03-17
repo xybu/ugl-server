@@ -20,7 +20,7 @@ class Group extends \Model {
 	 * and non-empty, and length not greater than 65.
 	 */
 	static function isValidAlias($str){
-		if ($str === "") return false;
+		if (empty($str)) return false;
 		if (preg_match('/[^\-_A-Za-z0-9]/', $str)) return false;
 		if (strlen($str) > static::MAX_ALIAS_LENGTH) return false;
 		return true;
@@ -40,13 +40,20 @@ class Group extends \Model {
 	}
 	
 	static function filterTags($str){
-		return preg_replace("[^A-Za-z0-9 ]", "", strtolower($str));
+		// remove non alphanumerical chars or delimiters
+		$str = preg_replace("/[^A-Za-z0-9 ]/", "", strtolower($str));
+		// remove repeated words
+		$str = preg_replace("/\b(\w+)\s+\\1\b/i", "$1", $str);
+		$str_a = explode(" ", $str);
+		sort($str_a); // sort the words
+		$str = implode(" ", $str_a);
+		return $str;
 	}
 	
-	function findByGroupId($id){
+	function findById($id){
 		if ($this->cache->exists("group_id_" . $id))
 			return $this->cache->get("group_id_" . $id);
-			
+		
 		$result = $this->queryDb("SELECT * FROM groups WHERE id=?;", $id);
 		if (count($result) == 1){
 			$result = $result[0];
@@ -57,10 +64,10 @@ class Group extends \Model {
 		return $result;
 	}
 	
-	function findByGroupAlias($alias){
-		$result = $this->queryDb("SELECT * FROM groups WHERE alias=?;", $alias, 1800);
+	function findByAlias($alias){
+		$result = $this->queryDb("SELECT id FROM groups WHERE alias=?;", $alias);
 		if (count($result) == 1)
-			return $result[0];
+			return $this->findById($result[0]["id"]);
 		return null;
 	}
 	
@@ -76,7 +83,7 @@ class Group extends \Model {
 		$ids = $this->queryDb("SELECT id FROM groups WHERE users LIKE '%\"" . $user_id . "\"%';");
 		$result = array();
 		foreach ($ids as $i => $d){
-			$g_data = $this->findByGroupId($d["id"]);
+			$g_data = $this->findById($d["id"]);
 			if ($g_data["visibility"] >= $visibility)
 				$result[] = $g_data;
 		}
@@ -86,19 +93,21 @@ class Group extends \Model {
 		return array("count" => 0);
 	}
 	
-	function create($user_id, $name, $desc, $tags, $visibility){
+	function create($user_id, $alias, $desc, $tags, $visibility){
 		$this->queryDb(
 			"INSERT INTO groups (creator_user_id, visibility, alias, description, tags, users, created_at) " .
 			"VALUES (:user_id, :visibility, :alias, :desc, :tags, :users, NOW()); ",
 			array(
 				':user_id' => $user_id,
 				':visibility' => $visibility,
-				':alias' => $name,
+				':alias' => $alias,
 				':desc' => $desc,
 				':tags' => $tags,
 				':users' => json_encode(array("admin" => array($user_id)))
 			)
 		);
+		
+		return $this->findByAlias($alias);
 	}
 	
 	function updateGroupProfile($id, $visibility, $alias, $description, $tags){

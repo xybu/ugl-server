@@ -40,6 +40,11 @@ class News extends \Model{
 	public function findByGroupId($gid, $visibility = 63){
 	}
 	
+	public function deleteByGroupId($gid, $time = time()){
+		$this->queryDb("DELETE FROM groups WHERE group_id=:gid AND created_at < :time;", 
+			array(":gid" => $gid, ":time" => $time));
+	}
+	
 	public function findByVisibility($visibility){
 	}
 	

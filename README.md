@@ -27,7 +27,8 @@ The server side code of project Ugl.
 		 - [getMyPrefs](#7-getmyprefs)
 		 - [setMyPrefs](#8-setmyprefs)
 	 - [Groups](#2-groups)
-		 - [listGroupsOf](#1-list-groups-of)
+		 - [List the groups a user joins](#1-list-groups-of)
+		 - [Create a group](#2-create-a-group)
 	 - [News](#3-news)
 
 ***
@@ -390,14 +391,25 @@ TBA.
 
 The data fields for group model are defined as below:
 
-* **id**: the unique ID for the group
-* **alias**: A user-defined identifier of the group. Its length must be greater than 1 but no greater than 64, and can contain only *letters*, *digits*, '*-*', and '*_*' (any match of `[^\-_a-zA-Z0-9]` should make the string invalid as group name).
-* **description**: The description (brief introduction) of the group. All HTML escape characters should be escaped by the client (when displaying the field, strings inside "<" and ">" must no execute in face of XSS attacks, etc.). and the after-filtering string has a maximum length of *200* chars.
-* **visibility**: A visibility of *0* means the group is private (only the group members can access the group), and *1* means the group is public to everyone (guests can check out the profile of the group).
+* **id**: the unique ID for the group.
+* **alias**: A user-defined identifier of the group. It is a __non_empty__ string of 
+	length no greater than 32, consisting of only *letters*, *digits*, '*-*', and '*_*' 
+	(any match of `[^\-_a-zA-Z0-9]` should make the string invalid as group name).
+* **description**: The description (brief introduction) of the group. All HTML escape 
+	characters should be escaped by the client (when displaying the field, strings inside 
+	"<" and ">" must no execute in face of XSS attacks, etc.). and the after-filtering string 
+	has a maximum length of *150* chars. (Note: as a result, for example, "&", equivalent to "&amp;", has a length of 5.)
+* **visibility**: 
+	 * `0`: the group is private (only the group members can access the group)
+	 * `1`: non-members can see the group, but cannot join it unless invited
+	 * `2`: non-members can see the group, and can apply to join
+	 * `64`: open group which everyone can see and join
 * **creator_user_id**: The user id of the creator
+* **num_of_users**: The number of users in the group
+* **avatar_url**: The URL of the group avatar image. Empty means using default one.
 * **users**: a list of users in the group, categorized by their roles
 
-### 1) listGroupsOf
+### 1) List Groups Of
 List the groups a user has joined.
 
 * When the requester is not the "target user" (the one whose groups to be listed), then upon this user's preference, either only his / her public groups are listed, or no groups are shown (Refer to `showMyPublicGroups` preference).
@@ -407,7 +419,7 @@ List the groups a user has joined.
 | Name   | Description                                             |
 | ------ | ------------------------------------------------------- |
 | Method | POST                                                    |
-| URL    | `api/listGroupsOf/@target_user_id`                      |
+| URL    | `/api/user/listGroup/@target_user_id`                   |
 | DATA   | `user_id`=123&`ugl_token`=mytoken                       |
 
 In the URL, `@target_user_id` is the id of the user whose groups are to be listed. For example, to get the groups of user whose id is `444`, the URL should be `api/listGroupsOf/444`.
@@ -415,32 +427,75 @@ In the URL, `@target_user_id` is the id of the user whose groups are to be liste
 `user_id` and `ugl_token` are the log in credentials of the requester. No guest can perform the operation.
 
 #### Response
-As of Mar 15, 2014, the API response to `/api/listGroupsOf/2` looks like
+The API response to `/api/listGroupsOf/2` looks like (more fields may be added in the future)
 
 ```javascript
 {
     "status": "success",
-    "expiration": "2014-03-15T07:59:31+00:00",
-    "data": [
-        {
-            "id": "1",
-            "alias": "admin",
-            "description": "",
-            "visibility": "0",
-            "creator_user_id": "3",
-            "users": "{\"admin\": [\"2\"]}"
-        },
-        {
-            "id": "2",
-            "alias": "ugl-dev",
-            "description": "UGL Developers",
-            "visibility": "1",
-            "creator_user_id": "2",
-            "users": "{\"admin\": [\"2\"], \"member\": [\"3\"]}"
-        }
-    ]
+    "expiration": "2014-03-17T07:25:07+00:00",
+    "data": {
+        "count": 3,
+        "groups": [
+            {
+                "id": "1",
+                "visibility": "0",
+                "alias": "admin",
+                "description": "",
+                "avatar_url": null,
+                "tags": null,
+                "creator_user_id": "3",
+                "num_of_users": "1",
+                "users": {
+                    "admin": [
+                        "2"
+                    ]
+                },
+                "created_at": "0000-00-00 00:00:00"
+            },
+            {
+                "id": "2",
+                "visibility": "1",
+                "alias": "ugl-dev",
+                "description": "UGL Developers",
+                "avatar_url": null,
+                "tags": null,
+                "creator_user_id": "2",
+                "num_of_users": "1",
+                "users": {
+                    "admin": [
+                        "2"
+                    ],
+                    "member": [
+                        "3"
+                    ]
+                },
+                "created_at": "0000-00-00 00:00:00"
+            },
+            {
+                "id": "5",
+                "visibility": "1",
+                "alias": "pucs",
+                "description": "&lt;script&gt;\r\n\talert(&quot;hello!&quot;)\r\n&lt;\/script&gt;\r\n&lt;b&gt;Abercrombie &amp; Fitch&lt;\/b&gt;",
+                "avatar_url": null,
+                "tags": "purdue cs test",
+                "creator_user_id": "2",
+                "num_of_users": "1",
+                "users": {
+                    "admin": [
+                        "2"
+                    ]
+                },
+                "created_at": "2014-03-17 06:07:30"
+            }
+        ]
+    }
 }
 ```
+
+Notes:
+* `data.data.count` is the number of groups in the list, and `data.data.groups` is the list of groups.
+* Notice how the `description` is HTML encoded for security's sake. A client may need to decode it to display the text.
+* `users` is a sub-array whose structure is `role` => `members`.
 
 #### Associated Errors
 * 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
@@ -448,7 +503,58 @@ As of Mar 15, 2014, the API response to `/api/listGroupsOf/2` looks like
 * 3 - User id should be a number (`@target_user_id` is not numerical)
 * 4 - The user does not exist (user whose id is `@target_user_id` does not exist)
 
-### 2) createGroup
+### 2) Create a Group
+Create a new group.
+
+#### Request
+| Name   | Description                                             |
+| ------ | ------------------------------------------------------- |
+| Method | POST                                                    |
+| URL    | `/api/group/create`                                     |
+| DATA   | `user_id`=123&`ugl_token`=mytoken&`alias`=group_name&`description`=group_description&`tags`=group_tags&`visibility`=1  |
+
+URLEncode the fields when necessary.
+
+#### Response
+
+Upon success, server will return a success message, and the filtered group data:
+
+* `description` will be HTML encoded and cut to the max length `150`.
+* `tags` will be removed all neither-alphanumerical-nor-space characters and duplicate words, and then the tags get sorted`
+
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-03-17T07:31:41+00:00",
+    "data": {
+        "message": "Successfully created a new group",
+        "group_data": {
+            "id": "12",
+            "visibility": "2",
+            "alias": "test-animation-effect",
+            "description": "hello!\r\nLet's see the bounce!!!",
+            "avatar_url": null,
+            "tags": "delete notag oops purdue test",
+            "creator_user_id": "2",
+            "num_of_users": "1",
+            "users": {
+                "admin": [
+                    "2"
+                ]
+            },
+            "created_at": "2014-03-17 07:31:41"
+        }
+    }
+}
+```
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
+* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 3 - Group name is not of the specified format. Plese check
+* 4 - Group name "blah" is already taken
+* 5 - Please choose a valid visibility option from the list
 
 ### 3) deleteGroup
 

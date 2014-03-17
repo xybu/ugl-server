@@ -1,1 +1,0 @@
-Added avatar_url (VARCHAR 255) to groups table.

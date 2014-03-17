@@ -215,7 +215,7 @@ class API extends \Controller {
 	 * @param $base	Base instance
 	 * @param $user	User model
 	 */
-	private function getUserStatus($base, $user){
+	static function getUserStatus($base, $user){
 		$user_id = 0;
 		$token = "";
 		
@@ -240,7 +240,7 @@ class API extends \Controller {
 	function getMyPrefs($base){
 		try {
 			$user = new \models\User();
-			$user_status = $this->getUserStatus($base, $user);
+			$user_status = self::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$user_pref = $user->getUserPref($user_id);
 			$this->json_printResponse($user_pref);
@@ -252,7 +252,7 @@ class API extends \Controller {
 	function setMyPrefs($base){
 		try {
 			$user = new \models\User();
-			$user_status = $this->getUserStatus($base, $user);
+			$user_status = self::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			
 			$pref_obj = new \models\Preference();
@@ -310,52 +310,8 @@ class API extends \Controller {
 		}
 	}
 	*/
-	function listGroupsOf($base){
-		try {
-			
-			$user = new \models\User();
-			$user_status = $this->getUserStatus($base, $user);
-			$user_id = $user_status["user_id"];
-			$token = $user_status["ugl_token"];
-			$target_user_id = $user_id;
-			$target_visibility = 0;
-			
-			if ($base->exists("PARAMS.user_id")){
-				$target_user_id = $base->get("PARAMS.user_id");
-				
-				if ($target_user_id == "me")
-					$target_user_id = $user_id;
-				
-				if (!is_numeric($target_user_id))
-					throw new \Exception("User id should be a number", 3);
-				
-				if ($target_user_id != $user_id){
-					$target_user = $user->findById($target_user_id);
-					if (!$target_user)
-						throw new \Exception("The user does not exist", 4);
-					
-					//if (USER does not allow to request his list){
-					//	throw new \Exception("The user did not allow you to view his or her group list.", 5);
-					//}
-					
-					$target_visibility = 1;
-				}
-			}
-			
-			$group = new \models\Group();
-			$group_list = $group->listGroupsOfUserId($target_user_id, $target_visibility);
-			
-			$this->json_printResponse($group_list);
-			
-		} catch (\Exception $e){
-			$this->json_printException($e);
-		}
-	}
 	
 	function createGroup($base){
-	}
-	
-	function deleteGroup($base){
 	}
 	
 	function editGroupProfile($base){
