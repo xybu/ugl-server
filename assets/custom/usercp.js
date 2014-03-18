@@ -156,26 +156,20 @@ function init_group(){
 	$("#leave_group_form").submit(function(e){
 		var prompt_dom = $("#leave_group_form #form_prompt");
 		prompt_dom.html("<img src=\"assets/img/loader.gif\" />").removeClass("hidden");
-		/*$.post(
+		$.post(
 			"/api/group/leave", 
 			$("#leave_group_form").serialize(),
 			function(data){
 				if (data.status == "success"){
-					if ($('#no_group_alert'))
-						$('#no_group_alert').remove();
-					console.log(data.groups);
-					renderGroupListItem("group-list", data.data.group_data);
-					$("#create_group_modal").modal('hide');
-					$("#group_count").text(parseInt($("#group_count").text()) + 1);
-					$('#group_' + data.data.group_data.id).addClass('animated flash');
-					prompt_dom.html("");
+					$("#leave_group_form").modal('hide');
+					window.location.href = '/my/groups';
 				} else {
 					prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
 				}
 			}).fail(function(xhr, textStatus, errorThrown) {
 				prompt_dom.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
 			}
-		);*/
+		);
 		e.preventDefault(); //STOP default action
 	});
 	

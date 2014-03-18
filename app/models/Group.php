@@ -194,7 +194,7 @@ class Group extends \Model {
 		
 		// delete the group
 		$this->queryDb("DELETE FROM groups WHERE id=?;", $gid);
-		$this->cache->clear("group_id_" . $id);
+		$this->cache->clear("group_id_" . $gid);
 	}
 	
 	function setCreatorUserId($uid, &$group_data){

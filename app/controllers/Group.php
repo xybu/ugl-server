@@ -182,12 +182,15 @@ class Group extends \Controller {
 				}
 				
 				if (!empty($target_user_id)){
-					if (!is_numeric($target_user_id))
-						throw new \Exception("Target user id should be a number", 8);
+					$kick_list = explode(",", $target_user_id);
 					
-					// whether the user exists or not does not matter.
-					if ($group->kickUser($target_user_id, $group_data))
-						$group->save($group_data);
+					foreach ($kick_list as $id){
+						if (!is_numeric($id) or $target_group["creator_user_id"] == $id)
+							continue;
+						// whether the user exists or not does not matter.
+						$group->kickUser($id, $group_data);
+					}
+					$group->save($group_data);
 					$this->json_printResponse(array("message" => "You have successfully kicked the user"));
 				}
 			}

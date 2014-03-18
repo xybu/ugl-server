@@ -708,8 +708,8 @@ body.loading .ajax-loading {
 	margin-top: 0.3em;
 	width: 70%;
 	height: 70%;
-	max-width: 10em;
-	max-height: 10em;
+	max-width: 10em !important;
+	max-height: 10em !important;
 	box-shadow: 0 0 3px rgba(0, 0, 0, .8);
 	-webkit-box-shadow: 0 0 3px rgba(0, 0, 0, .8);
 	-moz-box-shadow: 0 0 3px rgba(0, 0, 0, .8);

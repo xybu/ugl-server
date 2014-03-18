@@ -290,7 +290,7 @@
 				<?php 
 					if ($group_info["creator_user_id"] == $me["id"]) {
 						echo "<div class=\"callout callout-danger\"><h4>Confirmation</h4><p>You are the creator of this group. Leaving the group will disband it. To keep the group, please transfer the ownership to another member before leaving.</p></div>" .
-							"<label><input type=\"checkbox\" name=\"notify_all\" value=\"true\" /> Notify every group member that the group will be closed.</label>";
+							"<label><input type=\"checkbox\" name=\"notify\" value=\"true\" /> Notify every group member that the group will be closed.</label>";
 					} else {
 						echo "<div class=\"callout callout-warning\"><h4>Confirmation</h4><p>Are you sure to leave this group?</p></div>";
 					}
