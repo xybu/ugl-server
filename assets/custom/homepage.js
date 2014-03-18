@@ -43,6 +43,9 @@ $(document).ready(function() {
 							$(this).tooltip('hide');
 						});
 					} else {
+						$('#nav-login-btn').tooltip('destroy');
+						$('#nav-login-btn').tooltip({'title': "<h5>Thanks. Now redirecting...</h5>", html: true});
+						$('#nav-login-btn').tooltip('show');
 						window.location.href = '/my/dashboard';
 					}
 				},
