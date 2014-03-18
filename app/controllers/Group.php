@@ -134,6 +134,78 @@ class Group extends \Controller {
 		}
 	}
 	
+	function api_leave($base){
+		try {
+			$user = new \models\User();
+			$user_status = API::getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			$token = $user_status["ugl_token"];
+			
+			if (!$base->exists("POST.group_id"))
+				throw new \Exception("Group id not specified", 3);
+			
+			$target_gid = $base->get("POST.group_id");
+			if (!is_numeric($target_gid))
+				throw new \Exception("Invalid group id", 4);
+			
+			$group = new \models\Group();
+			
+			$target_group = $group->findById($target_gid);
+			if (empty($target_group))
+				throw new \Exception("Group not found", 5);
+			
+			$user_permissions = $group->getPermissions($user_id, $target_gid, $target_group);
+			
+			if ($user_permissions["role_name"] == "guest")
+				throw new \Exception("You are not in the group", 6);
+			
+			// if the user can manage, then there may be a target user
+			if ($user_permissions["manage"]){
+				
+				// get the target user, if not specified, then he means to leave
+				$target_user_id = $base->get("POST.target_user_id");
+				
+				if ($target_user_id == $target_group["creator_user_id"] and $user_id != $target_user_id)
+					// someone else wants to kick the creator
+					throw new \Exception("You cannot kick the creator", 7);
+				
+				if ($user_id == $target_group["creator_user_id"] and (empty($target_user_id) or $user_id == $target_user_id)){
+					// the creator kicks himself, delete the group
+					
+					if ($base->exists("POST.notify")){
+						//TODO: notify all members
+						
+					}
+					
+					$group->deleteById($target_gid);
+					$this->json_printResponse(array("message" => "The group is now closed"));
+				}
+				
+				if (!empty($target_user_id)){
+					if (!is_numeric($target_user_id))
+						throw new \Exception("Target user id should be a number", 8);
+					
+					// whether the user exists or not does not matter.
+					if ($group->kickUser($target_user_id, $group_data))
+						$group->save($group_data);
+					$this->json_printResponse(array("message" => "You have successfully kicked the user"));
+				}
+			}
+			
+			if ($user_id == $target_group["creator_user_id"])
+				// this condition happens when the creator does not have manage permission
+				// which is a wrong setting
+				throw new \Exception("You are the creator. Please grant yourself \"manage\" permission before leaving the group", 9);
+			
+			// the requestor leaves (aka., kick himself)
+			$group->kickUser($user_id, $group_data);
+			$group->save($group_data);
+			$this->json_printResponse(array("message" => "You have successfully left the group \"" . $target_group["alias"] . "\""));
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
+	}
+	
 	function api_update($base){
 		try {
 			$user = new \models\User();

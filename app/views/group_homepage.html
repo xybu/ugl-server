@@ -1,108 +1,309 @@
 <?php if (isset($group_header)) echo $this->render($group_header); ?>
 <div class="container-fluid">
-	<h1 class="page-header">Dashboard</h1>
-	<div class="table-responsive">
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>#</th><th>Header</th><th>Header</th><th>Header</th><th>Header</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>1,001</td><td>Lorem</td><td>ipsum</td><td>dolor</td><td>sit</td>
-				</tr>
-				<tr>
-					<td>1,002</td><td>amet</td><td>consectetur</td><td>adipiscing</td><td>elit</td>
-				</tr>
-				<tr>
-					<td>1,003</td><td>Integer</td><td>nec</td><td>odio</td><td>Praesent</td>
-				</tr>
-				<tr>
-					<td>1,003</td><td>libero</td><td>Sed</td><td>cursus</td><td>ante</td>
-				</tr>
-				<tr>
-					<td>1,004</td><td>dapibus</td><td>diam</td><td>Sed</td><td>nisi</td>
-				</tr>
-				<tr>
-					<td>1,005</td><td>Nulla</td><td>quis</td><td>sem</td><td>at</td>
-				</tr>
-				<tr>
-					<td>1,006</td>
-					<td>nibh</td>
-					<td>elementum</td>
-					<td>imperdiet</td>
-					<td>Duis</td>
-				</tr>
-				<tr>
-					<td>1,007</td>
-					<td>sagittis</td>
-					<td>ipsum</td>
-					<td>Praesent</td>
-					<td>mauris</td>
-				</tr>
-				<tr>
-					<td>1,008</td>
-					<td>Fusce</td>
-					<td>nec</td>
-					<td>tellus</td>
-					<td>sed</td>
-				</tr>
-				<tr>
-					<td>1,009</td>
-					<td>augue</td>
-					<td>semper</td>
-					<td>porta</td>
-					<td>Mauris</td>
-				</tr>
-				<tr>
-					<td>1,010</td>
-					<td>massa</td>
-					<td>Vestibulum</td>
-					<td>lacinia</td>
-					<td>arcu</td>
-				</tr>
-				<tr>
-					<td>1,011</td>
-					<td>eget</td>
-					<td>nulla</td>
-					<td>Class</td>
-					<td>aptent</td>
-				</tr>
-				<tr>
-					<td>1,012</td>
-					<td>taciti</td>
-					<td>sociosqu</td>
-					<td>ad</td>
-					<td>litora</td>
-				</tr>
-				<tr>
-					<td>1,013</td>
-					<td>torquent</td>
-					<td>per</td>
-					<td>conubia</td>
-					<td>nostra</td>
-				</tr>
-				<tr>
-					<td>1,014</td>
-					<td>per</td>
-					<td>inceptos</td>
-					<td>himenaeos</td>
-					<td>Curabitur</td>
-				</tr>
-				<tr>
-					<td>1,015</td>
-					<td>sodales</td>
-					<td>ligula</td>
-					<td>in</td>
-					<td>libero</td>
-				</tr>
-			</tbody>
-		</table>
+	<ol class="breadcrumb">
+		<li>Home</li>
+		<li><a href="/my/groups">Groups</a></li>
+		<li class="active"><?php echo $group_info["alias"]?></li>
+	</ol>
+	
+	<h1 class="page-header"><?php echo $group_info["alias"]?>
+	<div class="pull-right">
+		<a class="btn btn-primary" role="button" data-toggle="modal" data-target="#leave_group_modal"><i class="fa fa-cog"></i> Join</a>
+		<a class="btn btn-success" role="button" data-toggle="modal" data-target="#manage_group_modal"><i class="fa fa-cog"></i> Manage</a>
+		<a class="btn btn-default" role="button" data-toggle="modal" data-target="#leave_group_modal"><i class="fa fa-sign-out"></i> Leave</a>
 	</div>
-	<h2 class="sub-header">Section title</h2>
+	</h1>
+	<article class="row">
+		<section class="col-sm-3 col-md-4 text-center">
+			<img class="group-avatar group-avatar-big" src="<?php echo $group_info["avatar_url"] == "" ? "assets/img/default-avatar-group.png" : $group_info["avatar_url"] ?>" />
+		</section>
+		<section class="col-sm-9 col-md-8">
+			<h4><em><?php echo $group_info["description"]?></em></h4>
+			<hr class="section-divider" />
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-sm-3 col-md-4">
+						Created at
+					</div>
+					<div class="col-sm-9 col-md-8">
+						<?php echo $group_info["created_at"]?>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-3 col-md-4">
+						Members
+					</div>
+					<div class="col-sm-9 col-md-8">
+						<?php echo $group_info["num_of_users"]?>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-3 col-md-4">
+						Tags
+					</div>
+					<div class="col-sm-9 col-md-8">
+						<?php echo $group_info["tags"]?>
+					</div>
+				</div>
+			</div>
+		</section>
+	</article>
+	<article class="row">
+		<h2 class="sub-header">Sample board list</h2>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12 main discussions">
+					<ul>
+						<li>
+							<div class="author">
+								<img alt="avatar" src="assets/img/default-avatar.png">
+							</div>
+							<div class="name">Lukasz Holeczek</div>
+							<div class="date">Today, 1:08 PM</div>
+							<div class="delete"><i class="fa fa-times"></i></div>
+							<div class="message">
+								Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed 
+								diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
+								volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation 
+								ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+							</div>
+							<ul>
+								<li>
+									<div class="author">
+										<img alt="avatar" src="assets/img/avatar3.jpg">
+									</div>
+									<div class="name">Ann Kovalsky</div>
+									<div class="date">Today, 1:08 PM</div>
+									<div class="delete"><i class="fa fa-times"></i></div>
+		
+									<div class="message">
+										Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed 
+										diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
+										volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation 
+										ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+									</div>
+								</li>
+								<li>
+									<div class="author">
+										<img alt="avatar" src="assets/img/avatar6.jpg">
+									</div>
+									<div class="name">Megan Abbott</div>
+									<div class="date">Today, 1:08 PM</div>
+									<div class="delete"><i class="fa fa-times"></i></div>
+		
+									<div class="message">
+										Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed 
+										diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
+										volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation 
+										ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+									</div>
+								</li>
+								<li>
+									<div class="author">
+										<img alt="avatar" src="assets/img/default-avatar.png">
+									</div>
+									<textarea placeholder="Write comment" class="diss-form" style="height: 67px; overflow: hidden; word-wrap: break-word; resize: horizontal;"></textarea>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<div class="author">
+								<img alt="avatar" src="assets/img/avatar9.jpg">
+							</div>
+							<div class="name">Tom Allen</div>
+							<div class="date">Today, 1:08 PM</div>
+							<div class="delete"><i class="fa fa-times"></i></div>
+							<div class="message">
+								Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed 
+								diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
+								volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation 
+								ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+							</div>
+							<ul>
+								<li>
+									<div class="author">
+										<img alt="avatar" src="assets/img/avatar2.jpg">
+									</div>
+									<div class="name">Katie Moss</div>
+									<div class="date">Today, 1:08 PM</div>
+									<div class="delete"><i class="fa fa-times"></i></div>
+									<div class="message">
+										Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed 
+										diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
+										volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation 
+										ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+									</div>
+								</li>
+								<li>
+									<div class="author">
+										<img alt="avatar" src="assets/img/avatar4.jpg">
+									</div>
+									<div class="name">Anna Holn</div>
+									<div class="date">Today, 1:08 PM</div>
+									<div class="delete"><i class="fa fa-times"></i></div>
+									<div class="message"> Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed 
+										diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
+										volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation 
+										ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+									</div>	
+								</li>
+								<li>
+									<div class="author">
+										<img alt="avatar" src="assets/img/avatar9.jpg">
+									</div>
+									<textarea placeholder="Write comment" class="diss-form" style="height: 67px; overflow: hidden; word-wrap: break-word; resize: horizontal;"></textarea>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div><!--/col-->
+			</div>
+		</div>
+	</article>
 	<div class="row">
-		<div class="col-md-12">Sth else.</div>
+		<div class="col-md-7">
+			<h2 class="sub-header">Members</h2>
+			<div class="container-fluid">
+				<?php
+					foreach ($group_info["users"] as $role => $list){
+						echo "<div class=\"row\">";
+						echo "<h4 class=\"col-sm-12 col-md-12\">" . $role . " <span class=\"badge\">" . count($list) . "</span></h4>";
+						foreach ($list as $role_user_id)
+							echo "<img class=\"col-xs-1 col-sm-1 col-md-2\" src=\"assets/img/default-avatar.png\" />";
+						echo "</div>";
+					}
+				?>
+				<!-- a pagination here? -->
+			</div>
+		</div>
+				<section class="col-md-5">
+			<h2 class="sub-header"><i class="fa fa-bullhorn"></i> News</h2>
+			<section class="row" id="news-list">
+				<div class="text-center">
+					<div class="col-md-12 text-center" id="news-loader">
+						<img src="assets/img/loader.gif" />
+					</div>
+				</div>
+			</section>
+		</section>
 	</div>
-</div>		
+</div>
+
+<div id="manage_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="manage_group_modalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+				<h3 class="modal-title"><i class="fa fa-cog"></i> Manage Group</h3>
+			</div>
+			<div class="modal-body">
+				<ul class="nav nav-tabs" id="myTab">
+					<li class="active"><a href="#man_profile" data-toggle="tab">Profile</a></li>
+					<li><a href="#man_avatar" data-toggle="tab">Avatar</a></li>
+					<li><a href="#man_members" data-toggle="tab">Members</a></li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane active" id="man_profile">
+						<h4 class="sub-header">Profile</h4>
+						<form class="form-horizontal" action="post" id="create_group_form">
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td class="itemLabel">Name</td>
+										<td><input type="text" id="alias" name="alias" placeholder="Name of your group." required maxlength="32">
+										<p class="help-block">Required. Allow letters, digits, "-", and "_". No more than 32 characters.</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Description</td>
+										<td><textarea id="description" name="description" maxlength="150" oninput="limitTextArea('description', 'desc_counter', 150);"></textarea>
+										<p class="help-block"><span id="desc_counter">150</span> character(s) left</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Tags</td>
+										<td><input type="text" id="tags" name="tags" placeholder="eg., purdue cs php" size="40">
+										<p class="help-block">Optional. Words separated by spaces.</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Visibility</td>
+										<td>
+											<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
+											<label for="visibility-0">Private - only members can view the group.</label><br>
+											<input name="visibility" id="visibility-1" value="1" type="radio">
+											<label for="visibility-1">Public - joining requires my invitation.</label><br>
+											<input name="visibility" id="visibility-2" value="2" type="radio">
+											<label for="visibility-2">Public - people can apply to join.</label><br>
+											<input name="visibility" id="visibility-3" value="63" type="radio">
+											<label for="visibility-3">Public - open to everyone.</label>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="text-center">
+							<div class="hidden text-center" id="edit_group_prompt"></div>
+							<button class="btn btn-primary" type="submit">Update Profile</button>
+							<button class="btn btn-default" type="button">Discard Changes</button>
+						</div>
+						</form>
+					</div>
+					<div class="tab-pane" id="man_avatar">
+						<h4 class="sub-header">Profile</h4>
+						<form class="form-horizontal" action="post" id="create_group_form">
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td class="itemLabel">Name</td>
+										<td><input type="text" id="alias" name="alias" placeholder="Name of your group." required maxlength="32">
+										<p class="help-block">Required. Allow letters, digits, "-", and "_". No more than 32 characters.</p></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="text-center">
+							<div class="hidden text-center" id="edit_group_prompt"></div>
+							<button class="btn btn-primary" type="submit">Update Profile</button>
+							<button class="btn btn-default" type="button">Discard Changes</button>
+						</div>
+						</form>
+					</div>
+					<div class="tab-pane" id="man_members">
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="leave_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="leave_group_modalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+				<h3 class="modal-title"><i class="fa fa-sign-out"></i> Leave a Group</h3>
+			</div>
+			<form class="form-horizontal" id="leave_group_form">
+				<input type="hidden" name="group_id" value="<?php echo $group_info["id"]?>" />
+				<div class="modal-body">
+				<?php 
+					if ($group_info["creator_user_id"] == $me["id"]) {
+						echo "<div class=\"callout callout-danger\"><h4>Confirmation</h4><p>You are the creator of this group. Leaving the group will disband it. To keep the group, please transfer the ownership to another member before leaving.</p></div>" .
+							"<label><input type=\"checkbox\" name=\"notify_all\" value=\"true\" /> Notify every group member that the group will be closed.</label>";
+					} else {
+						echo "<div class=\"callout callout-warning\"><h4>Confirmation</h4><p>Are you sure to leave this group?</p></div>";
+					}
+				?>
+					<div class="hidden text-center" id="form_prompt">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" type="submit">Proceed</button>
+					<button data-dismiss="modal" class="btn btn-default" type="button">Cancel</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 <?php if (isset($group_footer)) echo $this->render($group_footer); ?>

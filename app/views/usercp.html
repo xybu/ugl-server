@@ -5,7 +5,7 @@ $menu_list = array(
 	"boards" => array("fa-list-alt", "Boards", ""),
 	"items" => array("fa-book", "Items", ""),
 	"wallet" => array("fa-credit-card", "Wallet", ""),
-	"settings" => array("fa-cog", "Settings", ""),
+	"settings" => array("fa-cogs", "Settings", ""),
 );
 $menu_list[$panel][2] = " active";
 ?><!DOCTYPE html>
@@ -90,7 +90,9 @@ $menu_list[$panel][2] = " active";
 				</div>
 				<div id="main">
 					<?php
-						if (isset($panel))
+						if (isset($sub_panel)){
+							echo $this->render($sub_panel . '.html');
+						} else if (isset($panel))
 							echo $this->render('my_' . $panel . '.html');
 						else echo "Loading...";
 					?>

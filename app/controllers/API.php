@@ -54,10 +54,9 @@ class API extends \Controller {
 			
 			$password = $base->get("POST.password");
 			if (!$user->isValidPassword($password)){
-				if ($base->exists("SESSION.loginFail_count"))
-					$count = intval($base->get("SESSION.loginFail_count"));
-				else $count = 0;
-				$base->set("SESSION.loginFail_count", $count + 1);
+				if ($base->exists("SESSION.loginFail_count")){
+					$base->set("SESSION.loginFail_count", intval($base->get("SESSION.loginFail_count")) + 1, 0);
+				} else $base->set("SESSION.loginFail_count", 1, 1800);
 				
 				throw new \Exception("Password should not be empty", 103);
 			}

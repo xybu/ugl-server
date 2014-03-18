@@ -14,6 +14,22 @@ class Group extends \Model {
 	const MAX_DESC_LENGTH = 150;
 	const GROUP_RECORD_TTL = 1800; //sec
 	
+	// group-wide (minimum) permissions
+	static $DEFAULT_GROUP_PERMISSION = array(
+		"role_name" => "guest",
+		"view_profile" => false,	// view group profile
+		"apply" => false, 		// apply to join
+		"view_board" => false,	// view the boards
+		"new_board" => false,	// new board
+		"edit_board" => false,	// edit a board
+		"del_board" => false,	// delete a board
+		"post" => false, 	// post subjects
+		"comment" => false, // comment on posts
+		"delete" => false,	// delete posts
+		"edit" => false, 	// edit subjects
+		"manage" => false 	// manage members and change profile
+	);
+	
 	/**
 	 * isValidGroupName
 	 * Check if the string contains chars other than alphanumerical, -, _
@@ -97,6 +113,44 @@ class Group extends \Model {
 		return array("count" => 0);
 	}
 	
+	function getPermissions($user_id, $group_id, $group_data = null){
+		
+		$permissions = self::$DEFAULT_GROUP_PERMISSION;
+		if (!$group_data)
+			$group_data = $this->findById($group_id);
+		
+		if (array_key_exists("admin", $group_data["users"]) and in_array($user_id, $group_data["users"]["admin"])){
+			$permissions["role_name"] = "admin";
+			$permissions["view_profile"] = true;
+			$permissions["view_board"] = true;
+			$permissions["new_board"] = true;
+			$permissions["edit_board"] = true;
+			$permissions["del_board"] = true;
+			$permissions["post"] = true; 
+			$permissions["comment"] = true; 
+			$permissions["delete"] = true;
+			$permissions["edit"] = true;
+			$permissions["manage"] = true;
+		} else if (array_key_exists("member", $group_data["users"]) and in_array($user_id, $group_data["users"]["member"])){
+			$permissions["role_name"] = "member";
+			$permissions["view_profile"] = true;
+			$permissions["view_board"] = true;
+			$permissions["new_board"] = true;
+			$permissions["edit_board"] = true;
+			$permissions["post"] = true;
+			$permissions["comment"] = true;
+		} else {
+			if ($group_data["visibility"] > 0)
+				$permissions["view_profile"] = true;
+			
+			if (array_key_exists("pending", $group_data["users"]) and in_array($user_id, $group_data["users"]["pending"])){
+				$permissions["role_name"] = "applicant";
+			}
+		}
+		
+		return $permissions;
+	}
+	
 	function create($user_id, $alias, $desc, $tags, $visibility){
 		$this->queryDb(
 			"INSERT INTO groups (creator_user_id, visibility, alias, description, tags, users, created_at) " .
@@ -114,70 +168,71 @@ class Group extends \Model {
 		return $this->findByAlias($alias);
 	}
 	
-	function updateGroupProfile($id, $visibility, $alias, $description, $tags){
-		$this->queryDb(
-			"UPDATE groups SET visibility=:visibility, alias=:alias, description=:description, tags=:tags WHERE id=:id LIMIT 1;",
+	function save($group_data){
+		$this->querDb("UPDATE groups " .
+			"SET visibility=:visibility, alias=:alias, description=:description, avatar_url=:avatar_url, tags=:tags, creator_user_id=:creator_user_id, users=:users ".
+			"WHERE id=:id;",
 			array(
-				":id" => $id,
-				":visibility" => $visibility,
-				":alias" => $alias,
-				":description" => $description,
-				":tags" => $tags,
+				":id" => $group_data["id"],
+				":visibility" => $group_data["visibility"],
+				":alias" => $group_data["alias"],
+				":description" => $group_data["description"],
+				":avatar_url" => $group_data["avatar_url"],
+				":tags" => $group_data["tags"],
+				":creator_user_id" => $group_data["creator_user_id"],
+				":users" => json_encode($group_data["users"])
 			)
 		);
-		$this->cache->clear("group_id_" . $id);
 	}
 	
 	function deleteById($gid){
 		//TODO: delete all records related to the group before deleting it
 		
 		// delete all the news about the group
-		$news = new News();
-		$news->deleteByGroupId($gid);
+		//$news = new News();
+		//$news->deleteByGroupId($gid);
 		
 		// delete the group
 		$this->queryDb("DELETE FROM groups WHERE id=?;", $gid);
 		$this->cache->clear("group_id_" . $id);
 	}
 	
-	function setStatus($isActive = false){
+	function setCreatorUserId($uid, &$group_data){
+		$group_data["creator_user_id"] = $uid;
 		
+		if ($this->cache->exists("group_id_" . $gid))
+			$this->cache->set("group_id_" . $gid, $group_data);
 	}
 	
-	function changeCreatorUserId($gid, $uid){
-		$this->queryDb(
-			"UPDATE groups SET creator_user_id=:uid WHERE id=:gid LIMIT 1;",
-			array(
-				":gid" => $gid,
-				":uid" => $uid
-			)
-		);
-	}
-	
-	function updateGroupUsers($id, $users){
-		$this->queryDb(
-			"UPDATE groups SET users=:users WHERE id=:id LIMIT 1;",
-			array(
-				":id" => $id,
-				":users" => $users
-			)
-		);
-	}
-	
-	function inviteUserToGroup($uid, $gid){
+	function addUser($uid, $role, &$group_data){
+		$group_data["users"][$role][] = $uid;
 		
+		if ($this->cache->exists("group_id_" . $gid))
+			$this->cache->set("group_id_" . $gid, $group_data);
 	}
 	
-	function addGroupUser($gid, $uid, $role){
+	function kickUser($uid, &$group_data){
+		$flag = false;
 		
-	}
-	
-	function updateUserRole($gid, $uid, $role){
+		foreach ($group_data["users"] as $role => $users){
+			$i = array_search("" . $uid . "", $users);
+			if ($i) {
+				unset($group_data["users"][$role][$i]);
+				$flag = true;
+			}
+		}
 		
-	}
-	
-	function deleteGroupMember($gid, $uid){
+		if ($flag and $this->cache->exists("group_id_" . $gid))
+				$this->cache->set("group_id_" . $gid, $group_data);
 		
+		return $flag;
 	}
 	
+	function changeUserRole($uid, $role, &$group_data){
+		$this->kickUser($uid, $group_data);
+		$group_data["users"][$role][] = "" . $uid . "";
+		
+		if ($this->cache->exists("group_id_" . $gid))
+			$this->cache->set("group_id_" . $gid, $group_data);
+	}
 }

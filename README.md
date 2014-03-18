@@ -29,6 +29,7 @@ The server side code of project Ugl.
 	 - [Groups](#2-groups)
 		 - [List the groups a user joins](#1-list-groups-of)
 		 - [Create a group](#2-create-a-group)
+		 - [Delete / leave a group](#3-delete-or-leave-a-group-or-kick-a-member)
 	 - [News](#3-news)
 
 ***
@@ -556,7 +557,48 @@ Upon success, server will return a success message, and the filtered group data:
 * 4 - Group name "blah" is already taken
 * 5 - Please choose a valid visibility option from the list
 
-### 3) deleteGroup
+
+### 3) Delete or Leave a Group or Kick a Member
+
+This API combines two operations of leaving and deleting a group into one, given the different combinations of parameters.
+
+#### Request
+| Name   | Description                               |
+| ------ | ----------------------------------------- |
+| Method | POST                                      |
+| URL    | `/api/group/leave`                        |
+
+* POST data `user_id`=123&`ugl_token`=mytoken&`group_id`=target_group_id
+* When the creator leaves the group, the group will be removed (deleted)
+	 * He / she can choose to notify all group members of the shutdown by POSTing a parameter "`notify`=true"
+* When an admin (or whoever has "manage" permission) wants to kick a group user other than himself, also POST a parameter "`target_user_id`=user_to_kick"
+* No one can kick the creator unless he / she is the creator, but the creator doing so means deleting the group
+* Uncaught invalid requests will remove the requester from the group if he is in it
+* Kicking unregistered user will be ignored by server, but the client will get a success message
+* To kick more than one users from the group, POST `target_user_id` parameter like "`target_user_id`=1,2,44,7" (this will kick users whose id are in the list from the group)
+	 * if the creator's ID is in the list, he / she will NOT get kicked
+	 * if an user ID is unregistered or is not in the group, kicking this user makes NO changes to the group
+	 * invalid IDs in the list (e.g., `aa` as in `target_user_id=aa,123`) will be ignored, the rest of the operation will be performed
+* An admin kicking himself will be considered as a "kick" operation instead of a "leave" operation
+	 
+#### Response
+Upon success, the requester will receive one of the following depending on the particular request
+
+* `The group is now closed` (The creator deleted the group)
+* `You have successfully kicked the user` (an admin kicked some user)
+* `You have successfully left the group` (a user left the group)
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
+* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 3 - Group id not specified (`group_id` is not POSTed)
+* 4 - Invalid group id (`group_id` is not a number)
+* 5 - Group not found
+* 6 - You are not in the group (A guest cannot perform this operation of course...)
+* 7 - You cannot kick the creator (No one but the creator can kick the creator)
+* 8 - Target user id should be a number (__deprecated__)
+* 9 - You are the creator. Please grant yourself "manage" permission before leaving the group (The creator customized the role system in a wrong way...)
 
 ### 4) editGroupProfile
 

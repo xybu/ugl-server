@@ -1,36 +1,60 @@
 var ugl_panel_initialized = false;
 
+var serialize = function(obj, re) {
+                var result = [];
+                $.each(obj, function(i, val) {
+                    if ((re && re.test(i)) || !re)
+                        result.push(i + ': ' + (typeof val == 'object' ? val.join 
+                            ? '\'' + val.join(', ') + '\'' : serialize(val) : '\'' + val + '\''));
+                });
+                return '{' + result.join(', ') + '}';
+            };
+			
 $(document).ready(function(){
 	
 	$('.dropdown-toggle').dropdown();
 	
 	var init = true, state = window.history.pushState !== undefined;
-	var cur_value;
-	var cur_event_value = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1, window.location.pathname.length);
 	
-	$.address.state('/my').init(function(event) {
+	var cur_event_params = window.location.pathname.split("/");
+	
+	if (cur_event_params[cur_event_params.length - 2] == "my")
+		cur_event = cur_event_params[cur_event_params.length - 1];
+	else cur_event = cur_event_params[cur_event_params.length - 2];
+	
+	console.log(cur_event);
+	
+	$.address.state("/my").init(function(event) {
+		console.log('init: ' + serialize({
+			value: $.address.value(), 
+			path: $.address.path(),
+			pathNames: $.address.pathNames(),
+			parameterNames: $.address.parameterNames(),
+			queryString: $.address.queryString()
+		}));
 		$('.nav-sidebar a').address();
-		cur_value = $.address.state().replace(/^\/$/, '') + event.value;
-		cur_event_value = event.value.replace("/", "");
+		$('a.enter-group').address();
 	}).change(function(event) {
-		cur_value = $.address.state().replace(/^\/$/, '') + event.value;
-		cur_event_value = event.value.replace("/", "");
+		
+		cur_event = event.pathNames[0];
 		
 		if (state && init) {
 			init = false;
 		} else {
-			$('.nav-sidebar .active').removeClass('active');
-			$('.' + cur_event_value + '-li').addClass('active');
+			console.log('change: ' + serialize(event, /parameters|parametersNames|path|pathNames|queryString|value/));
+			
+			if ($('.' + cur_event + '-li').length){
+				$('.nav-sidebar .active').removeClass('active');
+				$('.' + cur_event + '-li').addClass('active');
+			}
 			
 			var body = $("body");
 			body.append("<div class=\"ajax-loading\"><div class=\"ajax-loading-icon\"></div></div>");
 			body.addClass("loading");
 			
-			// Loads and populates the page data
-			$.post(cur_value, function(data){
+			$.post("/my" + event.path, function(data){
 				$("#main").html(data);
-				var init_func = window['init_' + cur_event_value];
-				
+				var init_func = window['init_' + cur_event];
 				if (typeof init_func == 'function')
 					init_func();
 			}).done(function(){
@@ -41,13 +65,13 @@ $(document).ready(function(){
 				body.removeClass("loading");
 				$(".ajax-loading").remove();
 			});
+			
 		}
 	});
 	
-	if (!ugl_panel_initialized && typeof window['init_' + cur_event_value] == 'function'){
-		window['init_' + cur_event_value]();
+	if (!ugl_panel_initialized && typeof window['init_' + cur_event] == 'function'){
+		window['init_' + cur_event]();
 	}
-	
 });
 
 function logOut(){$.post("/api/logout");}
@@ -122,6 +146,38 @@ function init_groups(){
 		});
 		e.preventDefault(); //STOP default action
 	});
+	$('a.enter-group').address();
+	ugl_panel_initialized = true;
+}
+
+function init_group(){
+	$('#myTab a').tab('show');
+	
+	$("#leave_group_form").submit(function(e){
+		var prompt_dom = $("#leave_group_form #form_prompt");
+		prompt_dom.html("<img src=\"assets/img/loader.gif\" />").removeClass("hidden");
+		/*$.post(
+			"/api/group/leave", 
+			$("#leave_group_form").serialize(),
+			function(data){
+				if (data.status == "success"){
+					if ($('#no_group_alert'))
+						$('#no_group_alert').remove();
+					console.log(data.groups);
+					renderGroupListItem("group-list", data.data.group_data);
+					$("#create_group_modal").modal('hide');
+					$("#group_count").text(parseInt($("#group_count").text()) + 1);
+					$('#group_' + data.data.group_data.id).addClass('animated flash');
+					prompt_dom.html("");
+				} else {
+					prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
+				}
+			}).fail(function(xhr, textStatus, errorThrown) {
+				prompt_dom.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+			}
+		);*/
+		e.preventDefault(); //STOP default action
+	});
 	
 	ugl_panel_initialized = true;
 }
@@ -142,11 +198,11 @@ function renderGroupListItem(listId, groupObject, hide){
 	if (!groupObject.avatar_url) groupObject.avatar_url = "assets/img/default-avatar-group.png";
 	
 	listDom.append("<div class=\"col-sm-6 col-md-4" + hide + "\" id=\"group_" + groupObject.id + "\" data-visibility=\"" + groupObject.visibility + "\" data-creator=\"" + groupObject.creator_user_id + "\">" +
-		"<div class=\"thumbnail\"><img class=\"avatar\" src=\"" + groupObject.avatar_url + "\" />" +
+		"<div class=\"thumbnail\"><img class=\"group-avatar\" src=\"" + groupObject.avatar_url + "\" />" +
 		"<div class=\"caption text-center\">" +
 		"<h3 class=\"group_alias\">" + groupObject.alias + "</h3>" +
 		"<p class=\"group_desc\">" +groupObject.description + "</p>" +
-		"<div><a class=\"btn btn-primary\" role=\"button\">Enter</a> " +
+		"<div><a class=\"btn btn-primary enter-group\" role=\"button\">Enter</a> " +
 		"<a class=\"btn btn-default\" role=\"button\">Profile</a> <a class=\"btn btn-warning\" role=\"button\">Leave</a></div>" +
 		"</div></div></div>");
 }

@@ -19,6 +19,10 @@ body {
 	margin: 20px 0;
 }
 
+.section-divider {
+	margin: 0.75em 0;
+}
+
 .sub-header {
 	padding-bottom: 10px;
 	border-bottom: 1px solid #eee;
@@ -700,7 +704,7 @@ body.loading .ajax-loading {
 	position: relative;
 }
 
-#group-list .avatar {
+.group-avatar {
 	margin-top: 0.3em;
 	width: 70%;
 	height: 70%;
@@ -711,6 +715,10 @@ body.loading .ajax-loading {
 	-moz-box-shadow: 0 0 3px rgba(0, 0, 0, .8);
 }
 
+.group-avatar-big {
+	width: 95% !important;
+	height: 95% !important;
+}
 
 .form-horizontal .control-label {
     float: left;
