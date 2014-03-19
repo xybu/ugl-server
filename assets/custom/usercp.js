@@ -151,6 +151,7 @@ function init_groups(){
 }
 
 function init_group(){
+	document.title = $("#group-alias").text() + " | Ugl";
 	$('#myTab a').tab('show');
 	
 	$("#leave_group_form").submit(function(e){

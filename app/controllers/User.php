@@ -253,7 +253,7 @@ class User extends \Controller {
 						throw new \Exception("You are not allowed to view the profile of this group", 5);
 					$base->set("my_permissions", $my_permissions);
 					$base->set("group_info", $group_info);
-					$sub_panel = "group_homepage";
+					$sub_panel = "group";
 				case "groups":
 					$group = new \models\Group();
 					$group_list = $group->listGroupsOfUserId($me["id"], 0);
@@ -298,46 +298,52 @@ class User extends \Controller {
 		$base->set('me', $my_profile); //hide the token in the view model
 		$base->set('panel', $panel);
 		
-		switch ($panel){
-			case "dashboard":
-				break;
-			case "group":
-				$panel = "groups";
-					$item_id = $base->get("PARAMS.item_id");
-					if (!is_numeric($item_id))
-						throw new \Exception("Group id should be a number", 3);
-					
+		try {
+			switch ($panel){
+				case "dashboard":
+					break;
+				case "group":
+					$panel = "groups";
+						$item_id = $base->get("PARAMS.item_id");
+						if (!is_numeric($item_id))
+							throw new \Exception("Group id should be a number", 3);
+						
+						$group = new \models\Group();
+						$group_info = $group->findById($item_id);
+						
+						if (!$group_info)
+							throw new \Exception("Group not found", 4);
+						
+						$my_permissions = $group->getPermissions($me["id"], $item_id, $group_info);
+						
+						if (!$my_permissions["view_profile"])
+							throw new \Exception("You are not allowed to view the profile of this group", 5);
+						$base->set("my_permissions", $my_permissions);
+						$base->set("group_info", $group_info);
+						$sub_panel = "group";
+				case "groups":
 					$group = new \models\Group();
-					$group_info = $group->findById($item_id);
-					
-					if (!$group_info)
-						throw new \Exception("Group not found", 4);
-					
-					$my_permissions = $group->getPermissions($me["id"], $item_id, $group_info);
-					
-					if (!$my_permissions["view_profile"])
-						throw new \Exception("You are not allowed to view the profile of this group", 5);
-					$base->set("my_permissions", $my_permissions);
-					$base->set("group_info", $group_info);
-					$sub_panel = "group_homepage";
-			case "groups":
-				$group = new \models\Group();
-				$group_list = $group->listGroupsOfUserId($me["id"], 0);
-				$base->set("groupList", $group_list);
-				break;
-			case "boards":
-				break;
-			case "items":
-				break;
-			case "wallet":
-				break;
-			case "preferences":
-				break;
-			case "settings":
-				break;
-			default:
-				die();
+					$group_list = $group->listGroupsOfUserId($me["id"], 0);
+					$base->set("groupList", $group_list);
+					break;
+				case "boards":
+					break;
+				case "items":
+					break;
+				case "wallet":
+					break;
+				case "preferences":
+					break;
+				case "settings":
+					break;
+				default:
+					die();
+			}
+		} catch (\Exception $e){
+			$sub_panel = "usercp_error";
+			$base->set("exception", $e);
 		}
+		
 		if (isset($sub_panel))
 			$this->setView($sub_panel . '.html');
 		else $this->setView('my_' . $panel . '.html');

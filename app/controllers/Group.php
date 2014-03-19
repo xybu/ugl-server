@@ -254,15 +254,41 @@ class Group extends \Controller {
 		}
 	}
 	
-	function html_showGroupPageFragment($base){
-		$this->setView('group_homepage.html');
-	}
-	
 	function html_showGroupPage($base){
+		
+		$user = new \models\User();
+		$me = $base->get("SESSION.user");
+		$panel = $base->get("PARAMS.panel");
+		
+		if (!$user->verifyToken($me["id"], $me["ugl_token"])){
+			$me["id"] = -1;
+			$my_profile = null;
+		} else {
+			$my_profile = $user->getUserProfile($me["id"]);
+		}
+		
+		$item_id = $base->get("PARAMS.group_id");
+		if (!is_numeric($item_id))
+			throw new \Exception("Group id should be a number", 3);
+		
+		$group = new \models\Group();
+		$group_info = $group->findById($item_id);
+		
+		if (!$group_info)
+			throw new \Exception("Group not found", 4);
+		
+		$my_permissions = $group->getPermissions($me["id"], $item_id, $group_info);
+		
+		if (!$my_permissions["view_profile"])
+			throw new \Exception("You are not allowed to view the profile of this group", 5);
+		$base->set("my_permissions", $my_permissions);
+		$base->set("group_info", $group_info);
+		$sub_panel = "group";
+		
 		$base->set('page_title','Unified Group Life');
-		$base->set('group_header','group_header.html');
-		$base->set('group_footer','group_footer.html');
-		$this->html_showGroupPageFragment($base);
+		$base->set('group_header', true);
+		$base->set('group_footer', true);
+		$this->setView('group.html');
 	}
 	
 }

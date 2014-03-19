@@ -1,9 +1,32 @@
-<?php if (isset($group_header)) echo $this->render($group_header); ?>
+<?php if (isset($group_header)) :
+?><!DOCTYPE html>
+<html lang="en">
+	<head>
+		<base href="<?php echo $SCHEME.'://'.$HOST.':'.$PORT.$BASE.'/'; ?>" />
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<title><?php echo $group_info["alias"]?> | Ugl</title>
+		<link rel="dns-prefetch" href="//cdnjs.cloudflare.com/">
+		<link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="assets/css/animate.min.css" />
+		<link rel="stylesheet" href="assets/custom/usercp.theme.css" />
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" />
+		<!--[if lt IE 9]>
+			<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
+			<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+	</head>
+
+<body>
+<?php endif; ?>
 <div class="container-fluid">
 	<ol class="breadcrumb">
 		<li>Home</li>
 		<li><a href="/my/groups">Groups</a></li>
-		<li class="active"><?php echo $group_info["alias"]?></li>
+		<li id="group-alias" class="active"><?php echo $group_info["alias"]?></li>
 	</ol>
 	
 	<h1 class="page-header"><?php echo $group_info["alias"]?>
@@ -188,7 +211,7 @@
 		</section>
 	</div>
 </div>
-
+<?php if ($my_permissions["manage"]) : ?>
 <div id="manage_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="manage_group_modalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -248,15 +271,20 @@
 						</form>
 					</div>
 					<div class="tab-pane" id="man_avatar">
-						<h4 class="sub-header">Profile</h4>
-						<form class="form-horizontal" action="post" id="create_group_form">
+						<h4 class="sub-header">Avatar</h4>
+						<form class="form-horizontal" action="post" id="change_avatar_form">
 						<div class="table-responsive">
 							<table class="table table-striped">
 								<tbody>
 									<tr>
-										<td class="itemLabel">Name</td>
-										<td><input type="text" id="alias" name="alias" placeholder="Name of your group." required maxlength="32">
-										<p class="help-block">Required. Allow letters, digits, "-", and "_". No more than 32 characters.</p></td>
+										<td class="itemLabel">URL</td>
+										<td><input type="text" id="url" name="url" placeholder="Leaving blank" required maxlength="32">
+										<p class="help-block">The URL of your avatar picture.</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Upload</td>
+										<td><input type="text" id="url" name="url" placeholder="Leaving blank" required maxlength="32">
+										<p class="help-block">The URL of your avatar picture.</p></td>
 									</tr>
 								</tbody>
 							</table>
@@ -276,7 +304,8 @@
 		</div>
 	</div>
 </div>
-
+<?php endif; 
+if ($my_permissions["role_name"] != "guest") :?>
 <div id="leave_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="leave_group_modalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -306,4 +335,16 @@
 		</div>
 	</div>
 </div>
-<?php if (isset($group_footer)) echo $this->render($group_footer); ?>
+<?php
+endif ;
+
+if (isset($group_footer)) :?>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="assets/js/bootstrap.min.js"></script>
+	<script src="assets/js/holder.js"></script>
+	<script src="assets/js/jquery.crypto.js"></script>
+	<script src="assets/js/jquery.mousewheel.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.address/1.6/jquery.address.min.js"></script>
+</body>
+</html>
+<?php endif; ?>
