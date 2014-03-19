@@ -60,6 +60,44 @@ class Group extends \Controller {
 		}
 	}
 	
+	/**
+	 * api_getInfo should be an app-exclusive API
+	 */
+	function api_getInfo($base){
+		try {
+			$user = new \models\User();
+			if ($base->exists("SESSION.user") or $base->exists("POST.user_id")){
+				$user_status = API::getUserStatus($base, $user);
+				$user_id = $user_status["user_id"];
+			} else {
+				$user_id = -1;
+			}
+			
+			if (!$base->exists("POST.group_id"))
+				throw new \Exception("Group id not specified", 3);
+			
+			$target_gid = $base->get("POST.group_id");
+			if (!is_numeric($target_gid))
+				throw new \Exception("Invalid group id", 4);
+			
+			$group = new \models\Group();
+			
+			$target_group = $group->findById($target_gid);
+			if (empty($target_group))
+				throw new \Exception("Group not found", 5);
+			
+			$user_permissions = $group->getPermissions($user_id, $target_gid, $target_group);
+			
+			if (!$user_permissions["view_profile"])
+				throw new \Exception("You cannot access the group", 6);
+			
+			$this->json_printResponse(array("my_permissions" => $user_permissions, "group_data" => $target_group));
+			
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
+	}
+	
 	function api_create($base){
 		try {
 			$user = new \models\User();
@@ -70,8 +108,8 @@ class Group extends \Controller {
 			$group = new \models\Group();
 			
 			$group_name = $base->get("POST.alias");
-			if (!$group->isValidAlias($group_name)) throw new \Exception("Group name is not of the specified format. Plese check.", 3);
-			if ($group->findByAlias($group_name)) throw new \Exception("Group name \"" . $group_name . "\" is already taken.", 4);
+			if (!$group->isValidAlias($group_name)) throw new \Exception("Group name is not of the specified format. Plese check", 3);
+			if ($group->findByAlias($group_name)) throw new \Exception("Group name \"" . $group_name . "\" is already taken", 4);
 			
 			if ($base->exists("POST.description"))
 				$group_description = $group->filterDescription($base->get("POST.description"));
@@ -209,12 +247,11 @@ class Group extends \Controller {
 		}
 	}
 	
-	function api_update($base){
+	function api_edit($base){
 		try {
 			$user = new \models\User();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
-			$token = $user_status["ugl_token"];
 			
 			if (!$base->exists("POST.group_id"))
 				throw new \Exception("Group id not specified", 3);
@@ -225,11 +262,41 @@ class Group extends \Controller {
 			
 			$group = new \models\Group();
 			
-			$group_info = $group->findById($target_gid);
-			if (empty($group_info))
+			$target_group = $group->findById($target_gid);
+			if (empty($target_group))
 				throw new \Exception("Group not found", 5);
 			
-			// to change the founder of the group
+			$user_permissions = $group->getPermissions($user_id, $target_gid, $target_group);
+			
+			if (!$user_permissions["manage"])
+				throw new \Exception("Unauthorized request", 6);
+			
+			$group_name = $base->get("POST.alias");
+			if (!$group->isValidAlias($group_name)) throw new \Exception("Group name is not of the specified format. Plese check", 7);
+			
+			if ($base->exists("POST.description"))
+				$group_description = $group->filterDescription($base->get("POST.description"));
+			else $group_description = "";
+			
+			if ($base->exists("POST.tags"))
+				$group_tags = $group->filterTags($base->get("POST.tags"));
+			else $group_tags = "";
+			
+			$group_visibility = $base->get("POST.visibility");
+			if (!$group->isValidVisibility($group_visibility))
+				 throw new \Exception("Please choose a valid visibility option from the list", 8);
+			
+			$group->update($target_group, $group_name, $group_description, $group_tags, $group_visibility);
+			
+			$this->json_printResponse(array("message" => "You have successfully updated group profile.", "group_data" => $target_group));
+			
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
+	}
+	
+	function api_changeCreator($base){
+		// to change the founder of the group
 			if ($base->exists("POST.new_creator_user_id")){
 				if ($group_info["creator_user_id"] != $user_id)
 					throw new \Exception("Only the creator can transfer ownership", 6);
@@ -246,12 +313,12 @@ class Group extends \Controller {
 				
 				// if the old and new creators are the same, skip this step
 			}
-			
-			//TODO: to be finished
-			
-		} catch (\Exception $e){
-			
-		}
+	}
+	
+	function api_changeUsers($base){
+	}
+	
+	function api_invite($base){
 	}
 	
 	function html_showGroupPage($base){

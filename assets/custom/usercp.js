@@ -152,7 +152,6 @@ function init_groups(){
 
 function init_group(){
 	document.title = $("#group-alias").text() + " | Ugl";
-	$('#myTab a').tab('show');
 	
 	$("#leave_group_form").submit(function(e){
 		var prompt_dom = $("#leave_group_form #form_prompt");
@@ -162,7 +161,7 @@ function init_group(){
 			$("#leave_group_form").serialize(),
 			function(data){
 				if (data.status == "success"){
-					$("#leave_group_form").modal('hide');
+					$("#leave_group_modal").modal('hide');
 					window.location.href = '/my/groups';
 				} else {
 					prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
@@ -173,6 +172,26 @@ function init_group(){
 		);
 		e.preventDefault(); //STOP default action
 	});
+	
+	if ($("#edit_group_form").length){
+		$("#edit_group_form").submit(function(e){
+			var prompt_dom = $("#edit_group_form #form_prompt");
+			prompt_dom.html("<img src=\"assets/img/loader.gif\" />").removeClass("hidden");
+			$.post(
+				$(this).attr("action"),
+				$(this).serialize(),
+				function(data){
+					if (data.status == "success"){
+						location.reload();
+					} else {
+						prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
+					}
+				}).fail(function(xhr, textStatus, errorThrown) {
+					prompt_dom.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+			});
+			e.preventDefault(); //STOP default action
+		});
+	}
 	
 	ugl_panel_initialized = true;
 }

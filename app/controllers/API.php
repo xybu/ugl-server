@@ -215,7 +215,7 @@ class API extends \Controller {
 	 * @param $user	User model
 	 */
 	static function getUserStatus($base, $user){
-		$user_id = 0;
+		$user_id = -1;
 		$token = "";
 		
 		if ($base->exists("POST.user_id") and $base->exists("POST.ugl_token")){

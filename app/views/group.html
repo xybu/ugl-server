@@ -21,6 +21,30 @@
 	</head>
 
 <body>
+	<header class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#"><i class="fa fa-home"></i> Home</a>
+			</div>
+			<div class="navbar-collapse collapse">
+				<form class="navbar-form navbar-right" role="form" method="post" action="/api/login" id="nav-login">
+					<div class="form-group">
+						<input type="email" id="nav-login-email" name="email" value="" placeholder="Email" class="form-control" data-placement="bottom" data-trigger="manual" title="Please enter a valid email address">
+					</div>
+					<div class="form-group">
+						<input type="password" id="nav-login-pass" name="password" placeholder="Password" value="" class="form-control" data-placement="bottom" data-trigger="manual" title="Password must be at least characters">
+					</div>
+					<button type="submit" id="nav-login-btn" class="btn btn-success" data-placement="bottom" data-trigger="click">Sign in</button>
+				</form>
+			</div><!--/.navbar-collapse -->
+		</div>
+    </header>
 <?php endif; ?>
 <div class="container-fluid">
 	<ol class="breadcrumb">
@@ -213,7 +237,7 @@
 </div>
 <?php if ($my_permissions["manage"]) : ?>
 <div id="manage_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="manage_group_modalLabel" aria-hidden="true">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-adaptive">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
@@ -228,35 +252,36 @@
 				<div class="tab-content">
 					<div class="tab-pane active" id="man_profile">
 						<h4 class="sub-header">Profile</h4>
-						<form class="form-horizontal" action="post" id="create_group_form">
+						<form class="form-horizontal" method="post" action="api/group/edit" id="edit_group_form">
+							<input type="hidden" name="group_id" value="<?php echo $group_info["id"]?>" />
 						<div class="table-responsive">
 							<table class="table table-striped">
 								<tbody>
 									<tr>
 										<td class="itemLabel">Name</td>
-										<td><input type="text" id="alias" name="alias" placeholder="Name of your group." required maxlength="32">
+										<td><input type="text" id="alias" name="alias" value="<?php echo $group_info["alias"]?>" required maxlength="32">
 										<p class="help-block">Required. Allow letters, digits, "-", and "_". No more than 32 characters.</p></td>
 									</tr>
 									<tr>
 										<td class="itemLabel">Description</td>
-										<td><textarea id="description" name="description" maxlength="150" oninput="limitTextArea('description', 'desc_counter', 150);"></textarea>
-										<p class="help-block"><span id="desc_counter">150</span> character(s) left</p></td>
+										<td><textarea id="description" name="description" maxlength="150" oninput="limitTextArea('description', 'desc_counter', 150);"><?php echo htmlspecialchars_decode($group_info["description"])?></textarea>
+										<p class="help-block"><span id="desc_counter"><?php echo 150 - strlen($group_info["description"])?></span> character(s) left</p></td>
 									</tr>
 									<tr>
 										<td class="itemLabel">Tags</td>
-										<td><input type="text" id="tags" name="tags" placeholder="eg., purdue cs php" size="40">
+										<td><input type="text" id="tags" name="tags" value="<?php echo $group_info["tags"]?>" size="40">
 										<p class="help-block">Optional. Words separated by spaces.</p></td>
 									</tr>
 									<tr>
 										<td class="itemLabel">Visibility</td>
 										<td>
-											<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
+											<input name="visibility" id="visibility-0" value="0"<?php if ($group_info["visibility"] == 0) echo " checked=\"checked\""?> type="radio">
 											<label for="visibility-0">Private - only members can view the group.</label><br>
-											<input name="visibility" id="visibility-1" value="1" type="radio">
+											<input name="visibility" id="visibility-1" value="1"<?php if ($group_info["visibility"] == 1) echo " checked=\"checked\""?> type="radio">
 											<label for="visibility-1">Public - joining requires my invitation.</label><br>
-											<input name="visibility" id="visibility-2" value="2" type="radio">
+											<input name="visibility" id="visibility-2" value="2"<?php if ($group_info["visibility"] == 2) echo " checked=\"checked\""?> type="radio">
 											<label for="visibility-2">Public - people can apply to join.</label><br>
-											<input name="visibility" id="visibility-3" value="63" type="radio">
+											<input name="visibility" id="visibility-3" value="63"<?php if ($group_info["visibility"] == 63) echo " checked=\"checked\""?> type="radio">
 											<label for="visibility-3">Public - open to everyone.</label>
 										</td>
 									</tr>
@@ -264,7 +289,7 @@
 							</table>
 						</div>
 						<div class="text-center">
-							<div class="hidden text-center" id="edit_group_prompt"></div>
+							<p class="hidden text-center" id="form_prompt"></p>
 							<button class="btn btn-primary" type="submit">Update Profile</button>
 							<button class="btn btn-default" type="button">Discard Changes</button>
 						</div>

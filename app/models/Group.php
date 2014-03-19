@@ -119,7 +119,7 @@ class Group extends \Model {
 		if (!$group_data)
 			$group_data = $this->findById($group_id);
 		
-		if (array_key_exists("admin", $group_data["users"]) and in_array($user_id, $group_data["users"]["admin"])){
+		if (array_key_exists("admin", $group_data["users"]) and $user_id > 0 and in_array($user_id, $group_data["users"]["admin"])){
 			$permissions["role_name"] = "admin";
 			$permissions["view_profile"] = true;
 			$permissions["view_board"] = true;
@@ -131,7 +131,7 @@ class Group extends \Model {
 			$permissions["delete"] = true;
 			$permissions["edit"] = true;
 			$permissions["manage"] = true;
-		} else if (array_key_exists("member", $group_data["users"]) and in_array($user_id, $group_data["users"]["member"])){
+		} else if (array_key_exists("member", $group_data["users"]) and $user_id > 0 and in_array($user_id, $group_data["users"]["member"])){
 			$permissions["role_name"] = "member";
 			$permissions["view_profile"] = true;
 			$permissions["view_board"] = true;
@@ -143,7 +143,7 @@ class Group extends \Model {
 			if ($group_data["visibility"] > 0)
 				$permissions["view_profile"] = true;
 			
-			if (array_key_exists("pending", $group_data["users"]) and in_array($user_id, $group_data["users"]["pending"])){
+			if ($user_id > 0 and array_key_exists("pending", $group_data["users"]) and in_array($user_id, $group_data["users"]["pending"])){
 				$permissions["role_name"] = "applicant";
 			}
 		}
@@ -168,8 +168,39 @@ class Group extends \Model {
 		return $this->findByAlias($alias);
 	}
 	
+	function update(&$group_data, $alias, $desc, $tags, $visibility){
+		$changed = false;
+		
+		if ($alias != $group_data["alias"]){
+			$changed = true;
+			$group_data["alias"] = $alias;
+		}
+		
+		if ($desc != $group_data["description"]){
+			$changed = true;
+			$group_data["description"] = $desc;
+		}
+		
+		if ($tags != $group_data["tags"]){
+			$changed = true;
+			$group_data["tags"] = $tags;
+		}
+		
+		if ($visibility != $group_data["visibility"]){
+			$changed = true;
+			$group_data["visibility"] = $visibility;
+		}
+		
+		if ($changed){
+			$this->save($group_data);
+			if ($this->cache->exists("group_id_" . $group_data["id"]))
+				$this->cache->set("group_id_" . $group_data["id"], $group_data);
+			//$this->cache->clear("group_id_" . $group_data["id"]);
+		}
+	}
+	
 	function save($group_data){
-		$this->querDb("UPDATE groups " .
+		$this->queryDb("UPDATE groups " .
 			"SET visibility=:visibility, alias=:alias, description=:description, avatar_url=:avatar_url, tags=:tags, creator_user_id=:creator_user_id, users=:users ".
 			"WHERE id=:id;",
 			array(

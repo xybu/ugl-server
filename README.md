@@ -31,6 +31,7 @@ The server side code of project Ugl.
 		 - [Create a group](#2-create-a-group)
 		 - [Delete, leave a group, or kick members](#3-delete-or-leave-a-group-or-kick-members)
 		 - [Transfer ownership](#4-transfer-ownership-of-a-group)
+		 - [Edit group profile](#5-edit-group-profile)
 	 - [News](#3-news)
 
 ***
@@ -608,7 +609,131 @@ This API sets a new creator for this group, other information remaining unchange
 #### Response
 #### Associated Errors
 
-### 5) editGroupProfile
+### 5) Edit Group Profile
+
+Edit the profile of the group.
+
+#### Request
+| Name   | Description                                             |
+| ------ | ------------------------------------------------------- |
+| Method | POST                                                    |
+| URL    | `/api/group/edit`                                     |
+| DATA   | `user_id`=123&`ugl_token`=mytoken&`group_id`=123&`alias`=group_name&`description`=group_description&`tags`=group_tags&`visibility`=new_vis  |
+
+#### Response
+
+Upon success, server will return a success message with the new group data
+
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-03-19T01:35:53+00:00",
+    "data": {
+        "message": "You have successfully updated group profile.",
+        "group_data": {
+            "id": "2",
+            "visibility": "1",
+            "alias": "beta-testers",
+            "description": "Lorem ipsum Dadipiscing sdfec id lectus vel odio auctor viverra. Pellentesque eu dui nib.\r\n&lt;script&gt;&amp;&amp;test&amp;&amp;&lt;\/script&gt;",
+            "avatar_url": null,
+            "tags": "cs307 purdue ugl23",
+            "creator_user_id": "5",
+            "num_of_users": "1",
+            "users": {
+                "admin": [
+                    "5"
+                ]
+            },
+            "created_at": "2014-03-18 22:32:48"
+        }
+    }
+}
+```
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
+* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 3 - Group id not specified (`group_id` is not POSTed)
+* 4 - Invalid group id (`group_id` is not a number)
+* 5 - Group not found
+* 6 - Unauthorized request (the role of the requester in the group does not have manage permission)
+* 7 - Group name is not of the specified format. Plese check
+* 8 - Please choose a valid visibility option from the list
+
+### 6) Get the Profile of a Group
+
+Return the group information and the role permissions of the requester.
+
+#### Request
+
+| Name   | Description                                           |
+| ------ | ----------------------------------------------------- |
+| Method | POST                                                  |
+| URL    | `/api/group/info`                                     |
+| DATA   | `user_id`=123&`ugl_token`=mytoken&`group_id`=123      |
+
+* If `user_id` is missing, then the role will be **guest**
+	 * If the group does not allow guests to view its profile, an error message will return
+* If `user_id` is provided, `ugl_token` must match to log the user in
+	 * If the token does not match, an error message will return instead of treating it as a guest
+* `group_id` is REQUIRED. 
+
+#### Response
+
+Upon success, a JSON object like the following will be returned:
+
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-03-19T04:20:09+00:00",
+    "data": {
+        "my_permissions": {
+            "role_name": "admin",
+            "view_profile": true,
+            "apply": false,
+            "view_board": true,
+            "new_board": true,
+            "edit_board": true,
+            "del_board": true,
+            "post": true,
+            "comment": true,
+            "delete": true,
+            "edit": true,
+            "manage": true
+        },
+        "group_data": {
+            "id": "2",
+            "visibility": "1",
+            "alias": "beta-testersZ888",
+            "description": "Lorem ipsum Dadipiscing sdfec id\r\n&lt;script&gt;&amp;&amp;test&amp;&amp;&lt;\/script&gt;",
+            "avatar_url": null,
+            "tags": "bkah cs307 new purdue",
+            "creator_user_id": "5",
+            "num_of_users": "1",
+            "users": {
+                "admin": [
+                    "5"
+                ]
+            },
+            "created_at": "2014-03-18 22:32:48"
+        }
+    }
+}
+```
+
+* `my_permissions` is the permission of the role of the requester in the group
+	 * For example, the requester in the data above is an **admin** in the group (Refer to the permission definition for more details)
+* `group_data` is the group data as always
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Only when `user_id` is given) 
+* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 3 - Group id not specified (`group_id` is not POSTed)
+* 4 - Invalid group id (`group_id` is not a number)
+* 5 - Group not found
+* 6 - You cannot access the group (The user cannot access the profile of the group)
 
 ### 6) editGroupMembers
 
