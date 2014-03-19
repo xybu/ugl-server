@@ -32,6 +32,7 @@ The server side code of project Ugl.
 		 - [Delete, leave a group, or kick members](#3-delete-or-leave-a-group-or-kick-members)
 		 - [Transfer ownership](#4-transfer-ownership-of-a-group)
 		 - [Edit group profile](#5-edit-group-profile)
+		 - [Get the Profile of a Particular Group](#6-get-the-profile-of-a-group)
 	 - [News](#3-news)
 
 ***
