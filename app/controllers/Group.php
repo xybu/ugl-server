@@ -22,11 +22,12 @@ class Group extends \Controller {
 		try {
 			
 			$user = new \models\User();
+			$group = new \models\Group();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$token = $user_status["ugl_token"];
 			$target_user_id = $user_id;
-			$target_visibility = 0;
+			$target_status = $group::STATUS_INACTIVE;
 			
 			if ($base->exists("PARAMS.user_id")){
 				$target_user_id = $base->get("PARAMS.user_id");
@@ -46,12 +47,11 @@ class Group extends \Controller {
 					//	throw new \Exception("The user did not allow you to view his or her group list.", 5);
 					//}
 					
-					$target_visibility = 1;
+					$target_status = $group::STATUS_PUBLIC;
 				}
 			}
 			
-			$group = new \models\Group();
-			$group_list = $group->listGroupsOfUserId($target_user_id, $target_visibility);
+			$group_list = $group->listGroupsOfUserId($target_user_id, $target_status);
 			
 			$this->json_printResponse($group_list);
 			
@@ -91,6 +91,9 @@ class Group extends \Controller {
 			if (!$user_permissions["view_profile"])
 				throw new \Exception("You cannot access the group", 6);
 			
+			if (!$user_permissions["manage"])
+				$group->removePrivateKeys($target_group);
+			
 			$this->json_printResponse(array("my_permissions" => $user_permissions, "group_data" => $target_group));
 			
 		} catch (\Exception $e){
@@ -119,55 +122,15 @@ class Group extends \Controller {
 				$group_tags = $group->filterTags($base->get("POST.tags"));
 			else $group_tags = "";
 			
-			$group_visibility = $base->get("POST.visibility");
-			if (!$group->isValidVisibility($group_visibility))
-				 throw new \Exception("Please choose a valid visibility option from the list", 5);
+			$group_status = $base->get("POST.status");
+			if (!$group->isValidStatus($group_status))
+				 throw new \Exception("Please choose a valid status option from the list", 5);
 			
-			$group_data = $group->create($user_id, $group_name, $group_description, $group_tags, $group_visibility);
-			
-			//if ($group->isPubliclyVisible($visibility)){
-			//	$news = new \models\News();
-			//	$news->create($user_id, $group_data["id"], $news::VIS_PUBLIC, "group", $description);
-			//}
+			$group_data = $group->create($user_id, $group_name, $group_description, $group_tags, $group_status);
 			
 			$this->json_printResponse(array("message" => "Successfully created a new group", "group_data" => $group_data));
 			
 		} catch (\Exception $e){
-			$this->json_printException($e);
-		}
-	}
-	
-	function api_delete($base){
-		try {
-			$user = new \models\User();
-			$user_status = API::getUserStatus($base, $user);
-			$user_id = $user_status["user_id"];
-			$token = $user_status["ugl_token"];
-			
-			if (!$base->exists("POST.group_id"))
-				throw new \Exception("Group id not specified", 3);
-			
-			$target_gid = $base->get("POST.group_id");
-			if (!is_numeric($target_gid))
-				throw new \Exception("Invalid group id", 4);
-			
-			$group = new \models\Group();
-			
-			$target_group = $group->findById($target_gid);
-			if (empty($target_group))
-				throw new \Exception("Group not found", 5);
-			
-			if ($target_group["creator_user_id"] != $user_id)
-				throw new \Exception("Only the creator can delete the group", 6);
-			
-			if ($base->exists("POST.notify")){
-				//TODO: notify all members
-			}
-			
-			$group->deleteById($target_gid);
-			
-			$this->json_printResponse(array("message" => "Successfully deleted group \"" . $target_group["alias"] . "\""));
-		} catch (\Exception $e) {
 			$this->json_printException($e);
 		}
 	}
@@ -282,11 +245,11 @@ class Group extends \Controller {
 				$group_tags = $group->filterTags($base->get("POST.tags"));
 			else $group_tags = "";
 			
-			$group_visibility = $base->get("POST.visibility");
-			if (!$group->isValidVisibility($group_visibility))
-				 throw new \Exception("Please choose a valid visibility option from the list", 8);
+			$group_status = $base->get("POST.status");
+			if (!$group->isValidStatus($group_visibility))
+				 throw new \Exception("Please choose a valid status option from the list", 8);
 			
-			$group->update($target_group, $group_name, $group_description, $group_tags, $group_visibility);
+			$group->update($target_group, $group_name, $group_description, $group_tags, $group_status);
 			
 			$this->json_printResponse(array("message" => "You have successfully updated group profile.", "group_data" => $target_group));
 			
@@ -316,9 +279,44 @@ class Group extends \Controller {
 	}
 	
 	function api_changeUsers($base){
+		
 	}
 	
 	function api_invite($base){
+		
+	}
+	
+	function api_apply($base){
+		try {
+			$user = new \models\User();
+			$user_status = API::getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			
+			if (!$base->exists("POST.group_id"))
+				throw new \Exception("Group id not specified", 3);
+			
+			$target_gid = $base->get("POST.group_id");
+			if (!is_numeric($target_gid))
+				throw new \Exception("Invalid group id", 4);
+			
+			$group = new \models\Group();
+			
+			$target_group = $group->findById($target_gid);
+			if (empty($target_group))
+				throw new \Exception("Group not found", 5);
+			
+			$user_permissions = $group->getPermissions($user_id, $target_gid, $target_group);
+			
+			if (!$user_permissions["apply"])
+				throw new \Exception("You cannot apply to join the group", 6);
+			
+			// if the group is totally open, simply add the user to member role
+						
+			//TODO: fix the logic above
+			
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
 	}
 	
 	function html_showGroupPage($base){

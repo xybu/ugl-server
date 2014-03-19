@@ -5,7 +5,7 @@
 	} else {
 		foreach($groupList["groups"] as $item){
 			if (empty($item["avatar_url"])) $item["avatar_url"] = "assets/img/default-avatar-group.png";
-			$group_str = $group_str . "<div class=\"col-sm-6 col-md-4\" id=\"group_" . $item["id"] . "\" data-visibility=\"" . $item["visibility"] . "\" data-creator=\"" . $item["creator_user_id"] . "\">" .
+			$group_str = $group_str . "<div class=\"col-sm-6 col-md-4\" id=\"group_" . $item["id"] . "\" data-status=\"" . $item["status"] . "\" data-creator=\"" . $item["creator_user_id"] . "\">" .
 				"<div class=\"thumbnail\"><img class=\"group-avatar\" src=\"" . $item["avatar_url"] . "\" />" .
 				"<div class=\"caption text-center\">" .
 				"<h3 class=\"group_alias\">" . $item["alias"] . "</h3>" .
@@ -92,16 +92,12 @@
 						</div>
 					</div>
 					<div class="row form-group">
-						<div class="col-sm-4 col-md-3 itemLabel">Visibility</div>
+						<div class="col-sm-4 col-md-3 itemLabel">Status</div>
 						<div class="col-sm-8 col-md-9">
-							<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
-							<label for="visibility-0">Private - only members can view the group.</label><br>
-							<input name="visibility" id="visibility-1" value="1" type="radio">
-							<label for="visibility-1">Public - joining requires my invitation.</label><br>
-							<input name="visibility" id="visibility-2" value="2" type="radio">
-							<label for="visibility-2">Public - people can apply to join.</label><br>
-							<input name="visibility" id="visibility-3" value="63" type="radio">
-							<label for="visibility-3">Public - open to everyone.</label>
+							<input name="status" id="status-2" value="2" type="radio">
+							<label for="status-2">Private - Only group members can see the group.</label><br>
+							<input name="status" id="status-3" value="3" type="radio">
+							<label for="status-3">Public - Everyone can see the group.</label>
 						</div>
 					</div>
 					<div class="row hidden text-center" id="create_group_prompt">

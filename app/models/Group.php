@@ -193,7 +193,7 @@ class Group extends \Model {
 		return $this->findByAlias($alias);
 	}
 	
-	function update(&$group_data, $alias, $desc, $tags, $visibility){
+	function update(&$group_data, $alias, $desc, $tags, $status){
 		$changed = false;
 		
 		if ($alias != $group_data["alias"]){
