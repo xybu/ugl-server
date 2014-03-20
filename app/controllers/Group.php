@@ -53,6 +53,10 @@ class Group extends \Controller {
 			
 			$group_list = $group->listGroupsOfUserId($target_user_id, $target_status);
 			
+			if ($group_list["count"] > 0)
+				foreach ($group_list["groups"] as $key => $val)
+					$group->removePrivateKeys($group_list["groups"][$key]);
+			
 			$this->json_printResponse($group_list);
 			
 		} catch (\Exception $e){

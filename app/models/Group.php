@@ -108,7 +108,8 @@ class Group extends \Model {
 		return null;
 	}
 	
-	function listGroupsOfUserId($user_id, $target_status = static::STATUS_INACTIVE){
+	// corresponding to static::STATUS_INACTIVE
+	function listGroupsOfUserId($user_id, $target_status = 1){
 		$ids = $this->queryDb("SELECT id FROM groups WHERE status >= " . $target_status . " AND users LIKE '%\"" . $user_id . "\"%' ORDER BY status DESC");
 		$result = array();
 		foreach ($ids as $i => $d)
