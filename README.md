@@ -26,7 +26,7 @@ The server side code of project Ugl.
 		 - [forgot_password](#6-forgot_password)
 		 - [getMyPrefs](#7-getmyprefs)
 		 - [setMyPrefs](#8-setmyprefs)
-	 - [Groups](#2-groups)
+	 - [Group API](#2-group-api)
 		 - [List the groups a user joins](#1-list-groups-of)
 		 - [Create a group](#2-create-a-group)
 		 - [Delete, leave a group, or kick members](#3-delete-or-leave-a-group-or-kick-members)
@@ -442,7 +442,7 @@ The API response to `/api/listGroupsOf/2` looks like (more fields may be added i
         "groups": [
             {
                 "id": "1",
-                "status": "0",
+                "status": "1",
                 "alias": "admin",
                 "description": "",
                 "avatar_url": null,
@@ -458,7 +458,7 @@ The API response to `/api/listGroupsOf/2` looks like (more fields may be added i
             },
             {
                 "id": "2",
-                "status": "1",
+                "status": "2",
                 "alias": "ugl-dev",
                 "description": "UGL Developers",
                 "avatar_url": null,
@@ -477,7 +477,7 @@ The API response to `/api/listGroupsOf/2` looks like (more fields may be added i
             },
             {
                 "id": "5",
-                "status": "1",
+                "status": "3",
                 "alias": "pucs",
                 "description": "&lt;script&gt;\r\n\talert(&quot;hello!&quot;)\r\n&lt;\/script&gt;\r\n&lt;b&gt;Abercrombie &amp; Fitch&lt;\/b&gt;",
                 "avatar_url": null,
@@ -497,9 +497,10 @@ The API response to `/api/listGroupsOf/2` looks like (more fields may be added i
 ```
 
 Notes:
-* `data.data.count` is the number of groups in the list, and `data.data.groups` is the list of groups.
+* `data.count` is the number of groups in the list, and `data.groups` is the list of groups.
 * Notice how the `description` is HTML encoded for security's sake. A client may need to decode it to display the text.
 * `users` is a sub-array whose structure is `role` => `members`.
+* Group preference fields will not list in the array. To get the group preference, the request must be an admin requesting the group info (see getInfo API).
 
 #### Associated Errors
 * 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
@@ -726,6 +727,7 @@ Upon success, a JSON object like the following will be returned:
 * `my_permissions` is the permission of the role of the requester in the group
 	 * For example, the requester in the data above is an **admin** in the group (Refer to the permission definition for more details)
 * `group_data` is the group data as always
+* If the requester has `manage` permission, in `group_data` will be listed a private field named `_preferences` which has the group preferences in it.
 
 #### Associated Errors
 
