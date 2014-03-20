@@ -1,0 +1,167 @@
+<?php
+function listIdsWithAvatar($id_list) {
+	foreach ($id_list as $id => $user){
+		if ($user["avatar_url"] == "") $user["avatar_url"] = "assets/img/default-avatar.png";
+		if ($user["nickname"] != "") $user["nickname"] = "(" . $user["nickname"] . ")";
+		echo "<div class=\"col-xs-3 col-sm-3 col-md-2 avatars\"><img src=\"".$user["avatar_url"]."\" /><span class=\"name\">".$user["first_name"] ." " . $user["last_name"] . $user["nickname"] ."</span></div>";
+	}
+}
+?>
+				<ul class="nav nav-tabs" id="myTab">
+					<li class="active"><a href="#man_profile" data-toggle="tab">Profile</a></li>
+					<li><a href="#man_avatar" data-toggle="tab">Avatar</a></li>
+					<li><a href="#man_prefs" data-toggle="tab">Preferences</a></li>
+					<li><a href="#man_members" data-toggle="tab">Members</a></li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane active" id="man_profile">
+						<h4 class="sub-header">Profile</h4>
+						<form class="form-horizontal" method="post" action="api/group/edit" id="edit_group_form">
+							<input type="hidden" name="group_id" value="<?php echo $group_info["id"]?>" />
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td class="itemLabel">Name</td>
+										<td><input type="text" id="alias" name="alias" value="<?php echo $group_info["alias"]?>" required maxlength="32">
+										<p class="help-block">Required. Allow letters, digits, "-", and "_". No more than 32 characters.</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Description</td>
+										<td><textarea id="description" name="description" maxlength="150" oninput="limitTextArea('description', 'desc_counter', 150);"><?php echo htmlspecialchars_decode($group_info["description"])?></textarea>
+										<p class="help-block"><span id="desc_counter"><?php echo 150 - strlen($group_info["description"])?></span> character(s) left</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Tags</td>
+										<td><input type="text" id="tags" name="tags" value="<?php echo $group_info["tags"]?>" size="40">
+										<p class="help-block">Optional. Words separated by spaces.</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Status</td>
+										<td>
+											<input name="status" id="status-1" value="1"<?php if ($group_info["status"] == 1) echo " checked=\"checked\""?> type="radio">
+											<label for="status-2">Inactive - Group is accessible but frozen (can be re-activated later).</label><br>
+											<input name="status" id="status-2" value="2"<?php if ($group_info["status"] == 2) echo " checked=\"checked\""?> type="radio">
+											<label for="status-2">Private - Only group members can see the group.</label><br>
+											<input name="status" id="status-3" value="3"<?php if ($group_info["status"] == 3) echo " checked=\"checked\""?> type="radio">
+											<label for="status-3">Public - Everyone can see the group.</label>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="text-center">
+							<p class="hidden text-center" id="form_prompt"></p>
+							<button class="btn btn-primary" type="submit">Update</button>
+							<button class="btn btn-default" type="button">Reset</button>
+						</div>
+						</form>
+					</div>
+					<div class="tab-pane" id="man_avatar">
+						<h4 class="sub-header">Avatar</h4>
+						<form class="form-horizontal" action="post" id="change_avatar_form">
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td class="itemLabel">URL</td>
+										<td><input type="text" id="url" name="url" placeholder="Leaving blank" required size="50" maxlength="200">
+										<p class="help-block">The URL of your avatar picture.</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Upload</td>
+										<td><input type="text" id="url" name="url" placeholder="Leaving blank" required maxlength="32">
+										<p class="help-block">The URL of your avatar picture.</p></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="text-center">
+							<div class="hidden text-center" id="group_prompt"></div>
+							<button class="btn btn-primary" type="submit">Update</button>
+							<button class="btn btn-default" type="button">Reset</button>
+						</div>
+						</form>
+					</div>
+					<div class="tab-pane" id="man_prefs">
+						<h4 class="sub-header">Preferences</h4>
+						<form class="form-horizontal" action="post" id="change_prefs_form">
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td>
+										<p>Automatically approve applications</p>
+										<p class="help-block">If selected, applications to join the group will be approved automatically.</p>
+										<input name="autoApproveApplication" id="autoApproveApplication-0" value="0"<?php if ($group_info["status"] == 1) echo " checked=\"checked\""?> type="radio">
+										<label for="autoApproveApplication-0">Disabled</label>
+										<input name="autoApproveApplication" id="autoApproveApplication-1" value="1"<?php if ($group_info["status"] == 2) echo " checked=\"checked\""?> type="radio">
+										<label for="autoApproveApplication-1">Enabled</label>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="text-center">
+							<div class="hidden text-center" id="group_prompt"></div>
+							<button class="btn btn-primary" type="submit">Update</button>
+							<button class="btn btn-default" type="button">Reset</button>
+						</div>
+						</form>
+					</div>
+					<div class="tab-pane" id="man_members">
+						<h4 class="sub-header">Members</h4>
+						<form class="form-horizontal" action="post" id="change_members_form">
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td class="itemLabel">Administrators</td>
+										<td id="admin_list">
+										<?php if (array_key_exists("admin", $group_info["users"]))
+												listIdsWithAvatar($group_info["users"]["admin"]);
+										?>
+										</td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Members</td>
+										<td id="member_list">
+										<?php if (array_key_exists("member", $group_info["users"]))
+												listIdsWithAvatar($group_info["users"]["member"]);
+										?>
+										</td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Applicants</td>
+										<td id="pending_list">
+										<?php if (array_key_exists("pending", $group_info["users"]))
+												listIdsWithAvatar($group_info["users"]["pending"]);
+										?>
+										</td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Invitee</td>
+										<td id="pending_list">
+										<?php if (array_key_exists("invitee", $group_info["users"]))
+												listIdsWithAvatar($group_info["users"]["invitee"]);
+										?>
+										</td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Blocked</td>
+										<td id="blocked_list">
+										<?php if (array_key_exists("blocked", $group_info["users"]))
+												foreach ($group_info["users"]["blocked"] as $id) echo $id;
+										?>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="text-center">
+							<div class="hidden text-center" id="edit_group_prompt"></div>
+							<button class="btn btn-primary" type="submit">Update</button>
+							<button class="btn btn-default" type="button">Reset</button>
+						</div>
+						</form>
+					</div>

@@ -173,26 +173,34 @@ function init_group(){
 		e.preventDefault(); //STOP default action
 	});
 	
-	if ($("#edit_group_form").length){
-		$("#edit_group_form").submit(function(e){
-			var prompt_dom = $("#edit_group_form #form_prompt");
-			prompt_dom.html("<img src=\"assets/img/loader.gif\" />").removeClass("hidden");
-			$.post(
-				$(this).attr("action"),
-				$(this).serialize(),
-				function(data){
-					if (data.status == "success"){
-						location.reload();
-					} else {
-						prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
-					}
-				}).fail(function(xhr, textStatus, errorThrown) {
-					prompt_dom.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+	var man_modal = $("#manage_group_modal");
+	man_modal.on('shown.bs.modal', function (e) {
+		if (man_modal.attr("data-loaded") == undefined){
+			$("#manage_group_modal .modal-body").load($(this).attr("data-href"), function(e){
+				if ($("#edit_group_form").length){
+					$("#edit_group_form").submit(function(e){
+						var prompt_dom = $("#edit_group_form #form_prompt");
+						prompt_dom.html("<img src=\"assets/img/loader.gif\" />").removeClass("hidden");
+						$.post(
+							$(this).attr("action"),
+							$(this).serialize(),
+							function(data){
+								if (data.status == "success"){
+									location.reload();
+								} else {
+									prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
+								}
+							}).fail(function(xhr, textStatus, errorThrown) {
+								prompt_dom.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+						});
+						e.preventDefault(); //STOP default action
+					});
+				}
+				$("#manage_group_modal .modal-body").removeClass("text-center");
+				man_modal.attr("data-loaded", "true");
 			});
-			e.preventDefault(); //STOP default action
-		});
-	}
-	
+		}
+	});
 	ugl_panel_initialized = true;
 }
 

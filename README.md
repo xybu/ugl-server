@@ -27,12 +27,12 @@ The server side code of project Ugl.
 		 - [getMyPrefs](#7-getmyprefs)
 		 - [setMyPrefs](#8-setmyprefs)
 	 - [Group API](#2-group-api)
-		 - [List the groups a user joins](#1-list-groups-of)
+		 - [Get the groups a user joins](#1-list-groups-of)
+		 - [Get the profile of a aroup](#6-get-the-profile-of-a-group)
 		 - [Create a group](#2-create-a-group)
 		 - [Delete, leave a group, or kick members](#3-delete-or-leave-a-group-or-kick-members)
 		 - [Transfer ownership](#4-transfer-ownership-of-a-group)
 		 - [Edit group profile](#5-edit-group-profile)
-		 - [Get the Profile of a Particular Group](#6-get-the-profile-of-a-group)
 	 - [News](#3-news)
 
 ***
@@ -729,7 +729,10 @@ Upon success, a JSON object like the following will be returned:
 * `my_permissions` is the permission of the role of the requester in the group
 	 * For example, the requester in the data above is an **admin** in the group (Refer to the permission definition for more details)
 * `group_data` is the group data as always
-* If the requester has `manage` permission, in `group_data` will be listed a private field named `_preferences` which has the group preferences in it.
+* If the requester has `manage` permission
+	 * In `group_data` will be listed a private field named `_preferences` which has the group preferences in it.
+	 * In `users` field, the array under each role will become an array of user profiles (__EXAMPLE_TO_BE_UPDATED__)
+* Be sure to cache the information well since this is a very time-consuming operation
 
 #### Associated Errors
 

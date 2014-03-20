@@ -137,7 +137,7 @@ class User extends \Controller {
 				}
 				$base->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
 				$base->reroute("@usercp(@panel=". $reroute_panel .")");
-					
+				
 			}
 		} catch (\Exception $e) {
 			$base->set("rt_notification_modal", array(
@@ -295,32 +295,29 @@ class User extends \Controller {
 		$my_profile = $user->getUserProfile($me["id"]);
 		if (!$my_profile) $this->backToHomepage($base, true, false);
 		
-		$base->set('me', $my_profile); //hide the token in the view model
-		$base->set('panel', $panel);
-		
 		try {
 			switch ($panel){
 				case "dashboard":
 					break;
 				case "group":
 					$panel = "groups";
-						$item_id = $base->get("PARAMS.item_id");
-						if (!is_numeric($item_id))
-							throw new \Exception("Group id should be a number", 3);
-						
-						$group = new \models\Group();
-						$group_info = $group->findById($item_id);
-						
-						if (!$group_info)
-							throw new \Exception("Group not found", 4);
-						
-						$my_permissions = $group->getPermissions($me["id"], $item_id, $group_info);
-						
-						if (!$my_permissions["view_profile"])
-							throw new \Exception("You are not allowed to view the profile of this group", 5);
-						$base->set("my_permissions", $my_permissions);
-						$base->set("group_info", $group_info);
-						$sub_panel = "group";
+					$item_id = $base->get("PARAMS.item_id");
+					if (!is_numeric($item_id))
+						throw new \Exception("Group id should be a number", 3);
+					
+					$group = new \models\Group();
+					$group_info = $group->findById($item_id);
+					
+					if (!$group_info)
+						throw new \Exception("Group not found", 4);
+					
+					$my_permissions = $group->getPermissions($me["id"], $item_id, $group_info);
+					
+					if (!$my_permissions["view_profile"])
+						throw new \Exception("You are not allowed to view the profile of this group", 5);
+					$base->set("my_permissions", $my_permissions);
+					$base->set("group_info", $group_info);
+					$sub_panel = "group";
 				case "groups":
 					$group = new \models\Group();
 					$group_list = $group->listGroupsOfUserId($me["id"], $group::STATUS_INACTIVE);
@@ -344,9 +341,70 @@ class User extends \Controller {
 			$base->set("exception", $e);
 		}
 		
+		$base->set('me', $my_profile); //hide the token in the view model
+		$base->set('panel', $panel);
 		if (isset($sub_panel))
 			$this->setView($sub_panel . '.html');
 		else $this->setView('my_' . $panel . '.html');
+	}
+	
+	function loadUserModal($base, $args){
+		if (!$base->exists("SESSION.user")) die();
+		
+		$user = new \models\User();
+		$me = $base->get("SESSION.user");
+		$panel = $args["panel"];
+		$item_id = $args["id"];
+		$modal = $args["modal"];
+		
+		$my_profile = $user->getUserProfile($me["id"]);
+		if (!$my_profile) $this->backToHomepage($base, true, false);
+		
+		try {
+			switch ($panel){
+				case "group":
+					switch ($modal){
+						case "man":
+							if (!is_numeric($item_id))
+								throw new \Exception("Group id should be a number", 3);
+							
+							$group = new \models\Group();
+							$group_info = $group->findById($item_id);
+						
+							if (!$group_info)
+								throw new \Exception("Group not found", 4);
+						
+							$my_permissions = $group->getPermissions($me["id"], $item_id, $group_info);
+						
+							if (!$my_permissions["manage"])
+								throw new \Exception("Invalid request", 5);
+							
+							$new_users = array();
+							
+							foreach ($group_info["users"] as $role => $ids){
+								foreach ($ids as $key => $val)
+									$new_users[$role][] = $user->findById($val);
+							}
+							
+							$group_info["users"] = $new_users;
+							
+							$base->set("my_permissions", $my_permissions);
+							$base->set("group_info", $group_info);
+							
+							break;
+						default:
+							break;
+					}
+					break;
+				default:
+					die();
+			}
+			$base->set('me', $my_profile); //hide the token in the view model
+			$base->set('panel', $panel);
+			$this->setView($panel . '_' . $modal . '.html');
+		} catch (\Exception $e) {
+			throw $e;
+		}
 	}
 	
 	function backToHomepage($base, $revokeSession = true, $redirect = true){

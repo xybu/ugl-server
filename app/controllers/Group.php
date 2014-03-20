@@ -97,6 +97,16 @@ class Group extends \Controller {
 			
 			if (!$user_permissions["manage"])
 				$group->removePrivateKeys($target_group);
+			else {
+				$new_users = array();
+							
+				foreach ($group_info["users"] as $role => $ids){
+					foreach ($ids as $key => $val)
+						$new_users[$role][] = $user->findById($val);
+				}
+				
+				$target_group["users"] = $new_users;
+			}
 			
 			$this->json_printResponse(array("my_permissions" => $user_permissions, "group_data" => $target_group));
 			
@@ -250,7 +260,7 @@ class Group extends \Controller {
 			else $group_tags = "";
 			
 			$group_status = $base->get("POST.status");
-			if (!$group->isValidStatus($group_visibility))
+			if (!$group->isValidStatus($group_status))
 				 throw new \Exception("Please choose a valid status option from the list", 8);
 			
 			$group->update($target_group, $group_name, $group_description, $group_tags, $group_status);

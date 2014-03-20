@@ -32,6 +32,14 @@ body {
 	display: none;
 }
 
+div.avatars img{
+	-webkit-border-radius: 50em;
+    -moz-border-radius: 50em;
+    border-radius: 50em;
+    width: 40px;
+    margin-right: 10px;
+}
+
 /*
  * Sidebar
  */

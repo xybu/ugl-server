@@ -1,4 +1,5 @@
-<?php if (isset($group_header)) :
+<?php
+if (isset($group_header)) :
 ?><!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -236,93 +237,15 @@
 	</div>
 </div>
 <?php if ($my_permissions["manage"]) : ?>
-<div id="manage_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="manage_group_modalLabel" aria-hidden="true">
+<div id="manage_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="manage_group_modalLabel" aria-hidden="true" data-href="async/group/<?php echo $group_info["id"]?>/man">
 	<div class="modal-dialog modal-adaptive">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button"><i class="fa fa-times"></i></button>
 				<h3 class="modal-title"><i class="fa fa-cog"></i> Manage Group</h3>
 			</div>
-			<div class="modal-body">
-				<ul class="nav nav-tabs" id="myTab">
-					<li class="active"><a href="#man_profile" data-toggle="tab">Profile</a></li>
-					<li><a href="#man_avatar" data-toggle="tab">Avatar</a></li>
-					<li><a href="#man_members" data-toggle="tab">Members</a></li>
-				</ul>
-				<div class="tab-content">
-					<div class="tab-pane active" id="man_profile">
-						<h4 class="sub-header">Profile</h4>
-						<form class="form-horizontal" method="post" action="api/group/edit" id="edit_group_form">
-							<input type="hidden" name="group_id" value="<?php echo $group_info["id"]?>" />
-						<div class="table-responsive">
-							<table class="table table-striped">
-								<tbody>
-									<tr>
-										<td class="itemLabel">Name</td>
-										<td><input type="text" id="alias" name="alias" value="<?php echo $group_info["alias"]?>" required maxlength="32">
-										<p class="help-block">Required. Allow letters, digits, "-", and "_". No more than 32 characters.</p></td>
-									</tr>
-									<tr>
-										<td class="itemLabel">Description</td>
-										<td><textarea id="description" name="description" maxlength="150" oninput="limitTextArea('description', 'desc_counter', 150);"><?php echo htmlspecialchars_decode($group_info["description"])?></textarea>
-										<p class="help-block"><span id="desc_counter"><?php echo 150 - strlen($group_info["description"])?></span> character(s) left</p></td>
-									</tr>
-									<tr>
-										<td class="itemLabel">Tags</td>
-										<td><input type="text" id="tags" name="tags" value="<?php echo $group_info["tags"]?>" size="40">
-										<p class="help-block">Optional. Words separated by spaces.</p></td>
-									</tr>
-									<tr>
-										<td class="itemLabel">Status</td>
-										<td>
-											<input name="status" id="status-1" value="1"<?php if ($group_info["status"] == 1) echo " checked=\"checked\""?> type="radio">
-											<label for="status-2">Inactive - Group is accessible by members, but no one can publish new information unless you set status to Public or Private.</label><br>
-											<input name="status" id="status-2" value="2"<?php if ($group_info["status"] == 2) echo " checked=\"checked\""?> type="radio">
-											<label for="status-2">Private - Only group members can see the group.</label><br>
-											<input name="status" id="status-3" value="3"<?php if ($group_info["status"] == 3) echo " checked=\"checked\""?> type="radio">
-											<label for="status-3">Public - Everyone can see the group.</label>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-						<div class="text-center">
-							<p class="hidden text-center" id="form_prompt"></p>
-							<button class="btn btn-primary" type="submit">Update Profile</button>
-							<button class="btn btn-default" type="button">Discard Changes</button>
-						</div>
-						</form>
-					</div>
-					<div class="tab-pane" id="man_avatar">
-						<h4 class="sub-header">Avatar</h4>
-						<form class="form-horizontal" action="post" id="change_avatar_form">
-						<div class="table-responsive">
-							<table class="table table-striped">
-								<tbody>
-									<tr>
-										<td class="itemLabel">URL</td>
-										<td><input type="text" id="url" name="url" placeholder="Leaving blank" required maxlength="32">
-										<p class="help-block">The URL of your avatar picture.</p></td>
-									</tr>
-									<tr>
-										<td class="itemLabel">Upload</td>
-										<td><input type="text" id="url" name="url" placeholder="Leaving blank" required maxlength="32">
-										<p class="help-block">The URL of your avatar picture.</p></td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-						<div class="text-center">
-							<div class="hidden text-center" id="edit_group_prompt"></div>
-							<button class="btn btn-primary" type="submit">Update Profile</button>
-							<button class="btn btn-default" type="button">Discard Changes</button>
-						</div>
-						</form>
-					</div>
-					<div class="tab-pane" id="man_members">
-						
-					</div>
-				</div>
+			<div class="modal-body text-center">
+				<img src="assets/img/loader.gif" />
 			</div>
 		</div>
 	</div>
@@ -333,7 +256,7 @@ if ($my_permissions["role_name"] != "guest") :?>
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button"><i class="fa fa-times"></i></button>
 				<h3 class="modal-title"><i class="fa fa-sign-out"></i> Leave a Group</h3>
 			</div>
 			<form class="form-horizontal" id="leave_group_form">
