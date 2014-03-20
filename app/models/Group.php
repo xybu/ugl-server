@@ -12,7 +12,12 @@ class Group extends \Model {
 	
 	const MAX_ALIAS_LENGTH = 32;
 	const MAX_DESC_LENGTH = 150;
-	const GROUP_RECORD_TTL = 1800; //sec
+	const GROUP_RECORD_TTL = 1800; // in sec
+	
+	const STATUS_CLOSED = 0; // appears non-existent to users
+	const STATUS_INACTIVE = 1; // users can still access the group data, but cannot change it 
+	const STATUS_PRIVATE = 2; // private groups are invisible to outsiders and are invitation-only
+	const STATUS_PUBLIC = 3; // everyone can see the group
 	
 	// group-wide (minimum) permissions
 	static $DEFAULT_GROUP_PERMISSION = array(
@@ -30,6 +35,11 @@ class Group extends \Model {
 		"manage" => false 	// manage members and change profile
 	);
 	
+	// default group preferences
+	static $DEFAULT_GROUP_PREFS = array(
+		"autoApproveApplication" => 0
+	);
+	
 	/**
 	 * isValidGroupName
 	 * Check if the string contains chars other than alphanumerical, -, _
@@ -42,20 +52,13 @@ class Group extends \Model {
 		return true;
 	}
 	
-	static function isValidVisibility($v){
-		return is_numeric($v) and $v >= 0 and $v < 64;
-	}
-	
-	static function isPubliclyVisible($v){
-		return $v > 0;
+	static function isValidStatus($v){
+		return is_numeric($v) and $v > static::STATUS_CLOSED and $v <= static::STATUS_PUBLIC;
 	}
 	
 	static function filterDescription($str){
 		$str = htmlspecialchars($str);
 		$str = substr($str, 0, static::MAX_DESC_LENGTH);
-		//$str = filter_var($str, FILTER_SANITIZE_SPECIAL_CHARS);
-		//$str = filter_var($str, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_ENCODE_HIGH);
-		
 		return $str;
 	}
 	
@@ -74,10 +77,13 @@ class Group extends \Model {
 		if ($this->cache->exists("group_id_" . $id))
 			return $this->cache->get("group_id_" . $id);
 		
-		$result = $this->queryDb("SELECT * FROM groups WHERE id=?;", $id);
+		$result = $this->queryDb("SELECT * FROM groups WHERE id=? AND status > " . static::STATUS_CLOSED, $id);
 		if (count($result) == 1){
 			$result = $result[0];
 			$result["users"] = json_decode($result["users"], true);
+			if ($result["_preferences"]) $result["_preferences"] = json_decode($result["_preferences"], true);
+			else $result["_preferences"] = self::$DEFAULT_GROUP_PREFS;
+			
 			$this->cache->set("group_id_" . $id, $result, static::GROUP_RECORD_TTL);
 		} else $result = null;
 		
@@ -85,7 +91,7 @@ class Group extends \Model {
 	}
 	
 	function findByAlias($alias){
-		$result = $this->queryDb("SELECT id FROM groups WHERE alias=?;", $alias);
+		$result = $this->queryDb("SELECT id FROM groups WHERE alias=? AND status > " . static::STATUS_CLOSED, $alias);
 		if (count($result) == 1)
 			return $this->findById($result[0]["id"]);
 		return null;
@@ -93,71 +99,91 @@ class Group extends \Model {
 	
 	// public only
 	function findByKeyword($keyword){
-		$result = $this->queryDb("SELECT * FROM groups WHERE visibility >= 1 AND CONCAT_WS(' ', alias, description, tags) LIKE '?';", "%" . $keyword . "%", 7200);
-		if (count($result) > 0)
+		$ids = $this->queryDb("SELECT id FROM groups WHERE status=" . static::STATUS_PUBLIC . " AND CONCAT_WS(' ', alias, description, tags) LIKE '?';", "%" . $keyword . "%", 7200);
+		if (count($ids) > 0){
+			$result = array();
+			foreach ($ids as $k => $id) $result[] = $this->findById($id);
 			return $result;
+		}
 		return null;
 	}
 	
-	function listGroupsOfUserId($user_id, $visibility = 0){
-		$ids = $this->queryDb("SELECT id FROM groups WHERE users LIKE '%\"" . $user_id . "\"%';");
+	// corresponding to static::STATUS_INACTIVE
+	function listGroupsOfUserId($user_id, $target_status = 1){
+		$ids = $this->queryDb("SELECT id FROM groups WHERE status >= " . $target_status . " AND users LIKE '%\"" . $user_id . "\"%' ORDER BY status DESC");
 		$result = array();
-		foreach ($ids as $i => $d){
-			$g_data = $this->findById($d["id"]);
-			if ($g_data["visibility"] >= $visibility)
-				$result[] = $g_data;
-		}
+		foreach ($ids as $i => $d)
+			$result[] = $this->findById($d["id"]);
 		
 		if (count($result) > 0)
 			return array("count" => count($result), "groups" =>$result);
 		return array("count" => 0);
 	}
 	
+	function getDefaultRoleName(){
+		return "member";
+	}
+	
+	function getPendingRoleName(){
+		return "pending";
+	}
+	
+	function getInviteeRoleName(){
+		return "invitee";
+	}
+	
 	function getPermissions($user_id, $group_id, $group_data = null){
 		
 		$permissions = self::$DEFAULT_GROUP_PERMISSION;
-		if (!$group_data)
-			$group_data = $this->findById($group_id);
+		if (!$group_data) $group_data = $this->findById($group_id);
 		
 		if (array_key_exists("admin", $group_data["users"]) and $user_id > 0 and in_array($user_id, $group_data["users"]["admin"])){
 			$permissions["role_name"] = "admin";
 			$permissions["view_profile"] = true;
 			$permissions["view_board"] = true;
-			$permissions["new_board"] = true;
-			$permissions["edit_board"] = true;
-			$permissions["del_board"] = true;
-			$permissions["post"] = true; 
-			$permissions["comment"] = true; 
-			$permissions["delete"] = true;
+			if ($group_data["status"] > static::STATUS_INACTIVE){
+				$permissions["new_board"] = true;
+				$permissions["edit_board"] = true;
+				$permissions["del_board"] = true;
+				$permissions["post"] = true; 
+				$permissions["comment"] = true; 
+				$permissions["delete"] = true;
+			}
 			$permissions["edit"] = true;
 			$permissions["manage"] = true;
 		} else if (array_key_exists("member", $group_data["users"]) and $user_id > 0 and in_array($user_id, $group_data["users"]["member"])){
 			$permissions["role_name"] = "member";
 			$permissions["view_profile"] = true;
 			$permissions["view_board"] = true;
-			$permissions["new_board"] = true;
-			$permissions["edit_board"] = true;
-			$permissions["post"] = true;
-			$permissions["comment"] = true;
+			if ($group_data["status"] > static::STATUS_INACTIVE){
+				$permissions["new_board"] = true;
+				$permissions["edit_board"] = true;
+				$permissions["post"] = true;
+				$permissions["comment"] = true;
+			}
 		} else {
-			if ($group_data["visibility"] > 0)
+			// invitees and applicants are treated as guests
+			
+			if ($group_data["status"] > static::STATUS_PRIVATE)
 				$permissions["view_profile"] = true;
 			
 			if ($user_id > 0 and array_key_exists("pending", $group_data["users"]) and in_array($user_id, $group_data["users"]["pending"])){
-				$permissions["role_name"] = "applicant";
-			}
+				$permissions["role_name"] = "pending";
+			} else if ($user_id > 0 and $group_data["status"] > static::STATUS_PRIVATE)
+				// of course a guest cannot apply
+				$permissions["apply"] = true;
 		}
 		
 		return $permissions;
 	}
 	
-	function create($user_id, $alias, $desc, $tags, $visibility){
+	function create($user_id, $alias, $desc, $tags, $status){
 		$this->queryDb(
-			"INSERT INTO groups (creator_user_id, visibility, alias, description, tags, users, created_at) " .
-			"VALUES (:user_id, :visibility, :alias, :desc, :tags, :users, NOW()); ",
+			"INSERT INTO groups (creator_user_id, status, alias, description, tags, users, created_at) " .
+			"VALUES (:user_id, :status, :alias, :desc, :tags, :users, NOW()); ",
 			array(
 				':user_id' => $user_id,
-				':visibility' => $visibility,
+				':status' => $status,
 				':alias' => $alias,
 				':desc' => $desc,
 				':tags' => $tags,
@@ -168,7 +194,7 @@ class Group extends \Model {
 		return $this->findByAlias($alias);
 	}
 	
-	function update(&$group_data, $alias, $desc, $tags, $visibility){
+	function update(&$group_data, $alias, $desc, $tags, $status){
 		$changed = false;
 		
 		if ($alias != $group_data["alias"]){
@@ -186,9 +212,9 @@ class Group extends \Model {
 			$group_data["tags"] = $tags;
 		}
 		
-		if ($visibility != $group_data["visibility"]){
+		if ($status != $group_data["status"]){
 			$changed = true;
-			$group_data["visibility"] = $visibility;
+			$group_data["status"] = $status;
 		}
 		
 		if ($changed){
@@ -201,45 +227,41 @@ class Group extends \Model {
 	
 	function save($group_data){
 		$this->queryDb("UPDATE groups " .
-			"SET visibility=:visibility, alias=:alias, description=:description, avatar_url=:avatar_url, tags=:tags, creator_user_id=:creator_user_id, users=:users ".
+			"SET status=:status, alias=:alias, description=:description, avatar_url=:avatar_url, tags=:tags, creator_user_id=:creator_user_id, users=:users, _preferences=:prefs ".
 			"WHERE id=:id;",
 			array(
 				":id" => $group_data["id"],
-				":visibility" => $group_data["visibility"],
+				":status" => $group_data["status"],
 				":alias" => $group_data["alias"],
 				":description" => $group_data["description"],
 				":avatar_url" => $group_data["avatar_url"],
 				":tags" => $group_data["tags"],
 				":creator_user_id" => $group_data["creator_user_id"],
-				":users" => json_encode($group_data["users"])
+				":users" => json_encode($group_data["users"]),
+				":prefs" => json_encode($group_data["_preferences"]),
 			)
 		);
 	}
 	
 	function deleteById($gid){
 		//TODO: delete all records related to the group before deleting it
-		
-		// delete all the news about the group
-		//$news = new News();
-		//$news->deleteByGroupId($gid);
-		
-		// delete the group
-		$this->queryDb("DELETE FROM groups WHERE id=?;", $gid);
+
+		$this->queryDb("UPDATE groups SET status=:status WHERE id=:id", array(":status" => static::STATUS_CLOSED, ":id" => $gid));
 		$this->cache->clear("group_id_" . $gid);
 	}
 	
 	function setCreatorUserId($uid, &$group_data){
 		$group_data["creator_user_id"] = $uid;
 		
-		if ($this->cache->exists("group_id_" . $gid))
-			$this->cache->set("group_id_" . $gid, $group_data);
+		if ($this->cache->exists("group_id_" . $group_data["id"]))
+			$this->cache->set("group_id_" . $group_data["id"], $group_data);
 	}
 	
 	function addUser($uid, $role, &$group_data){
 		$group_data["users"][$role][] = $uid;
 		
-		if ($this->cache->exists("group_id_" . $gid))
-			$this->cache->set("group_id_" . $gid, $group_data);
+		if ($this->cache->exists("group_id_" . $group_data["id"]))
+			$this->cache->set("group_id_" . $group_data["id"], $group_data);
 	}
 	
 	function kickUser($uid, &$group_data){
@@ -253,8 +275,8 @@ class Group extends \Model {
 			}
 		}
 		
-		if ($flag and $this->cache->exists("group_id_" . $gid))
-				$this->cache->set("group_id_" . $gid, $group_data);
+		if ($flag and $this->cache->exists("group_id_" . $group_data["id"]))
+			$this->cache->set("group_id_" . $group_data["id"], $group_data);
 		
 		return $flag;
 	}
@@ -263,7 +285,7 @@ class Group extends \Model {
 		$this->kickUser($uid, $group_data);
 		$group_data["users"][$role][] = "" . $uid . "";
 		
-		if ($this->cache->exists("group_id_" . $gid))
-			$this->cache->set("group_id_" . $gid, $group_data);
+		if ($flag and $this->cache->exists("group_id_" . $group_data["id"]))
+			$this->cache->set("group_id_" . $group_data["id"], $group_data);
 	}
 }

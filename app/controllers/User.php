@@ -256,7 +256,7 @@ class User extends \Controller {
 					$sub_panel = "group";
 				case "groups":
 					$group = new \models\Group();
-					$group_list = $group->listGroupsOfUserId($me["id"], 0);
+					$group_list = $group->listGroupsOfUserId($me["id"], $group::STATUS_INACTIVE);
 					$base->set("groupList", $group_list);
 					break;
 				case "boards":
@@ -323,7 +323,7 @@ class User extends \Controller {
 						$sub_panel = "group";
 				case "groups":
 					$group = new \models\Group();
-					$group_list = $group->listGroupsOfUserId($me["id"], 0);
+					$group_list = $group->listGroupsOfUserId($me["id"], $group::STATUS_INACTIVE);
 					$base->set("groupList", $group_list);
 					break;
 				case "boards":

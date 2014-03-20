@@ -442,7 +442,7 @@ The API response to `/api/listGroupsOf/2` looks like (more fields may be added i
         "groups": [
             {
                 "id": "1",
-                "visibility": "0",
+                "status": "0",
                 "alias": "admin",
                 "description": "",
                 "avatar_url": null,
@@ -458,7 +458,7 @@ The API response to `/api/listGroupsOf/2` looks like (more fields may be added i
             },
             {
                 "id": "2",
-                "visibility": "1",
+                "status": "1",
                 "alias": "ugl-dev",
                 "description": "UGL Developers",
                 "avatar_url": null,
@@ -477,7 +477,7 @@ The API response to `/api/listGroupsOf/2` looks like (more fields may be added i
             },
             {
                 "id": "5",
-                "visibility": "1",
+                "status": "1",
                 "alias": "pucs",
                 "description": "&lt;script&gt;\r\n\talert(&quot;hello!&quot;)\r\n&lt;\/script&gt;\r\n&lt;b&gt;Abercrombie &amp; Fitch&lt;\/b&gt;",
                 "avatar_url": null,
@@ -515,7 +515,7 @@ Create a new group.
 | ------ | ------------------------------------------------------- |
 | Method | POST                                                    |
 | URL    | `/api/group/create`                                     |
-| DATA   | `user_id`=123&`ugl_token`=mytoken&`alias`=group_name&`description`=group_description&`tags`=group_tags&`visibility`=1  |
+| DATA   | `user_id`=123&`ugl_token`=mytoken&`alias`=group_name&`description`=group_description&`tags`=group_tags&`status`=1  |
 
 URLEncode the fields when necessary.
 
@@ -534,7 +534,7 @@ Upon success, server will return a success message, and the filtered group data:
         "message": "Successfully created a new group",
         "group_data": {
             "id": "12",
-            "visibility": "2",
+            "status": "2",
             "alias": "test-animation-effect",
             "description": "hello!\r\nLet's see the bounce!!!",
             "avatar_url": null,
@@ -558,7 +558,7 @@ Upon success, server will return a success message, and the filtered group data:
 * 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
 * 3 - Group name is not of the specified format. Plese check
 * 4 - Group name "blah" is already taken
-* 5 - Please choose a valid visibility option from the list
+* 5 - Please choose a valid status option from the list
 
 
 ### 3) Delete or Leave a Group or Kick Members
@@ -619,7 +619,7 @@ Edit the profile of the group.
 | ------ | ------------------------------------------------------- |
 | Method | POST                                                    |
 | URL    | `/api/group/edit`                                     |
-| DATA   | `user_id`=123&`ugl_token`=mytoken&`group_id`=123&`alias`=group_name&`description`=group_description&`tags`=group_tags&`visibility`=new_vis  |
+| DATA   | `user_id`=123&`ugl_token`=mytoken&`group_id`=123&`alias`=group_name&`description`=group_description&`tags`=group_tags&`status`=new_vis  |
 
 #### Response
 
@@ -633,7 +633,7 @@ Upon success, server will return a success message with the new group data
         "message": "You have successfully updated group profile.",
         "group_data": {
             "id": "2",
-            "visibility": "1",
+            "status": "1",
             "alias": "beta-testers",
             "description": "Lorem ipsum Dadipiscing sdfec id lectus vel odio auctor viverra. Pellentesque eu dui nib.\r\n&lt;script&gt;&amp;&amp;test&amp;&amp;&lt;\/script&gt;",
             "avatar_url": null,
@@ -660,7 +660,7 @@ Upon success, server will return a success message with the new group data
 * 5 - Group not found
 * 6 - Unauthorized request (the role of the requester in the group does not have manage permission)
 * 7 - Group name is not of the specified format. Plese check
-* 8 - Please choose a valid visibility option from the list
+* 8 - Please choose a valid status option from the list
 
 ### 6) Get the Profile of a Group
 
@@ -705,7 +705,7 @@ Upon success, a JSON object like the following will be returned:
         },
         "group_data": {
             "id": "2",
-            "visibility": "1",
+            "status": "1",
             "alias": "beta-testersZ888",
             "description": "Lorem ipsum Dadipiscing sdfec id\r\n&lt;script&gt;&amp;&amp;test&amp;&amp;&lt;\/script&gt;",
             "avatar_url": null,

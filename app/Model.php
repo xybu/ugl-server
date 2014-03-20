@@ -50,7 +50,22 @@ class Model {
 	
 	function getRandomStr($len) {
 		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		
 		return substr(str_shuffle(substr(str_shuffle($chars), 0, $len / 2 + 1) . substr(str_shuffle($chars), 0, $len / 2 + 1)), 0, $len);
+	}
+	
+	/**
+	 * rmPrivateKeys
+	 * Remove the private keys in an array (i.e., keys that start with an underscore)
+	 */
+	function removePrivateKeys(&$array){
+		foreach ($array as $key => $val)
+			if ($key[0] == "_") unset($array[$key]);
+	}
+	
+	function filterOutPrivateKeys($array){
+		foreach ($array as $key => $val)
+			if ($key[0] == "_") unset($array[$key]);
+		
+		return $array;
 	}
 }
