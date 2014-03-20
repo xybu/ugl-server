@@ -403,15 +403,17 @@ The data fields for group model are defined as below:
 	characters should be escaped by the client (when displaying the field, strings inside 
 	"<" and ">" must no execute in face of XSS attacks, etc.). and the after-filtering string 
 	has a maximum length of *150* chars. (Note: as a result, for example, "&", equivalent to "&amp;", has a length of 5.)
-* **visibility**: 
-	 * `0`: the group is private (only the group members can access the group)
-	 * `1`: non-members can see the group, but cannot join it unless invited
-	 * `2`: non-members can see the group, and can apply to join
-	 * `63`: open group which everyone can see and join
+* **status**: 
+	 * `0`: The group is closed (deleted)
+	 * `1`: The group is inactive (users can access info but cannot change it; admin can re-active it)
+	 * `2`: The group is private (invisible to outsiders)
+	 * `3`: The group is public (data accessible to everyone; specific permissions are decided by the role of the requester)
 * **creator_user_id**: The user id of the creator
 * **num_of_users**: The number of users in the group
 * **avatar_url**: The URL of the group avatar image. Empty means using default one.
 * **users**: a list of users in the group, categorized by their roles
+* **_preferences**: (Private field) the group preference settings
+	 * `autoApproveApplication`: if set to `1`, the group will add applicants directly to `member` role. Otherwise he will be added to `pending` role.
 
 ### 1) List Groups Of
 List the groups a user has joined.
