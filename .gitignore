@@ -26,3 +26,4 @@ tools/
 trash/
 app/conf/*.prod
 data/log
+assets/upload/
