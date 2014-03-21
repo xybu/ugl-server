@@ -23,9 +23,10 @@ The server side code of project Ugl.
 		 - [register](#3-register)
 		 - [revokeToken](#4-revoketoken)
 		 - [oauth_clientCallback](#5-oauth_clientcallback)
-		 - [forgot_password](#6-forgot_password)
-		 - [getMyPrefs](#7-getmyprefs)
-		 - [setMyPrefs](#8-setmyprefs)
+		 - [Forgot password](#6-forgot_password)
+		 - [Change password](#9-change_password)
+		 - [Get profile of a user](#7-get-profile-of-a-user)
+		 - [Set profile for a user](#8-set-profile-for-a-user)
 	 - [Group API](#2-group-api)
 		 - [Get the groups a user joins](#1-list-groups-of)
 		 - [Get the profile of a aroup](#6-get-the-profile-of-a-group)
@@ -148,6 +149,15 @@ In short `$str=urlencode(base64_encode(aes256($str, $key)))`
 # API
 
 ## 1. User Identities
+
+#### Available User Preferences
+* `autoAcceptInvitation`
+	 * `1`: accept group invitations automatically
+	 * `0`: send me an email when I receive invitations
+* `showMyPublicGroups`
+	 * `1`: allow others to view the **public** groups I am in
+	 * `0`: no one can see what groups I am in
+
 
 ### 1) login
 Log a user in. **To be updated to reflect token-based system.**
@@ -343,51 +353,100 @@ Android client should go to log in activity.
 * 5 - Email did not send due to server error
 * 6 - Email did not send due to server runtime error
 
-### 7) getMyPrefs
-Get the preferences of the requester. He / she cannot see others' preferences.
+### 7) Get Profile of a User
 
-#### Available User Preferences
-* `autoAcceptInvitation`
-	 * `1`: accept group invitations automatically
-	 * `0`: send me an email when I receive invitations
-* `showMyPublicGroups`
-	 * `1`: allow others to view the **public** groups I am in
-	 * `0`: no one can see what groups I am in
+Get the profile of the user.
+
+__Last Update__: March 21, 2014
 
 #### Request
 | Name   | Description                       |
 | ------ | --------------------------------- |
 | Method | POST                              |
-| URL    | `api/getMyPrefs`                  |
+| URL    | `api/user/info/@target_user_id`   |
 | DATA   | `user_id`=123&`ugl_token`=mytoken |
 
-where the `DATA` is actually the credential to log the user in.
+* `user_id` and `ugl_token` are the credentials to verify the requester.
+* `@target_user_id` in the URL is the ID of the user to fetch profile.
 
 #### Response
-TBA.
+
+Upon success, server will return something like
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-03-21T04:07:32+00:00",
+    "data": {
+        "id": "5",
+        "email": "xb@purdue.edu",
+        "nickname": null,
+        "first_name": "X",
+        "last_name": "B",
+        "avatar_url": "",
+        "phone": null,
+        "description": null,
+        "created_at": "2014-03-17 11:13:55",
+        "_preferences": {
+            "autoAcceptInvitation": false,
+            "showMyProfile": true,
+            "showMyPublicGroups": true
+        }
+    }
+}
+```
+
+* Field `_preferences` will show only if the requester is the target user.
+* When fetching others' profile, if the target user does not allow others to view his / her profile, an error will occur.
 
 #### Associated Errors
 * 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
 * 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 3 - Invalid user id (`@target_user_id` is not numerical)
+* 4 - User not found (`@target_user_id` does not exist)
+* 5 - The profile is set private (target user does not allow you to view his / her profile)
 
-### 8) setMyPrefs
-Update the preferences of the requester. He / she cannot modify others' preferences.
+### 8) Set profile for a user
+
+Update the profile and preferences for the requester.
+
+To change the password for a user, use the API entry named `change_password`.
+
+__Last Update__: March 21, 2014
 
 #### Request
-| Name   | Description                                             |
-| ------ | ------------------------------------------------------- |
-| Method | POST                                                    |
-| URL    | `api/setMyPrefs`                                        |
-| DATA   | `user_id`=123&`ugl_token`=mytoken&`autoAcceptInvitation`=1&`showMyPublicGroups`=0         |
 
-POST each preference field in the format of `key=value`. Not necessary to POST fields of default values since server will append the missing fields with their default values.
+| Name   | Description                       |
+| ------ | --------------------------------- |
+| Method | POST                              |
+| URL    | `/api/user/edit`                  |
+| DATA   | `user_id`=123&`ugl_token`=mytoken&... |
+
+* `...` stands for `email`=new_email&`first_name`=aaaa&`last_name`=bbbb&`nickname`=nick&`avatar_url`=blah&`phone`=123&`description`=oops&`autoAcceptInvitation`=true|false&`showMyProfile`=true|false&`showMyPublicGroups`=true|false
+* `email`, `first_name` and `last_name` are required
+	 * `email`, if changed, must be an email that is not registered yet
+	 * `first_name` and `last_name` are non-empty string
+* `nickname`, `avatar_url`, `phone`, if un-POSTed, will be changed to empty string
+	 * note: empty string for `avatar_url` indicates to use the default one
+* `description` will be HTML-encoded (see the description field for Group identity)
+	 * if un-POSTed, `description` will remain unchanged to save data transmission for the client
+* For every preference field, simply POST in the format `key=value`.
 
 #### Response
-TBA.
+
+Upon success, the new user identity will be returned (see section [Get profile of a user](#7-get-profile-of-a-user) with the requester being the target user).
 
 #### Associated Errors
 * 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
 * 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 3 - Invalid email address
+* 4 - Email already registered
+* 5 - First name or last name should be non-empty words
+
+### 9) Change password
+
+Change the password of a user, provided that the user knows the original password.
+
+### 10) Upload Avatar
 
 ***
 

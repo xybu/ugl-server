@@ -40,7 +40,7 @@ class API extends \Controller {
 	function loginUser($base){
 		try {
 			if ($base->exists("SESSION.loginFail_count") && intval($base->get("SESSION.loginFail_count")) > static::LOGIN_REQ_PER_SESSMION)
-				throw new \Exception("Your account is temporarily on held for security concern. Please retry later or use social account to log in", 104);
+				throw new \Exception("Your account is temporarily on held for security concern. Please retry later or log in with your social account", 104);
 			
 			if (!$base->exists("POST.email") or !$base->exists("POST.password"))
 				throw new \Exception("Email or password not provided", 100);
@@ -52,25 +52,24 @@ class API extends \Controller {
 			if (!$user->isValidEmail($email))
 				throw new \Exception("Invalid email address", 101);
 			
-			$password = $base->get("POST.password");
-			if (!$user->isValidPassword($password)){
-				if ($base->exists("SESSION.loginFail_count")){
-					$base->set("SESSION.loginFail_count", intval($base->get("SESSION.loginFail_count")) + 1, 0);
-				} else $base->set("SESSION.loginFail_count", 1, 1800);
-				
+			if (!$user->isValidPassword($password))
 				throw new \Exception("Password should not be empty", 103);
-			}
 			
 			$user_data = $user->findByEmailAndPassword($email, $password);
 			
 			// user found?
 			if ($user_data){
-				$base->set("SESSION.user", $user_data);
+				$user_creds = array("user_id" => $user_data["id"], "ugl_token" => $user_data["ugl_token"]);
+				$base->set("SESSION.user", $user_creds);
 				if ($base->exists("SESSION.loginFail_count")) $base->clear("SESSION.loginFail_count");
-				$this->json_printResponse(array("user_id" => $user_data["id"], "ugl_token" => $user_data["ugl_token"]));
-			} else 
+				$this->json_printResponse($user_creds);
+			} else {
+				if ($base->exists("SESSION.loginFail_count")){
+					$base->set("SESSION.loginFail_count", intval($base->get("SESSION.loginFail_count")) + 1, 0);
+				} else $base->set("SESSION.loginFail_count", 1, 1800);
+				
 				throw new \Exception("User not found, or email and password do not match.", 102);
-			
+			}
 		} catch (\Exception $e){
 			$this->json_printException($e);
 		}
@@ -78,9 +77,6 @@ class API extends \Controller {
 	
 	function web_logoutUser($base){
 		if ($base->exists("SESSION.user")){
-			$user_info = $base->get("SESSION.user");
-			$base->set("POST.user_id", $user_info["id"]);
-			$base->set("POST.ugl_token", $user_info["ugl_token"]);
 			$this->revokeToken($base, true);
 			$base->clear("SESSION.user");
 		}
@@ -92,7 +88,7 @@ class API extends \Controller {
 			
 			if (!$base->exists("POST.agree") or $base->get("POST.agree") != "true")
 				throw new \Exception("You must agree to the terms of services to sign up", 105);
-		
+			
 			if (!$base->exists("POST.email") or !$base->exists("POST.password") or !$base->exists("POST.confirm_pass") or 
 				!$base->exists("POST.first_name") or !$base->exists("POST.last_name"))
 					throw new \Exception("Email, password, or name not provided", 100);
@@ -122,7 +118,7 @@ class API extends \Controller {
 			if ($user_info)
 				throw new \Exception("Email already registered", 104);
 			
-			$new_user_creds = $user->createUser($email, $password, $first_name, $last_name);
+			$new_user_creds = $user->create($email, $password, $first_name, $last_name);
 			
 			$base->set("SESSION.user", $new_user_creds);
 			
@@ -134,18 +130,11 @@ class API extends \Controller {
 	
 	function revokeToken($base, $no_output = false){
 		try {
-			if (!$base->exists("POST.user_id") or !$base->exists("POST.ugl_token"))
-					throw new \Exception("Authentication fields missing", 1);
-			
-			$user_id = $base->get("POST.user_id");
-			$ugl_token = $base->get("POST.ugl_token");
-			
-			if (!is_numeric($user_id))
-				throw new \Exception("User id should be a number", 2);
-		
 			$user = new \models\User();
-			if ($user->verifyToken($user_id, $ugl_token))
-				$user->refreshToken($user_id);
+			$user_status = self::getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			
+			$user->token_refresh(array("id" => $user_id));
 			
 			if (!$no_output) $this->json_printResponse(array("message" => "Token has been revoked."));
 		} catch (\Exception $e){
@@ -225,100 +214,15 @@ class API extends \Controller {
 		} else if ($base->exists("SESSION.user")){
 			// web client session
 			$session_user = $base->get("SESSION.user");
-			$user_id = $session_user["id"];
+			$user_id = $session_user["user_id"];
 			$token = $session_user["ugl_token"];
 		} else throw new \Exception("You should log in to perform the request", 1);
 		
 		// can handle nonexistent user id
-		if (!$user->verifyToken($user_id, $token))
+		$user_info = $user->findById($user_id);
+		if (empty($user_info) or !$user->token_verify($user_info, $token))
 			throw new \Exception("Unauthorized request", 2);
 		
-		return array("user_id" => $user_id, "ugl_token" => $token);
-	}
-	
-	function getMyPrefs($base){
-		try {
-			$user = new \models\User();
-			$user_status = self::getUserStatus($base, $user);
-			$user_id = $user_status["user_id"];
-			$user_pref = $user->getUserPref($user_id);
-			$this->json_printResponse($user_pref);
-		} catch (\Exception $e){
-			$this->json_printException($e);
-		}
-	}
-	
-	function setMyPrefs($base){
-		try {
-			$user = new \models\User();
-			$user_status = self::getUserStatus($base, $user);
-			$user_id = $user_status["user_id"];
-			
-			$pref_obj = new \models\Preference();
-			$pref_array = $user->getDefaultPrefArray();
-			
-			foreach ($pref_array as $key => $val){
-				if ($base->exists("POST." . $key)){
-					$post_val = $base->get("POST." . $key);
-					if (gettype($post_val) == gettype($val))
-						$val = $post_val;
-				}
-				$pref_obj->setField($key,$post_val);
-			}
-			
-			$user->setUserPref($user_id, $pref_obj);
-			
-			$this->json_printResponse(array_merge(array("message" => "You have successfully updated your preferences."), $pref_obj->toArray()));
-		} catch (\Exception $e){
-			$this->json_printException($e);
-		}
-	}
-	
-	/*
-	function setMyPrefs($base){
-		try {
-			$user = new \models\User();
-			$user_status = $this->getUserStatus($base, $user);
-			$user_id = $user_status["user_id"];
-			
-			if (!$base->exists("POST.data") or !$base->exists("POST.from"))
-				throw new \Exception("Wrong data format", 3);
-			
-			$post_source = $base->get("POST.from");
-			if (!array_key_exists($post_source, self::$API_KEYS))
-				throw new \Exception("Unrecognized data source", 4);
-			
-			$post_data = self::api_decrypt(base64_decode(urldecode($base->get("POST.data"))), self::$API_KEYS[$post_source]);
-			if (empty($post_data))
-				throw new \Exception("Failed to decrypt the data", 5);
-			
-			$json_data = json_decode($post_data, true);
-			if (empty($json_data))
-				throw new \Exception("Cannot parse the data as json", 6);
-			
-			$pref_array = $user->getDefaultPrefArray();
-			foreach ($pref_array as $key => $val){
-				if (array_key_exists($key, $json_data)){
-					
-				}
-			}
-			
-			$this->json_printResponse($user_pref);
-		} catch (\Exception $e){
-			$this->json_printException($e);
-		}
-	}
-	*/
-	
-	function createGroup($base){
-	}
-	
-	function editGroupProfile($base){
-	}
-	
-	function editGroupMembers($base){
-	}
-	
-	function inviteUserToJoinGroup($base){
+		return array("user_id" => $user_id, "user_info" => $user_info, "ugl_token" => $token);
 	}
 }

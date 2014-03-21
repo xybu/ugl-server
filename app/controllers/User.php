@@ -98,7 +98,7 @@ class User extends \Controller {
 				
 				// if authentication already exists, reroute to dashboard
 				if ($oauth_info){
-					$base->set("SESSION.user", array("id" => $oauth_info["user_id"], "ugl_token" => $user->refreshToken($oauth_info["user_id"])));
+					$base->set("SESSION.user", array("user_id" => $oauth_info["user_id"], "ugl_token" => $user->token_refresh(array("id" => $oauth_info["user_id"]))));
 					$base->reroute("@usercp(@panel=dashboard)");
 				}
 				
@@ -124,20 +124,19 @@ class User extends \Controller {
 				if ($user_info) {
 					// the user registered the email, but hasn't assoc with his account
 					$user_id = $user_info["id"];
-					$user_token = $user->getUserToken($user_id);
+					$user_token = $user->token_get($user_info);
 					$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 				} else {
 					// the user hasn't registered the email
 					// User model will generate a random password and send email
-					$user_creds = $user->createUser($email, "", $first_name, $last_name, $avatar_url);
+					$user_creds = $user->create($email, "", $first_name, $last_name, $avatar_url);
 					$user_id = $user_creds["id"];
 					$user_token = $user_creds["ugl_token"];
 					$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					$reroute_panel = "settings";
 				}
-				$base->set("SESSION.user", array("id" => $user_id, "ugl_token" => $user_token));
+				$base->set("SESSION.user", array("user_id" => $user_id, "ugl_token" => $user_token));
 				$base->reroute("@usercp(@panel=". $reroute_panel .")");
-				
 			}
 		} catch (\Exception $e) {
 			$base->set("rt_notification_modal", array(
@@ -176,7 +175,7 @@ class User extends \Controller {
 			// if authentication already exists, reroute to dashboard
 			if ($oauth_info){
 				$user_id = $oauth_info["user_id"];
-				$user_token = $user->refreshToken($oauth_info["user_id"]);
+				$user_token = $user->token_refresh(array("id" => $oauth_info["user_id"]));
 			} else {
 				$provider = $response['auth']['provider']; // replace 'callback' by the real provider
 				$provider_uid = $response['auth']['uid'];
@@ -196,12 +195,12 @@ class User extends \Controller {
 					if ($user_info) {
 						// the user registered the email, but hasn't assoc with his account
 						$user_id = $user_info["id"];
-						$user_token = $user->refreshToken($user_id);
+						$user_token = $user->token_refresh($user_info);
 						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					} else {
 						// the user hasn't registered the email
 						// User model will generate a random password and send email
-						$user_creds = $user->createUser($email, "", $first_name, $last_name, $avatar_url);
+						$user_creds = $user->create($email, "", $first_name, $last_name, $avatar_url);
 						$user_id = $user_creds["id"];
 						$user_token = $user_creds["ugl_token"];
 						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
@@ -214,30 +213,32 @@ class User extends \Controller {
 		}
 	}
 	
-	function showUserPanel($base){
-		if (!$base->exists("SESSION.user"))
-			$this->backToHomepage($base);
-		
-		if ($base->exists("SESSION.loginFail_count"))
-			$base->clear("SESSION.loginFail_count");
+	function showUserPanel($base, $args){
+		if (!$base->exists("SESSION.user")) $this->backToHomepage($base);
+		$session_creds = $base->get("SESSION.user");
 		
 		$user = new \models\User();
-		$me = $base->get("SESSION.user");
-		$panel = $base->get("PARAMS.panel");
+		$me = $user->findById($session_creds["user_id"]);
+		//var_dump($me);
+		//die();
 		
-		if (!$user->verifyToken($me["id"], $me["ugl_token"]))
+		if (empty($me) or !$user->token_verify($me, $session_creds["ugl_token"]))
 			$this->backToHomepage($base);
 		
-		$my_profile = $user->getUserProfile($me["id"]);
-		if (!$my_profile) $this->backToHomepage($base);
+		$panel = $args["panel"];
 		
 		try {
 			switch ($panel){
 				case "dashboard":
 					break;
+				case "groups":
+					$group = new \models\Group();
+					$group_list = $group->listGroupsOfUserId($me["id"], $group::STATUS_INACTIVE);
+					$base->set("groupList", $group_list);
+					break;
 				case "group":
 					$panel = "groups";
-					$item_id = $base->get("PARAMS.item_id");
+					$item_id = $args["item_id"];
 					if (!is_numeric($item_id))
 						throw new \Exception("Group id should be a number", 3);
 					
@@ -254,11 +255,6 @@ class User extends \Controller {
 					$base->set("my_permissions", $my_permissions);
 					$base->set("group_info", $group_info);
 					$sub_panel = "group";
-				case "groups":
-					$group = new \models\Group();
-					$group_list = $group->listGroupsOfUserId($me["id"], $group::STATUS_INACTIVE);
-					$base->set("groupList", $group_list);
-					break;
 				case "boards":
 					break;
 				case "items":
@@ -280,28 +276,35 @@ class User extends \Controller {
 		
 		if (isset($sub_panel)) $base->set('sub_panel', $sub_panel);
 		$base->set('panel', $panel);
-		$base->set('me', $my_profile);
+		$base->set('me', $me);
 		$this->setView('usercp.html');
 	}
 	
-	function loadUserPanel($base){
-		if (!$base->exists("SESSION.user"))
-			die();
+	function loadUserPanel($base, $args){
+		if (!$base->exists("SESSION.user")) die();
+		
+		$session_creds = $base->get("SESSION.user");
 		
 		$user = new \models\User();
-		$me = $base->get("SESSION.user");
-		$panel = $base->get("PARAMS.panel");
+		$me = $user->findById($session_creds["user_id"]);
 		
-		$my_profile = $user->getUserProfile($me["id"]);
-		if (!$my_profile) $this->backToHomepage($base, true, false);
+		if (empty($me) or !$user->token_verify($me, $session_creds["ugl_token"]))
+			die();
+		
+		$panel = $args["panel"];
 		
 		try {
 			switch ($panel){
 				case "dashboard":
 					break;
+				case "groups":
+					$group = new \models\Group();
+					$group_list = $group->listGroupsOfUserId($me["id"], $group::STATUS_INACTIVE);
+					$base->set("groupList", $group_list);
+					break;
 				case "group":
 					$panel = "groups";
-					$item_id = $base->get("PARAMS.item_id");
+					$item_id = $args["item_id"];
 					if (!is_numeric($item_id))
 						throw new \Exception("Group id should be a number", 3);
 					
@@ -318,11 +321,6 @@ class User extends \Controller {
 					$base->set("my_permissions", $my_permissions);
 					$base->set("group_info", $group_info);
 					$sub_panel = "group";
-				case "groups":
-					$group = new \models\Group();
-					$group_list = $group->listGroupsOfUserId($me["id"], $group::STATUS_INACTIVE);
-					$base->set("groupList", $group_list);
-					break;
 				case "boards":
 					break;
 				case "items":
@@ -341,24 +339,26 @@ class User extends \Controller {
 			$base->set("exception", $e);
 		}
 		
-		$base->set('me', $my_profile); //hide the token in the view model
+		$base->set('me', $me); //hide the token in the view model
 		$base->set('panel', $panel);
-		if (isset($sub_panel))
-			$this->setView($sub_panel . '.html');
+		if (isset($sub_panel)) $this->setView($sub_panel . '.html');
 		else $this->setView('my_' . $panel . '.html');
 	}
 	
 	function loadUserModal($base, $args){
 		if (!$base->exists("SESSION.user")) die();
 		
+		$session_creds = $base->get("SESSION.user");
+		
 		$user = new \models\User();
-		$me = $base->get("SESSION.user");
+		$me = $user->findById($session_creds["user_id"]);
+		
+		if (empty($me) or !$user->token_verify($me, $session_creds["ugl_token"]))
+			die();
+		
 		$panel = $args["panel"];
 		$item_id = $args["id"];
 		$modal = $args["modal"];
-		
-		$my_profile = $user->getUserProfile($me["id"]);
-		if (!$my_profile) $this->backToHomepage($base, true, false);
 		
 		try {
 			switch ($panel){
@@ -373,9 +373,9 @@ class User extends \Controller {
 						
 							if (!$group_info)
 								throw new \Exception("Group not found", 4);
-						
+							
 							$my_permissions = $group->getPermissions($me["id"], $item_id, $group_info);
-						
+							
 							if (!$my_permissions["manage"])
 								throw new \Exception("Invalid request", 5);
 							
@@ -399,7 +399,7 @@ class User extends \Controller {
 				default:
 					die();
 			}
-			$base->set('me', $my_profile); //hide the token in the view model
+			$base->set('me', $me);
 			$base->set('panel', $panel);
 			$this->setView($panel . '_' . $modal . '.html');
 		} catch (\Exception $e) {
@@ -408,9 +408,98 @@ class User extends \Controller {
 	}
 	
 	function backToHomepage($base, $revokeSession = true, $redirect = true){
+		//var_dump($base->get("SESSION.user"));
+		//die();
 		if ($revokeSession) $base->clear("SESSION.user");
 		if ($redirect) $base->reroute("/");
 		else die();
 	}
 	
+	function api_getInfo($base, $args){
+		try {
+			$user = new \models\User();
+			$user_status = API::getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			$target_user_id = $args["target_user_id"];
+			$target_user_info = null;
+			if ($target_user_id != $user_id){
+				if (empty($target_user_id) or !is_numeric($target_user_id)) throw new \Exception("Invalid user id", 3);
+				$target_user_info = $user->findById($target_user_id);
+				if (empty($target_user_info)) throw new \Exception("User not found", 4);
+				if (!$target_user_info["_preferences"]["showMyProfile"])
+					 throw new \Exception("The profile is set private", 5);
+				$user->removePrivateKeys($target_user_info);
+			} else {
+				$target_user_info = $user->filterOutPrivateKeys($user_info);
+				$target_user_info["_preferences"] = $user_info["_preferences"];
+			}
+			$this->json_printResponse($target_user_info);
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
+	}
+	
+	function api_setInfo($base){
+		try {
+			$user = new \models\User();
+			$user_status = API::getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			
+			$email = $base->get("POST.email");
+			if (!$user->isValidEmail($email))
+				throw new \Exception("Invalid email address", 3);
+			else if ($email != $user_info["email"]){
+				$dup_user_info = $user->findByEmail($email);
+				if ($dup_user_info)
+					throw new \Exception("Email already registered", 4);
+			}
+			
+			$first_name = $user->filterHtmlChars($base->get("POST.first_name"));
+			$last_name = $user->filterHtmlChars($base->get("POST.last_name"));
+			$nickname = $user->filterHtmlChars("" . $base->get("POST.nickname"));
+			
+			if (!$user->isValidName($first_name) or !$user->isValidName($last_name))
+				throw new \Exception("First name or last name should be non-empty words", 5);
+			
+			$avatar_url = $base->get("POST.avatar_url");
+			if (empty($avatar_url)) $avatar_url = "";
+			
+			$phone = $base->get("POST.phone");
+			if (empty($phone)) $phone = "";
+			
+			$description = $user->filterDescription($base->get("POST.description"));
+			if (empty($description)) $description = $user_info["description"];
+			
+			$prefs = $user::$DEFAULT_USER_PREFERENCES;
+			
+			foreach ($prefs as $key => $value){
+				if ($base->exists("POST." . $key)){
+					$post_val = $base->get("POST." . $key);
+					if (is_bool($value)){
+						if ($post_val != "true") $prefs[$key] = false;
+						else $prefs[$key] = true;
+					}
+				}
+			}
+			
+			$user_info["email"] = $email;
+			$user_info["first_name"] = $first_name;
+			$user_info["last_name"] = $last_name;
+			$user_info["nickname"] = $nickname;
+			$user_info["phone"] = $phone;
+			$user_info["description"] = $description;
+			$user_info["_preferences"] = $prefs;
+			
+			$user->save($user_info);
+			
+			$user->removePrivateKeys($user_info);
+			$user_info["_preferences"] = $prefs; // add prefs back
+			$this->json_printResponse($user_info);
+			
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
+	}
 }

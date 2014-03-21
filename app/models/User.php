@@ -7,8 +7,14 @@ class User extends \Model {
 	const ENABLE_LOG = true;
 	const TOKEN_SALT = "ugl>salt.";
 	const TOKEN_VALID_HRS = 168; // one week, in hrs
+	const USER_CACHE_TTL = 3600;
+	const MAX_DESC_LENGTH = 150;
 	
-	public static $DEFAULT_USER_PREFERENCES = array("autoAcceptInvitation" => 0, "showMyPublicGroups" => 1);
+	public static $DEFAULT_USER_PREFERENCES = array(
+		"autoAcceptInvitation" => false,
+		"showMyProfile" => true,
+		"showMyPublicGroups" => true
+	);
 	
 	function __construct(){
 		parent::__construct();
@@ -16,70 +22,67 @@ class User extends \Model {
 			$this->logger = new \Log("model.user.log");
 	}
 	
+	static function filterDescription($str){
+		$str = htmlspecialchars($str);
+		$str = substr($str, 0, static::MAX_DESC_LENGTH);
+		return $str;
+	}
+	
 	function findById($id){
-		$result = $this->queryDb("SELECT * FROM users WHERE id=? LIMIT 1;", $id, 1800);
-		if (count($result) == 1) return $result[0];
-		return null;
-	}
-	
-	function findByEmail($email){
-		$result = $this->queryDb("SELECT * FROM users WHERE email=? LIMIT 1;", $email);
-		if (count($result) == 1) return $result[0];
-		return null;
-	}
-	
-	function findByEmailAndPassword($email, $password){
-		$result = $this->queryDb("SELECT * FROM users WHERE email=? LIMIT 1;", $email);
+		if ($this->cache->exists("user_id_" . $id))
+			return $this->cache->get("user_id_" . $id);
+		
+		$result = $this->queryDb("SELECT * FROM users WHERE id=? LIMIT 1;", $id);
 		if (count($result) == 1){
-			if (password_verify(static::TOKEN_SALT . $password, $result[0]["password"]))
-				return array_merge($result[0], array("ugl_token" => $this->refreshToken($result[0]["id"])));
-			else return null;
+			if (!empty($result[0]["_preferences"]))
+				$result[0]["_preferences"] = json_decode($result[0]["_preferences"], true);
+			else $result[0]["_preferences"] = self::$DEFAULT_USER_PREFERENCES;
+			$this->cache->set("user_id_" . $id, $result[0], static::USER_CACHE_TTL);
+			return $result[0];
 		}
 		return null;
 	}
 	
-	function updatePassword($email, $original_password = ""){
-		if ($original_password == "")
-			$original_password = $this->getRandomStr(12);
-		
-		$password = md5(base64_encode(sha1(sha1($original_password))));
-		
-		$this->queryDb(
-			"UPDATE users SET password=:password WHERE email=:email LIMIT 1;",
-			array(
-				":email" => $email,
-				":password" => $this->getUserToken(0, $password)
-			)
-		);
-		
-		return $original_password;
+	function findByEmail($email){
+		$result = $this->queryDb("SELECT id FROM users WHERE email=? LIMIT 1;", $email);
+		if (count($result) == 1) return $this->findById($result[0]["id"]);
+		return null;
 	}
 	
-	function createUser($email, $password, $first_name, $last_name, $avatar_url = ""){
+	function findByEmailAndPassword($email, $password){
+		$result = $this->findByEmail($email);
+		if (!empty($result) and password_verify(static::TOKEN_SALT . $password, $result["_password"])) {
+			$this->token_refresh($result);
+			$result["ugl_token"] = $this->token_get($result);
+			return $result;
+		}
+		return null;
+	}
+	
+	function create($email, $password, $first_name, $last_name, $avatar_url = ""){
 		$send_email = false;
 		
-		if (!$avatar_url)
-			$avatar_url = "";
+		if (!$avatar_url) $avatar_url = "";
 		
 		// send email with random password if $password not set
-		if ($password === ""){
+		if (empty($password)) {
 			$original_password = $this->getRandomStr(12);
 			$password = md5(base64_encode(sha1(sha1($original_password))));
 			$send_email = true;
 		}
 		
 		$this->queryDb(
-			"INSERT INTO users (email, password, first_name, last_name, avatar_url, created_at, token_active_at) " .
+			"INSERT INTO users (email, _password, first_name, last_name, avatar_url, created_at, _token_active_at) " .
 			"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW()); ",
 			array(
 				':email' => $email,
-				':password' => $this->getUserToken(0, $password),
+				':password' => $this->token_get(null, $password),
 				':first_name' => $first_name,
 				':last_name' => $last_name,
 				':avatar_url' => $avatar_url
 			)
 		);
-				
+		
 		if ($send_email){
 			try {
 				$mail = new Mail();
@@ -94,104 +97,71 @@ class User extends \Model {
 									"Again, thanks for using our service.\n\n" .
 									"Best,\nUGL Team");
 				$mail->send();
-			// log exceptions but do not behave
-			} catch (\InvalidArgumentException $e){
+			} catch (\InvalidArgumentException $e) {
 				if (static::ENABLE_LOG)
 					$this->logger->write($e->__toString());
-			} catch (\RuntimeException $e){
+			} catch (\RuntimeException $e) {
 				if (static::ENABLE_LOG)
 					$this->logger->write($e->__toString());
 			}
 		}
 		
-		$result = $this->queryDb("SELECT * FROM users WHERE email=? LIMIT 1;", $email);
+		$result = $this->findByEmail($email);
 		
 		// can still work if failed to send email
-		if (count($result) == 1){
-			return array("id" => $result[0]["id"], "ugl_token" => $this->getUserToken($result[0]["id"], $result[0]["token_active_at"]));
-		} else return null;
-	}
-	
-	function getUserProfile($id, $email = ""){
-		if ($email != "" and $this->isValidEmail($email)) $email = " email='" . $email . "'";
-		else $email = "";
-		
-		if (is_numeric($id)) $id = " id = " . $id . "";
-		else $id = "";
-		
-		if ($id == "" and $email == "") return null;
-		if ($id != "" and $email != "") $email = " AND" . $email;
-		
-		$result = $this->queryDb("SELECT id, email, first_name, last_name, avatar_url, created_at FROM users WHERE" . $id . $email . " LIMIT 1;", null, 3600);
-		
-		if (count($result) == 1){
-			return $result[0];
+		if (!empty($result)) {
+			$result["ugl_token"] = $this->token_get($result);
+			return $result;
 		}
 		
 		return null;
 	}
 	
-	/**
-	 * fixUserPref
-	 * add all missing keys used by User object to the Preference object
-	 * remove all undefined keys from the Preference object
-	 */
-	private function fixUserPref(Preference $p){
-		foreach($p->toArray() as $key => $val){
-			if (!array_key_exists($key, self::$DEFAULT_USER_PREFERENCES))
-				$p->unsetField($key);
+	function update(&$user_info, &$fields){
+		foreach ($fields as $key => $value){
+			if ($key == "password"){
+				if ($value == ""){
+					$value = $this->getRandomStr(12);
+					$fields["password"] = $value;
+				}
+				$password = md5(base64_encode(sha1(sha1($value))));
+				$password = $this->getUserToken(0, $password);
+				$user_info["password"] = $password;
+			} else {
+				$user_info[$key] = $value;
+			}
 		}
-		
-		$p->normalize(self::$DEFAULT_USER_PREFERENCES);
-		
-		return $p;
 	}
 	
-	function getDefaultPrefArray(){
-		return self::$DEFAULT_USER_PREFERENCES;
-	}
-	
-	function getUserPref($id){
-		if (!is_numeric($id)) return null;
-		
-		$result = $this->queryDb("SELECT * FROM users WHERE id=? LIMIT 1;", $id, 1800);
-		
-		if (count($result) == 1){
-			return $this->fixUserPref(new Preference($result[0]["preferences"], true));
-		}
-		return null;
-	}
-	
-	function setUserPref($id, Preference $pref){
-		if (!is_numeric($id) or $pref == null) return;
-		
-		$pref = $this->fixUserPref($pref);
-		
-		$this->queryDb("UPDATE users SET preferences=:pref WHERE id=:id LIMIT 1;",
-						array(":id" => $id, "pref" => $pref->toJson())
+	function save(&$user_info) {
+		$this->queryDb(
+			"UPDATE users SET email=:email, _password=:password, nickname=:nickname, first_name=:first_name, last_name=:last_name, avatar_url=:avatar_url, phone=:phone, description=:description, _token_active_at=:_token_active_at, _preferences=:_preferences WHERE id=:id LIMIT 1;",
+			array(
+				":id" => $user_info["id"],
+				":email" => $user_info["email"],
+				":password" => $user_info["_password"],
+				":nickname" => $user_info["nickname"],
+				":first_name" => $user_info["first_name"],
+				":last_name" => $user_info["last_name"],
+				":avatar_url" => $user_info["avatar_url"],
+				":phone" => $user_info["phone"],
+				":description" => $user_info["description"],
+				":_token_active_at" => $user_info["_token_active_at"],
+				":_preferences" => json_encode($user_info["_preferences"])
+			)
 		);
+		
+		if ($this->cache->exists("user_id_" . $user_info["id"]))
+			$this->cache->set("user_id_" . $user_info["id"], $user_info);
 	}
 	
-	/**
-	 * verifyToken
-	 * @param id: the user id
-	 * @param token: the client token
-	 * @param dt_str: the original date; will fetch from database if set null
-	 * 
-	 * Usage: 
-	 * verify if the token is valid for the user id
-	 * reset the token if dt_str is expired
-	 */
-	function verifyToken($id, $token){
-		if ($id === "" or $token === "") return false;
+	function token_verify(&$user_info, $token) {
+		if (empty($user_info) or $token === "") return false;
 		
-		$result = $this->queryDb("SELECT token_active_at FROM users WHERE id=? LIMIT 1;", $id);
-		if (count($result) != 1) return false;
+		$dt_str = $user_info["_token_active_at"];
 		
-		$dt_str = $result[0]['token_active_at'];
-		
-		if (strtotime("+" . static::TOKEN_VALID_HRS . " hour", strtotime($dt_str)) < time()){
-			$new_token = $this->refreshToken($id);
+		if (strtotime("+" . static::TOKEN_VALID_HRS . " hour", strtotime($dt_str)) < time()) {
+			$this->token_refresh($user_info);
 			return false;
 		}
 		
@@ -201,24 +171,23 @@ class User extends \Model {
 		return false;
 	}
 	
-	function refreshToken($id){
-		if ($id === "" or !is_numeric($id)) return null;
-		
-		if ($this->queryDb("UPDATE users SET token_active_at=NOW() WHERE id=:id",
-			array(':id' => $id))) return $this->getUserToken($id);
-		return null;
-	}
-	
-	function getUserToken($id, $str = null){
-		if ($id === "" or !is_numeric($id)) return null;
-		
-		if (!$str){
-			$result = $this->queryDb("SELECT token_active_at FROM users WHERE id=? LIMIT 1;", $id);
-			if (count($result) == 1){
-				$str = $result[0]['token_active_at'];
-			} else return null;
-		}
+	function token_get(&$user_info, $str = null) {
+		if (empty($str)) $str = $user_info["_token_active_at"];
 		
 		return password_hash(static::TOKEN_SALT . $str, PASSWORD_DEFAULT);
+	}
+	
+	function token_refresh(&$user_info) {
+		$token_base = date("Y-m-d H:i:s");
+		$user_info["_token_active_at"] = $token_base;
+		$this->queryDb("UPDATE users SET _token_active_at=:token_base WHERE id=:id", array(
+			":id" => $user_info["id"], 
+			":token_base" => $token_base
+		));
+		
+		if ($this->cache->exists("user_id_" . $user_info["id"]))
+			$this->cache->set("user_id_" . $user_info["id"], $user_info);
+		
+		return $this->token_get($user_info, $token_base);
 	}
 }
