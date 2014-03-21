@@ -71,15 +71,18 @@ class User extends \Model {
 			$send_email = true;
 		}
 		
+		if (strlen($first_name) > 100) $first_name = substr($first_name, 0, 100);
+		if (strlen($last_name) > 100) $last_name = substr($last_name, 0, 100);
+		
 		$this->queryDb(
 			"INSERT INTO users (email, _password, first_name, last_name, avatar_url, created_at, _token_active_at) " .
 			"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW()); ",
 			array(
 				':email' => $email,
 				':password' => $this->token_get(array(), $password),
-				':first_name' => substr($first_name, 0, 100),
-				':last_name' => substr($last_name, 0, 100),
-				':avatar_url' => substr($avatar_url, 0, 300)
+				':first_name' => $first_name,
+				':last_name' => $last_name,
+				':avatar_url' => $avatar_url
 			)
 		);
 		
@@ -137,17 +140,23 @@ class User extends \Model {
 		$pref = $user_info["_preferences"];
 		if ($pref == self::$DEFAULT_USER_PREFERENCES) $pref = null;
 		
+		if (strlen($user_info["first_name"]) > 100) $user_info["first_name"] = substr($user_info["first_name"], 0, 100);
+		if (strlen($user_info["last_name"]) > 100) $user_info["last_name"] = substr($user_info["last_name"], 0, 100);
+		if (strlen($user_info["nickname"]) > 100) $user_info["nickname"] = substr($user_info["nickname"], 0, 100);
+		if (strlen($user_info["phone"]) > 36) $user_info["phone"] = substr($user_info["phone"], 0, 36);
+		if (strlen($user_info["avatar_url"]) > 300) $user_info["avatar_url"] = substr($user_info["avatar_url"], 0, 300);
+		
 		$this->queryDb(
 			"UPDATE users SET email=:email, _password=:password, nickname=:nickname, first_name=:first_name, last_name=:last_name, avatar_url=:avatar_url, phone=:phone, description=:description, _token_active_at=:_token_active_at, _preferences=:_preferences WHERE id=:id LIMIT 1;",
 			array(
 				":id" => $user_info["id"],
 				":email" => $user_info["email"],
 				":password" => $user_info["_password"],
-				":nickname" => substr($user_info["nickname"], 0, 100),
-				":first_name" => substr($user_info["first_name"], 0, 100),
-				":last_name" => substr($user_info["last_name"], 0, 100),
-				":avatar_url" => substr($user_info["avatar_url"], 0, 100),
-				":phone" => substr($user_info["phone"], 0, 36),
+				":nickname" => $user_info["nickname"],
+				":first_name" => $user_info["first_name"],
+				":last_name" => $user_info["last_name"],
+				":avatar_url" => $user_info["avatar_url"],
+				":phone" => $user_info["phone"],
 				":description" => $user_info["description"],
 				":_token_active_at" => $user_info["_token_active_at"],
 				":_preferences" => $pref != null ? json_encode($pref) : null
