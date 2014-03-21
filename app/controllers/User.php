@@ -473,13 +473,13 @@ class User extends \Controller {
 			if (empty($description)) $description = $user_info["description"];
 			
 			$prefs = $user::$DEFAULT_USER_PREFERENCES;
+			$prefs_different = false;
 			
 			foreach ($prefs as $key => $value){
 				if ($base->exists("POST." . $key)){
 					$post_val = $base->get("POST." . $key);
 					if (is_bool($value)){
-						if ($post_val != "true") $prefs[$key] = false;
-						else $prefs[$key] = true;
+						if ($post_val != "" . $value) $prefs[$key] = !$value;
 					}
 				}
 			}

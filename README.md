@@ -150,14 +150,31 @@ In short `$str=urlencode(base64_encode(aes256($str, $key)))`
 
 ## 1. User Identities
 
-#### Available User Preferences
-* `autoAcceptInvitation`
-	 * `1`: accept group invitations automatically
-	 * `0`: send me an email when I receive invitations
-* `showMyPublicGroups`
-	 * `1`: allow others to view the **public** groups I am in
-	 * `0`: no one can see what groups I am in
+The data fields for User model are defined as below:
 
+* __id__ (int): the unique identifier for a user.
+* __email__ (string): the email of the user, conforming to RFC 2822 standard but with a maximum length of 200 chars. Required.
+* ___password__ (string): the password hash (not available to clients).
+* __nickname__ (string): HTML-filtered-out string with maximum length of 100 chars.
+* __first_name__ (string): HTML-filtered-out string with maximum length of 100 chars. Required.
+* __last_name__ (string): HTML-filtered-out string with maximum length of 100 chars. Required.
+* __avatar_url__ (string): The URL of the avatar image with max length of 300 chars.
+* __phone__ (string): Phone number. At most 36 chars.
+* __description__ (string): HTML-encoded string. At most 150 chars.
+* ___preferences__ (array): The preferences of the user
+	 * `autoAcceptInvitation`
+		 * `true`: accept group invitations automatically
+		 * `false` (default): send me an email when I receive invitations
+	 * `showMyProfile`
+		 * `true` (default): allow others to see my profile
+		 * `false`: do not allow
+	 * `showMyPublicGroups`
+		 * `true` (default): allow others to view the **public** groups I am in
+		 * `false`: no one can see what groups I am in
+
+Notes:
+
+* HTML-filtered-out string means removing `<`, `>`, `;`, `"`, `\n`, `\t` from the string.
 
 ### 1) login
 Log a user in. **To be updated to reflect token-based system.**
