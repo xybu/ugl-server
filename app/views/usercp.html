@@ -46,7 +46,7 @@ $menu_list[$panel][2] = " active";
 					<ul class="nav navbar-nav navbar-right">
 						<li>
 							<a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
-								<div class="avatar"><img alt="Avatar" src="assets/img/default-avatar.png"></div>
+								<div class="avatar"><img alt="Avatar" src="<?php echo empty($me["avatar_url"]) ? "assets/img/default-avatar.png" : $me["avatar_url"];?>"></div>
 								<div class="user">
 									<span class="hello">Welcome!</span>
 									<span class="name"><?php echo $me["first_name"] . " " . $me["last_name"]?></span>
