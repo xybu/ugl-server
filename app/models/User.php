@@ -62,7 +62,7 @@ class User extends \Model {
 	function create($email, $password, $first_name, $last_name, $avatar_url = ""){
 		$send_email = false;
 		
-		if (!$avatar_url) $avatar_url = "";
+		if (empty($avatar_url)) $avatar_url = "";
 		
 		// send email with random password if $password not set
 		if (empty($password)) {
@@ -76,7 +76,7 @@ class User extends \Model {
 			"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW()); ",
 			array(
 				':email' => $email,
-				':password' => $this->token_get(null, $password),
+				':password' => $this->token_get(array(), $password),
 				':first_name' => substr($first_name, 0, 100),
 				':last_name' => substr($last_name, 0, 100),
 				':avatar_url' => substr($avatar_url, 0, 300)
@@ -174,7 +174,7 @@ class User extends \Model {
 		return false;
 	}
 	
-	function token_get(&$user_info, $str = null) {
+	function token_get($user_info, $str = null) {
 		if (empty($str)) $str = $user_info["_token_active_at"];
 		
 		return password_hash(static::TOKEN_SALT . $str, PASSWORD_DEFAULT);

@@ -83,51 +83,6 @@ class API extends \Controller {
 		$this->json_printResponse(array("message" => "You have successfully logged out"));
 	}
 	
-	function registerUser($base){
-		try {
-			
-			if (!$base->exists("POST.agree") or $base->get("POST.agree") != "true")
-				throw new \Exception("You must agree to the terms of services to sign up", 105);
-			
-			if (!$base->exists("POST.email") or !$base->exists("POST.password") or !$base->exists("POST.confirm_pass") or 
-				!$base->exists("POST.first_name") or !$base->exists("POST.last_name"))
-					throw new \Exception("Email, password, or name not provided", 100);
-			
-			$user = new \models\User();
-			
-			$email = $base->get("POST.email");
-			
-			if (!$user->isValidEmail($email))
-				throw new \Exception("Invalid email address", 101);
-			
-			$password = $base->get("POST.password");
-			if (!$user->isValidPassword($password))
-				throw new \Exception("Password should be at least 6 chars", 106);
-			
-			$confirm_password = $base->get("POST.confirm_pass");
-			if ($password != $confirm_password)
-				throw new \Exception("Password and confirm password do not match", 102);
-			
-			$first_name = $user->filterHtmlChars($base->get("POST.first_name"));
-			$last_name = $user->filterHtmlChars($base->get("POST.last_name"));
-			
-			if (!$user->isValidName($first_name) or !$user->isValidName($last_name))
-				throw new \Exception("First name or last name should be non-empty words", 103);
-			
-			$user_info = $user->findByEmail($email);
-			if ($user_info)
-				throw new \Exception("Email already registered", 104);
-			
-			$new_user_creds = $user->create($email, $password, $first_name, $last_name);
-			
-			$base->set("SESSION.user", $new_user_creds);
-			
-			$this->json_printResponse(array("user_id" => $new_user_creds["id"], "ugl_token" => $new_user_creds["ugl_token"]));
-		} catch (\Exception $e){
-			$this->json_printException($e);
-		}
-	}
-	
 	function revokeToken($base, $no_output = false){
 		try {
 			$user = new \models\User();

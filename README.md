@@ -185,7 +185,11 @@ Log a user in. **To be updated to reflect token-based system.**
 | ------ | ---------------------------------- |
 | Method | POST                               |
 | URL    | `api/login`                        |
-| DATA   | `email`=abc@abc.cc&`password`=pass |
+| DATA   | `email`=abc@abc.cc&`password`=pass&`from`=ugl_android |
+
+Note:
+
+* For other clients, `from` should be changed to the corresponding client identifier.
 
 **Sanity check:**
 * `email` is a valid email address (RFC 2822)
@@ -200,14 +204,18 @@ For example,
     "expiration": "2014-02-16T20:58:30+00:00",
     "data": {
 		"user_id": 12345,
-		"ugl_token": a_long_hashed_string_token
+		"ugl_token": something
     }
 }
 ```
 
-The client should save the `user_id` and `ugl_token` and send them back to the server 
-so that the server can identify the user as logged in. Think of the `ugl_token` as a 
-special, volatile password associated with the user.
+Notes:
+
+* The client should save the `user_id` and `ugl_token` and send them back to the server 
+when requesting information so that the server can identify the user as logged in. Think 
+of the `ugl_token` as a special, volatile password associated with the user.
+* After first logging in, client should fetch the profile of the user and cache the profile array.
+	* When the profile array data gets changed, server will return a new profile array for the client to update local cache.
 
 #### Associated Errors
 * 100 - Email or password not provided
@@ -229,7 +237,11 @@ Register an account. **To be updated to reflect token-based system.**
 
 * Method: POST
 * URL: `api/register`
-* Data: `email`=something&`password`=pass&`confirm_pass`=pass&`first_name`=aaa&`last_name`=bbb&`agree`=true
+* Data: `from`=ugl_android&`email`=something&`password`=pass&`confirm_pass`=pass&`first_name`=aaa&`last_name`=bbb&`agree`=true
+
+Note:
+
+* For other clients, `from` should be changed to the corresponding client identifier.
 
 **Sanity check:**
 
