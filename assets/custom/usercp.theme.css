@@ -712,7 +712,7 @@ body.loading .ajax-loading {
 	position: relative;
 }
 
-.group-avatar {
+.large-avatar {
 	margin-top: 0.3em;
 	width: 70%;
 	height: 70%;
@@ -723,7 +723,7 @@ body.loading .ajax-loading {
 	-moz-box-shadow: 0 0 3px rgba(0, 0, 0, .8);
 }
 
-.group-avatar-big {
+.largest-avatar {
 	width: 95% !important;
 	height: 95% !important;
 }
@@ -735,15 +735,17 @@ body.loading .ajax-loading {
     width: 100px;
 }
 
-.modal-body .itemLabel {
-	font-size: 1.2em !important;
-	width: 140px;
+.modal-body .itemLabel, td.itemLabel {
+	font-size: 1.1em !important;
+	width: 20%;
+	min-width: 6em;
 	text-align:right;
 	padding-right: 0.2em;
 }
 
-.modal-body #description{
+.modal-body #description, td #description{
 	width: 90%;
+	max-width: 500px;
 	height: 6em;
 }
 

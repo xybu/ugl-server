@@ -27,6 +27,7 @@ The server side code of project Ugl.
 		 - [Change password](#9-change_password)
 		 - [Get profile of a user](#7-get-profile-of-a-user)
 		 - [Set profile for a user](#8-set-profile-for-a-user)
+		 - [Upload a user avatar](10-upload-user-avatar)
 	 - [Group API](#2-group-api)
 		 - [Get the groups a user joins](#1-list-groups-of)
 		 - [Get the profile of a aroup](#6-get-the-profile-of-a-group)
@@ -473,7 +474,47 @@ Upon success, the new user identity will be returned (see section [Get profile o
 
 Change the password of a user, provided that the user knows the original password.
 
-### 10) Upload Avatar
+### 10) Upload User Avatar
+
+Upload an image as the custom avatar.
+
+#### Request
+
+| Name   | Description                           |
+| ------ | ------------------------------------- |
+| Method | POST                                  |
+| URL    | `/api/user/upload_avatar`             |
+| DATA   | `user_id`=123&`ugl_token`=mytoken&... |
+
+* The image must be of `JPG`, `PNG`, or `GIF` format, and the file size must not exceed 100KiB.
+* The file field to POST (`...`) does not matter.
+* Server only accepts the FIRST file uploaded.
+* Clients may provide crop and preview panels to let the user customize the image before uploading.
+* To send POST multipart/data entry in Android, refer to http://stackoverflow.com/questions/2017414/post-multipart-request-with-android-sdk
+
+#### Response
+
+If the uploaded file is a parse-able image, server will transform it to `PNG` format. crop it with a maximum dmiension of `150`x`150`, and compress it as much as possible (note: PNG is loseless). 
+(As a result, GIF frames will be lost.)
+
+Upon success, server returns the new avatar url and client should update local cache to reflect it.
+
+For example, this returned data means the new `avatar_url` is `assets/upload/avatars/user_5.png`, a path relative to the server URI.
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-03-23T04:59:22+00:00",
+    "data": {
+        "avatar_url": "assets\/upload\/avatars\/user_5.png"
+    }
+}
+```
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
+* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 3 - File upload failed. Please check if the file is an image of JPEG, PNG, or GIF format with size no more than 100KiB.
 
 ***
 

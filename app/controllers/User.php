@@ -582,4 +582,28 @@ class User extends \Controller {
 			$this->json_printException($e);
 		}
 	}
+	
+	function api_uploadAvatar($base){
+		try {
+			$user = new \models\User();
+			$user_status = API::getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			
+			$upload = new \models\Upload();
+			$numOfFiles = $upload->uploadImages($base->get("UPLOAD_AVATARS_DIR"), array("user_" . $user_id . ".png"));
+			
+			if ($numOfFiles == 1) {
+				$new_avatar_url = $base->get("UPLOAD_AVATARS_DIR") . "user_" . $user_id . ".png";
+				$user_info["avatar_url"] = $new_avatar_url;
+				$user->save($user_info);
+				$this->json_printResponse(array("avatar_url" => $new_avatar_url));
+			} else if ($numOfFiles == 0)
+				throw new \Exception("File upload failed. Please check if the file is an image of JPEG, PNG, or GIF format with size no more than 100KiB.", 3);
+				// should use $upload->MAX_AVATAR_FILE_SIZE as max file size
+			else trigger_error("Uploaded more than one file: " . $numOfFiles, E_USER_ERROR);
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
+	}
 }

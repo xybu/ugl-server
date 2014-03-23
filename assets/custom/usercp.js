@@ -248,6 +248,84 @@ function init_wallet(){
 function init_settings(){
 	document.title = "Settings | Ugl";
 	$('#settingsTab a:first').tab('show');
+	
+	var bar = $('#bar');
+	var file_dom = $("#upload_avatar_form #avatar_file");
+	var prompt_dom = $("#upload_avatar_form #form_prompt");
+	
+	file_dom.change(function() {
+		if (this.files && this.files[0]) {
+			if (this.files[0].size > 102400)　{
+				alert("Sorry, file size exceeds 100KiB. Please choose another one.");
+				$(this).val("");
+				return false;
+			}
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				prompt_dom.html("");
+				prompt_dom.addClass("hidden");
+				$('#previewHolder').removeClass('animated bounceIn');
+				$('#previewHolder').error(function() {
+					prompt_dom.html("<span class=\"text-danger\">The selected file is not an image.</span>");
+					prompt_dom.removeClass("hidden");
+					file_dom.val("");
+					$("#previewHolder").attr("src", "assets/img/default-avatar.png");
+					return false;
+				}).attr('src', e.target.result);
+				$('#previewHolder').addClass('animated bounceIn');
+			}
+			reader.readAsDataURL(this.files[0]);
+		}
+	});
+	
+	$("#upload_avatar_form").ajaxForm({
+		url: "/api/user/upload_avatar",
+		dataType: 'json',
+		beforeSerialize: function() {
+			if (!file_dom.val()) {
+				prompt_dom.html("<span class=\"text-danger\">Please select an image to upload.</span>").removeClass("hidden");
+				return false;
+			}/* else if (file_dom.attr("files")[0].size > 102400){
+				prompt_dom.html("<span class=\"text-warning\">File must be an image of size no more than 100KiB.</span>").removeClass("hidden");
+				return false;
+			}*/
+		},
+		beforeSend: function() {
+			var percentVal = '0%';
+			bar.attr("aria-valuenow", 0);
+			bar.width(percentVal);
+			$("#bar_wrapper").removeClass("hidden");
+			prompt_dom.html("");
+			prompt_dom.addClass("hidden");
+		},
+		uploadProgress: function(event, position, total, percentComplete) {
+			var percentVal = percentComplete + '%';
+			bar.attr("aria-valuenow", percentComplete);
+			bar.width(percentVal);
+		},
+		success: function() {
+			var percentVal = '100%';
+			bar.attr("aria-valuenow", 100);
+			bar.width(percentVal);
+		},
+		complete: function(xhr) {
+			$("#bar_wrapper").addClass("hidden");
+			//console.log(xhr);
+			//status.html(xhr.responseText);
+			var response = xhr.responseJSON;
+			if (response.status == "success"){
+				$("#avatar_url").val(response.data.avatar_url);
+				$("#avatar_preview").attr("src", response.data.avatar_url + "?" + Math.random());
+				$("#avatar_url_help").html("<span class=\"text-success\">Upload successful.</span>");
+				$("#upload_modal").modal('hide');
+				$('#avatar_preview').addClass('animated tada');
+				$("#my_avatar").attr("src", response.data.avatar_url + "?" + Math.random());
+			} else {
+				prompt_dom.html("<span class=\"text-warning\">" + response.message + "</span>");
+				prompt_dom.removeClass("hidden");
+			}
+		}
+	});
 	ugl_panel_initialized = true;
 }
 
@@ -260,4 +338,19 @@ function limitTextArea(elId, counterId, max){
 		el.val(function (i, t) {return t.slice(0, -1); });
 		ct.text(max - $('<div/>').text(el.val()).html().length);
 	}
+}
+
+function refreshPreviewPic(elId, imgId, helperId){
+	if ($("#" + elId).length){	// is a DOM object
+		elId = $("#" + elId).val();
+	}
+	var old_img_src = $("#" + imgId).attr("src");
+	$("#" + helperId).html("");
+	if (elId != "")
+		$("#" + imgId).error(function() {
+			if (helperId == "") alert("Error loading image.");
+			else $("#" + helperId).html("<span class=\"text-danger\">Failed to load the specified image.</span>");
+			$("#" + imgId).attr("src", old_img_src);
+		}).attr("src", elId + "?" + Math.random());
+	else $("#" + imgId).attr("src", "assets/img/default-avatar.png");
 }

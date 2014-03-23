@@ -11,55 +11,67 @@
 			<li><a href="#stat" data-toggle="tab">Statistics</a></li>
 		</ul>
 		<div class="tab-content">
+			
 			<div class="tab-pane active" id="profile">
 				<h3 class="sub-header">Profile</h3>
-				<div class="row form-group">
-					<label class="col-sm-3 col-md-2">First Name</label>
-					<div class="col-sm-9 col-md-10">
-						<input type="text" id="first_name" name="first_name" placeholder="<?php echo $me["first_name"]?>" value="<?php echo $me["first_name"]?>" class="col-md-7 col-sm-6 col-xs-6" maxlength="100" required />
-						<div class="col-md-5 col-sm-6 col-xs-6 help-block" id="first_name_help">Letters only.</div>
-					</div>
-				</div>
-				<div class="row form-group">
-					<label class="col-sm-3 col-md-2">Last Name</label>
-					<div class="col-sm-9 col-md-10">
-						<input type="text" id="last_name" name="last_name" placeholder="<?php echo $me["last_name"]?>" value="<?php echo $me["last_name"]?>" class="col-md-7 col-sm-6 col-xs-6" maxlength="100" required />
-						<div class="col-md-5 col-sm-6 col-xs-6 help-block" id="last_name_help">Letters only.</div>
-					</div>
-				</div>
-				<div class="row form-group">
-					<label class="col-sm-3 col-md-2">Nickname</label>
-					<div class="col-sm-9 col-md-10">
-						<input type="text" id="nickname" name="nickname" placeholder="<?php echo $me["nickname"]?>" value="<?php echo $me["nickname"]?>" class="col-md-7 col-sm-6 col-xs-6" maxlength="100" required />
-						<div class="col-md-5 col-sm-6 col-xs-6 help-block" id="nickname_help"></div>
-					</div>
-				</div>
-				<div class="row form-group">
-					<label class="col-sm-3 col-md-2">Phone</label>
-					<div class="col-sm-9 col-md-10">
-						<input type="text" id="phone" name="phone" placeholder="<?php echo $me["phone"]?>" value="<?php echo $me["phone"]?>" class="col-md-7 col-sm-6 col-xs-6" maxlength="36" required />
-						<div class="col-md-5 col-sm-6 col-xs-6 help-block" id="phone_help"></div>
-					</div>
+				<div class="table-responsive">
+					<table class="table table-striped">
+						<tr class="form-group">
+							<td class="itemLabel text-left">First Name</td>
+							<td>
+								<input type="text" id="first_name" name="first_name" placeholder="<?php echo $me["first_name"]?>" value="<?php echo $me["first_name"]?>" size="30" maxlength="100" required />
+								<span class="help-block" id="first_name_help">Letters only.</span>
+							</td>
+						</tr>
+						<tr class="form-group">
+							<td class="itemLabel text-left">Last Name</td>
+							<td>
+								<input type="text" id="last_name" name="last_name" placeholder="<?php echo $me["last_name"]?>" value="<?php echo $me["last_name"]?>" size="30" maxlength="100" required />
+								<span class="help-block" id="last_name_help">Letters only.</span>
+							</td>
+						</tr>
+						<tr class="form-group">
+							<td class="itemLabel text-left">Nickname</td>
+							<td>
+								<input type="text" id="nickname" name="nickname" placeholder="<?php echo $me["nickname"]?>" value="<?php echo $me["nickname"]?>" size="30" maxlength="100" />
+								<span class="help-block" id="nickname_help">Letters only.</span>
+							</td>
+						</tr>
+						<tr class="form-group">
+							<td class="itemLabel text-left">Phone</td>
+							<td>
+								<input type="text" id="phone" name="phone" placeholder="<?php echo $me["phone"]?>" value="<?php echo $me["phone"]?>" size="30" maxlength="36" />
+								<span class="help-block" id="phone_help"></span>
+							</td>
+						</tr>
+					</table>
 				</div>
 				<h3 class="sub-header">Extra</h3>
-				<div class="row form-group">
-					<label class="col-sm-3 col-md-2">Avatar</label>
-					<div class="col-sm-9 col-md-10">
-						<input id="alias" name="alias" placeholder="Name of your group." class="col-md-7 col-sm-6 col-xs-6" required="" type="text">
-						<div class="col-md-5 col-sm-6 col-xs-6">error prompt</div>
-						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</div>
-					</div>
+				<div class="table-responsive">
+					<table class="table table-striped">
+						<tr class="form-group">
+							<td class="itemLabel text-left">Avatar URL</td>
+							<td>
+								<input type="text" id="avatar_url" name="avatar_url" placeholder="<?php echo empty($me["avatar_url"]) ? "Leave blank to use default one" : $me["avatar_url"]?>" value="<?php echo $me["avatar_url"]?>" size="60" maxlength="300" /> <button class="btn btn-default" type="button" onclick="refreshPreviewPic('avatar_url', 'avatar_preview', 'avatar_url_help')">Refresh</button> <button class="btn btn-info" type="button" data-toggle="modal" data-target="#upload_modal">Upload My Own</button>
+								<img id="avatar_preview" class="help-block large-avatar" src="<?php echo empty($me["avatar_url"]) ? "assets/img/default-avatar.png" : $me["avatar_url"]?>" />
+								<span class="help-block" id="avatar_url_help"></span>
+							</td>
+						</tr>
+						<tr class="form-group">
+							<td class="itemLabel text-left">Description</td>
+							<td>
+								<textarea id="description" name="description" maxlength="150" oninput="limitTextArea('description', 'desc_counter', 150);"><?php echo htmlspecialchars_decode($me["description"])?></textarea>
+								<div class="help-block"><span id="desc_counter"><?php echo 150 - strlen($me["description"])?></span> character(s) left</div>
+							</td>
+						</tr>
+					</table>
 				</div>
 				<div class="row form-group">
-					<label class="col-sm-3 col-md-2">Description</label>
-					<div class="col-sm-9 col-md-10">
-						<textarea id="description" name="description" maxlength="150" oninput="$('#desc_counter').text(150 - $('#description').val().length)"></textarea>
-						<div class="col-md-12 col-sm-12 col-xs-12 help-block"><span id="desc_counter">150</span> character(s) left</div>
+					<div class="col-sm-12 col-md-12 text-center hidden">
 					</div>
-				</div>
-				<div class="row form-group">
 					<div class="col-sm-12 col-md-12 text-center">
-						
+						<button class="btn btn-primary" type="submit">Update</button>
+						<button class="btn btn-default" type="button">Reset</button>
 					</div>
 				</div>
 			</div>
@@ -118,5 +130,43 @@
 			</div>
 		</div>
 	</div>
+	</div>
+</div>
+<div id="upload_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="upload_modalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button"><i class="fa fa-times"></i></button>
+				<h3 class="modal-title"><i class="fa fa-upload"></i> Upload Avatar</h3>
+			</div>
+			<form class="container-fluid" id="upload_avatar_form" method="post" enctype="multipart/form-data">
+				<div class="modal-body">
+					<div class="container-fluid">
+						<div class="row form-group">
+							<p class="bg-info" style="padding: 0.1em">You can upload a JPG, PNG, or GIF (only the first frame is saved) image whose size is no more than 100KiB.</p>
+							<div class="col-md-12">
+								<input type="file" id="avatar_file" name="avatar_file">
+							</div>
+							<div class="col-md-12 form-group text-center">
+								<img id="previewHolder" class="large-avatar" src="/assets/img/default-avatar.png" />
+							</div>
+						</div>
+						<div id="bar_wrapper" class="row form-group hidden">
+							<div class="col-md-12">
+								<div class="progress progress-striped active">
+									<div id="bar" class="progress-bar"  role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="hidden text-center" id="form_prompt">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" type="submit">Proceed</button>
+					<button data-dismiss="modal" class="btn btn-default" type="button">Cancel</button>
+				</div>
+			</form>	
+		</div>
 	</div>
 </div>

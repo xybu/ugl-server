@@ -67,10 +67,10 @@ class Upload extends \Model {
 					try {
 						$img = new \Image($name);
 						$img->resize($max_width, $max_height, true, false); // crop; no enlarge
-						imagepng(imagecreatefromstring($img->dump()), realpath(dirname($name) . "/../../" . $path) . "/" . $names[i], 9,  PNG_ALL_FILTERS);
+						imagepng(imagecreatefromstring($img->dump()), realpath(dirname($name) . "/../../" . $path) . "/" . $names[$i], 9,  PNG_ALL_FILTERS);
 						++$i;
 					} catch (\Exception $e){
-						//ignore exceptions
+						//var_dump($e);
 					}
 				}
 				unlink($name); // delete the temp upload file

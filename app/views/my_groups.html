@@ -7,7 +7,7 @@
 		foreach($groupList["groups"] as $item){
 			if (empty($item["avatar_url"])) $item["avatar_url"] = "assets/img/default-avatar-group.png";
 			$group_str = $group_str . "<div class=\"col-sm-6 col-md-4\" id=\"group_" . $item["id"] . "\" data-status=\"" . $item["status"] . "\" data-creator=\"" . $item["creator_user_id"] . "\">" .
-				"<div class=\"thumbnail\"><img class=\"group-avatar\" src=\"" . $item["avatar_url"] . "\" />" .
+				"<div class=\"thumbnail\"><img class=\"large-avatar\" src=\"" . $item["avatar_url"] . "\" />" .
 				"<div class=\"caption text-center\">" .
 				"<h3 class=\"group_alias\">" . $item["alias"] . "</h3>" .
 				"<p class=\"group_desc\">" . $item["description"] . "</p>" .
