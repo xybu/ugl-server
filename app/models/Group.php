@@ -217,12 +217,7 @@ class Group extends \Model {
 			$group_data["status"] = $status;
 		}
 		
-		if ($changed){
-			$this->save($group_data);
-			if ($this->cache->exists("group_id_" . $group_data["id"]))
-				$this->cache->set("group_id_" . $group_data["id"], $group_data);
-			//$this->cache->clear("group_id_" . $group_data["id"]);
-		}
+		if ($changed) $this->save($group_data);
 	}
 	
 	function save($group_data){
@@ -241,6 +236,8 @@ class Group extends \Model {
 				":prefs" => json_encode($group_data["_preferences"]),
 			)
 		);
+		if ($this->cache->exists("group_id_" . $group_data["id"]))
+			$this->cache->set("group_id_" . $group_data["id"], $group_data);
 	}
 	
 	function deleteById($gid){

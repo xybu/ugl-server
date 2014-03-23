@@ -253,11 +253,11 @@ class Group extends \Controller {
 			
 			if ($base->exists("POST.description"))
 				$group_description = $group->filterDescription($base->get("POST.description"));
-			else $group_description = "";
+			else $group_description = $target_group["description"];
 			
 			if ($base->exists("POST.tags"))
 				$group_tags = $group->filterTags($base->get("POST.tags"));
-			else $group_tags = "";
+			else $group_tags = $target_group["tags"];
 			
 			$group_status = $base->get("POST.status");
 			if (!$group->isValidStatus($group_status))
@@ -328,6 +328,48 @@ class Group extends \Controller {
 						
 			//TODO: fix the logic above
 			
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
+	}
+	
+	function api_uploadAvatar($base){
+		try {
+			$user = new \models\User();
+			$user_status = API::getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			
+			if (!$base->exists("POST.group_id"))
+				throw new \Exception("Group id not specified", 3);
+			
+			$target_gid = $base->get("POST.group_id");
+			if (!is_numeric($target_gid))
+				throw new \Exception("Invalid group id", 4);
+			
+			$group = new \models\Group();
+			
+			$target_group = $group->findById($target_gid);
+			if (empty($target_group))
+				throw new \Exception("Group not found", 5);
+			
+			$user_permissions = $group->getPermissions($user_id, $target_gid, $target_group);
+			
+			if (!$user_permissions["manage"])
+				throw new \Exception("Unauthorized request", 6);
+			
+			$upload = new \models\Upload();
+			$numOfFiles = $upload->uploadImages($base->get("UPLOAD_AVATARS_DIR"), array("group_" . $target_gid . ".png"));
+			
+			if ($numOfFiles == 1) {
+				$new_avatar_url = $base->get("UPLOAD_AVATARS_DIR") . "group_" . $target_gid . ".png";
+				$target_group["avatar_url"] = $new_avatar_url;
+				$group->save($target_group);
+				$this->json_printResponse(array("avatar_url" => $new_avatar_url));
+			} else if ($numOfFiles == 0)
+				throw new \Exception("File upload failed. Please check if the file is an image of JPEG, PNG, or GIF format with size no more than 100KiB.", 3);
+				// should use $upload->MAX_AVATAR_FILE_SIZE as max file size
+			else trigger_error("Uploaded more than one file: " . $numOfFiles, E_USER_ERROR);
 		} catch (\Exception $e){
 			$this->json_printException($e);
 		}
