@@ -98,7 +98,7 @@ class User extends \Controller {
 				
 				// if authentication already exists, reroute to dashboard
 				if ($oauth_info){
-					$base->set("SESSION.user", array("user_id" => $oauth_info["user_id"], "ugl_token" => $user->token_refresh(array("id" => $oauth_info["user_id"]))));
+					API::setUserStatus($base, $user, $oauth_info["user_id"], $user->token_refresh(array("id" => $oauth_info["user_id"])));
 					$base->reroute("@usercp(@panel=dashboard)");
 				}
 				
@@ -135,7 +135,7 @@ class User extends \Controller {
 					$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					$reroute_panel = "settings";
 				}
-				$base->set("SESSION.user", array("user_id" => $user_id, "ugl_token" => $user_token));
+				API::setUserStatus($base, $user, $user_id, $user_token);
 				$base->reroute("@usercp(@panel=". $reroute_panel .")");
 			}
 		} catch (\Exception $e) {
@@ -214,11 +214,14 @@ class User extends \Controller {
 	}
 	
 	function showUserPanel($base, $args){
-		if (!$base->exists("SESSION.user")) $this->backToHomepage($base);
-		$session_creds = $base->get("SESSION.user");
-		
 		$user = new \models\User();
-		$me = $user->findById($session_creds["user_id"]);
+		try {
+			$session_creds = API::getUserStatus($base, $user);
+		} catch (\Exception $e) {
+			$this->backToHomepage($base);
+		}
+		
+		$me = $session_creds["user_info"];
 		//var_dump($me);
 		//die();
 		
@@ -290,15 +293,14 @@ class User extends \Controller {
 	}
 	
 	function loadUserPanel($base, $args){
-		if (!$base->exists("SESSION.user")) die();
-		
-		$session_creds = $base->get("SESSION.user");
-		
 		$user = new \models\User();
-		$me = $user->findById($session_creds["user_id"]);
-		
-		if (empty($me) or !$user->token_verify($me, $session_creds["ugl_token"]))
+		try {
+			$session_creds = API::getUserStatus($base, $user);
+		} catch (\Exception $e) {
 			die();
+		}
+		
+		$me = $session_creds["user_info"];
 		
 		$panel = $args["panel"];
 		
@@ -364,12 +366,14 @@ class User extends \Controller {
 	}
 	
 	function loadUserModal($base, $args){
-		if (!$base->exists("SESSION.user")) die();
-		
-		$session_creds = $base->get("SESSION.user");
-		
 		$user = new \models\User();
-		$me = $user->findById($session_creds["user_id"]);
+		try {
+			$session_creds = API::getUserStatus($base, $user);
+		} catch (\Exception $e) {
+			die();
+		}
+		
+		$me = $session_creds["user_info"];
 		
 		if (empty($me) or !$user->token_verify($me, $session_creds["ugl_token"]))
 			die();
@@ -428,7 +432,7 @@ class User extends \Controller {
 	function backToHomepage($base, $revokeSession = true, $redirect = true){
 		//var_dump($base->get("SESSION.user"));
 		//die();
-		if ($revokeSession) $base->clear("SESSION.user");
+		if ($revokeSession) API::voidUserStatus($base);
 		if ($redirect) $base->reroute("/");
 		else die();
 	}
@@ -468,9 +472,8 @@ class User extends \Controller {
 				throw new \Exception("Email already registered", 104);
 			
 			$new_user_info = $user->create($email, $password, $first_name, $last_name);
-			$new_user_creds = array("user_id" => $new_user_info["id"], "ugl_token" => $new_user_info["ugl_token"]);
-			$base->set("SESSION.user", $new_user_creds);
-			$this->json_printResponse($new_user_creds);
+			API::setUserStatus($base, $user, $new_user_info["id"], $new_user_info["ugl_token"]);
+			$this->json_printResponse(array("user_id" => $new_user_info["id"]));
 		} catch (\Exception $e){
 			$this->json_printException($e);
 		}

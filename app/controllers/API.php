@@ -18,7 +18,7 @@ class API extends \Controller {
 	
 	public static $API_KEYS = array(
 		"ugl_android" => "7wR+GgG/r2Mm7hkymXXeMGuXU9ojN2HV5AlIuoJqg+TZ41DlwCIQpf93A3MJs2hI",
-		"ugl_web" => "2IwehG2VEm3WhjLRMK/1aUPqAdW7KNvvRuskedxuOgOQ2jbO+wkKs5p5qJwh98GM"
+		"ugl_common" => "2IwehG2VEm3WhjLRMK/1aUPqAdW7KNvvRuskedxuOgOQ2jbO+wkKs5p5qJwh98GM",
 	);
 	
 	function __construct(){	
@@ -59,8 +59,8 @@ class API extends \Controller {
 			
 			// user found?
 			if ($user_data){
-				$user_creds = array("user_id" => $user_data["id"], "ugl_token" => $user_data["ugl_token"]);
-				$base->set("SESSION.user", $user_creds);
+				self::setUserStatus($base, $user, $user_data["id"], $user_data["ugl_token"]);
+				$user_creds = array("user_id" => $user_data["id"]);
 				if ($base->exists("SESSION.loginFail_count")) $base->clear("SESSION.loginFail_count");
 				$this->json_printResponse($user_creds);
 			} else {
@@ -76,9 +76,9 @@ class API extends \Controller {
 	}
 	
 	function web_logoutUser($base){
-		if ($base->exists("SESSION.user")){
+		if ($base->exists("COOKIE.ugl_user")){
 			$this->revokeToken($base, true);
-			$base->clear("SESSION.user");
+			self::voidUserStatus($base);
 		}
 		$this->json_printResponse(array("message" => "You have successfully logged out"));
 	}
@@ -87,9 +87,8 @@ class API extends \Controller {
 		try {
 			$user = new \models\User();
 			$user_status = self::getUserStatus($base, $user);
-			$user_id = $user_status["user_id"];
 			
-			$user->token_refresh(array("id" => $user_id));
+			$user->token_refresh($user_status["user_info"]);
 			
 			if (!$no_output) $this->json_printResponse(array("message" => "Token has been revoked."));
 		} catch (\Exception $e){
@@ -162,22 +161,28 @@ class API extends \Controller {
 		$user_id = -1;
 		$token = "";
 		
-		if ($base->exists("POST.user_id") and $base->exists("POST.ugl_token")){
-			// app client POST API
-			$user_id = $base->get("POST.user_id");
-			$token = $base->get("POST.ugl_token");
-		} else if ($base->exists("SESSION.user")){
-			// web client session
-			$session_user = $base->get("SESSION.user");
-			$user_id = $session_user["user_id"];
-			$token = $session_user["ugl_token"];
-		} else throw new \Exception("You should log in to perform the request", 1);
+		if (!$base->exists("COOKIE.ugl_user"))
+			throw new \Exception("You should log in to perform the request", 1);
 		
-		// can handle nonexistent user id
+		$cookie_user = self::api_decrypt($base->get("COOKIE.ugl_user"), self::$API_KEYS["ugl_common"]);
+		if (empty($cookie_user)) throw new \Exception("Unauthorized request", 2);
+		
+		$cookie_user = unserialize($cookie_user);
+		$user_id = $cookie_user["user_id"];
+		$token = $cookie_user["ugl_token"];
 		$user_info = $user->findById($user_id);
 		if (empty($user_info) or !$user->token_verify($user_info, $token))
 			throw new \Exception("Unauthorized request", 2);
 		
 		return array("user_id" => $user_id, "user_info" => $user_info, "ugl_token" => $token);
+	}
+	
+	static function setUserStatus($base, $user, $id, $token){
+		$user_creds = array("user_id" => $id, "ugl_token" => $token);
+		$base->set("COOKIE.ugl_user", self::api_encrypt(serialize($user_creds), self::$API_KEYS["ugl_common"]), $user::TOKEN_VALID_HRS * 3600);
+	}
+	
+	static function voidUserStatus($base){
+		$base->clear("COOKIE.ugl_user");
 	}
 }

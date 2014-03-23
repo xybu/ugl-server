@@ -2,6 +2,8 @@
 
 The server side code of project Ugl.
 
+## Please pay attention to the new Cookie-based authentication mechanism ##
+
 # Table of Contents
 
  - [Introduction](#introduction)
@@ -204,17 +206,18 @@ For example,
     "status": "success",
     "expiration": "2014-02-16T20:58:30+00:00",
     "data": {
-		"user_id": 12345,
-		"ugl_token": something
+		"user_id": 12345
     }
 }
 ```
 
 Notes:
 
-* The client should save the `user_id` and `ugl_token` and send them back to the server 
-when requesting information so that the server can identify the user as logged in. Think 
-of the `ugl_token` as a special, volatile password associated with the user.
+* The client should save the `user_id` for later use. 
+* In the returned HTTP response, there is a cookie named `ugl_user`. 
+	 * The client must always include this cookie to pass server authentication.
+	 * If the cookie fails authentication, an error will be given
+	 * If the cookie is missing, the requester will be treated as guests
 * After first logging in, client should fetch the profile of the user and cache the profile array.
 	* When the profile array data gets changed, server will return a new profile array for the client to update local cache.
 
@@ -226,14 +229,18 @@ of the `ugl_token` as a special, volatile password associated with the user.
 * 104 - Your account is temporarily on held for security concern. Please retry later or use social account to log in (too many failed attempts)
 
 ### 2) logout
-Logout is a web client-only event. For mobile apps please use [revokeToken](#5-revoketoken) event.
+Logout is a web client-only event. 
+
+For mobile apps please use [revokeToken](#5-revoketoken) event.
 
 #### Associated Errors
 
 ### 3) register
-Register an account. **To be updated to reflect token-based system.**
+
+Create an account.
 
 #### Request
+
 **Format:**
 
 * Method: POST
@@ -258,9 +265,11 @@ Note:
 refer to the Encryption section.
 
 #### Response
+
 Same as the log in response.
 
 #### Associated Errors
+
 * 100 - Email, password, or name not provided
 * 101 - Invalid email address
 * 102 - Password and confirm password do not match
@@ -270,27 +279,26 @@ Same as the log in response.
 * 106 - Password should be at least 6 chars
 
 ### 4) revokeToken
+
 Revoke the token used currently.
 
 #### Request
+
 **Format:**
 
 * Method: POST
 * URL: `api/revokeToken`
-* Data: `user_id`=myid&`ugl_token`=mytoken
-
-**Sanity check:**
-none.
 
 #### Response
+
 A typical success message with data->message being "Token has been revoked.".
 
 **Note:**
-* This event is used to log out a user.
-* Only when the user id and token really match will the token be reset.
+* This event is used to log a user out.
+* The `ugl_user` cookie must be valid in order to perform the request.
 
 #### Associated Errors
-* 1 - Authentication fields missing (`user_id` or `ugl_token` is empty or null)
+* 1 - Authentication fields missing (Cookie `ugl_user` is missing)
 * 2 - User id should be a number (`user_id` is not a numeric value)
 
 ### 5) oauth_clientCallback
@@ -346,6 +354,7 @@ And then use two-way encryption to encode the json text above. Let $data denote 
 * Data: `from`=ugl_android&`data`=$data
 
 #### Response
+
 Same as the log in response.
 
 #### Associated Errors
@@ -387,17 +396,17 @@ Android client should go to log in activity.
 
 Get the profile of the user.
 
-__Last Update__: March 21, 2014
+__Last Update__: March 23, 2014
 
 #### Request
 | Name   | Description                       |
 | ------ | --------------------------------- |
 | Method | POST                              |
 | URL    | `api/user/info/@target_user_id`   |
-| DATA   | `user_id`=123&`ugl_token`=mytoken |
+| DATA   | none                              |
 
-* `user_id` and `ugl_token` are the credentials to verify the requester.
 * `@target_user_id` in the URL is the ID of the user to fetch profile.
+* Don't forget the `ugl_user` cookie.
 
 #### Response
 
@@ -429,8 +438,8 @@ Upon success, server will return something like
 * When fetching others' profile, if the target user does not allow others to view his / her profile, an error will occur.
 
 #### Associated Errors
-* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
-* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 1 - You should log in to perform the request (Cookie `ugl_user` is missing)
+* 2 - Unauthorized request (Authentication expired. Re-login.)
 * 3 - Invalid user id (`@target_user_id` is not numerical)
 * 4 - User not found (`@target_user_id` does not exist)
 * 5 - The profile is set private (target user does not allow you to view his / her profile)
@@ -449,7 +458,7 @@ __Last Update__: March 23, 2014
 | ------ | --------------------------------- |
 | Method | POST                              |
 | URL    | `/api/user/edit`                  |
-| DATA   | `user_id`=123&`ugl_token`=mytoken&... |
+| DATA   | `...`                             |
 
 * `...` stands for `email`=new_email&`first_name`=aaaa&`last_name`=bbbb&`nickname`=nick&`avatar_url`=blah&`phone`=123&`description`=oops&`autoAcceptInvitation`=true|false&`showMyProfile`=true|false&`showMyPublicGroups`=true|false
 * Any un-POSTed field will remain unchanged
@@ -464,8 +473,8 @@ __Last Update__: March 23, 2014
 Upon success, the new user identity will be returned (see section [Get profile of a user](#7-get-profile-of-a-user) with the requester being the target user).
 
 #### Associated Errors
-* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
-* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 1 - You should log in to perform the request (Cookie `ugl_user` is missing)
+* 2 - Unauthorized request (Authentication expired. Re-login.)
 * 3 - Invalid email address
 * 4 - Email already registered
 * 5 - First name or last name should be non-empty words
@@ -484,7 +493,7 @@ Upload an image as the custom avatar.
 | ------ | ------------------------------------- |
 | Method | POST                                  |
 | URL    | `/api/user/upload_avatar`             |
-| DATA   | `user_id`=123&`ugl_token`=mytoken&... |
+| DATA   | ...                                   |
 
 * The image must be of `JPG`, `PNG`, or `GIF` format, and the file size must not exceed `100KiB`.
 * The name of the file field to POST (`...`) does not matter.
@@ -512,8 +521,8 @@ For example, this returned data means the new `avatar_url` is `assets/upload/ava
 
 #### Associated Errors
 
-* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
-* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 1 - You should log in to perform the request (Cookie `ugl_user` is missing)
+* 2 - Unauthorized request (Authentication expired. Re-login.)
 * 3 - File upload failed. Please check if the file is an image of JPEG, PNG, or GIF format with size no more than 100KiB.
 
 ***
@@ -553,14 +562,16 @@ List the groups a user has joined.
 | ------ | ------------------------------------------------------- |
 | Method | POST                                                    |
 | URL    | `/api/user/listGroup/@target_user_id`                   |
-| DATA   | `user_id`=123&`ugl_token`=mytoken                       |
+| DATA   | none                                                    |
 
 In the URL, `@target_user_id` is the id of the user whose groups are to be listed. For example, to get the groups of user whose id is `444`, the URL should be `api/listGroupsOf/444`.
 
 `user_id` and `ugl_token` are the log in credentials of the requester. No guest can perform the operation.
 
 #### Response
-The API response to `/api/listGroupsOf/2` looks like (more fields may be added in the future)
+The API response to `/api/user/listGroup/2` looks like (more fields may be added in the future)
+
+__Example Outdated.__
 
 ```javascript
 {
@@ -632,8 +643,8 @@ Notes:
 * Group preference fields will not list in the array. To get the group preference, the request must be an admin requesting the group info (see getInfo API).
 
 #### Associated Errors
-* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
-* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 1 - You should log in to perform the request (Cookie `ugl_user` is missing)
+* 2 - Unauthorized request (Authentication expired. Re-login.)
 * 3 - User id should be a number (`@target_user_id` is not numerical)
 * 4 - The user does not exist (user whose id is `@target_user_id` does not exist)
 
@@ -645,7 +656,7 @@ Create a new group.
 | ------ | ------------------------------------------------------- |
 | Method | POST                                                    |
 | URL    | `/api/group/create`                                     |
-| DATA   | `user_id`=123&`ugl_token`=mytoken&`alias`=group_name&`description`=group_description&`tags`=group_tags&`status`=1  |
+| DATA   | `alias`=group_name&`description`=group_description&`tags`=group_tags&`status`=1  |
 
 URLEncode the fields when necessary.
 
@@ -684,8 +695,8 @@ Upon success, server will return a success message, and the filtered group data:
 
 #### Associated Errors
 
-* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
-* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 1 - You should log in to perform the request (Cookie `ugl_user` is missing)
+* 2 - Unauthorized request (Authentication expired. Re-login.)
 * 3 - Group name is not of the specified format. Plese check
 * 4 - Group name "blah" is already taken
 * 5 - Please choose a valid status option from the list
@@ -701,7 +712,7 @@ This API combines two operations of leaving and deleting a group into one, given
 | Method | POST                                      |
 | URL    | `/api/group/leave`                        |
 
-* POST data `user_id`=123&`ugl_token`=mytoken&`group_id`=target_group_id
+* POST data `group_id`=target_group_id
 * When the creator leaves the group, the group will be removed (deleted)
 	 * He / she can choose to notify all group members of the shutdown by POSTing a parameter "`notify`=true"
 * When an admin (or whoever has "manage" permission) wants to kick a group user other than himself, also POST a parameter "`target_user_id`=user_to_kick"
@@ -723,8 +734,8 @@ Upon success, the requester will receive one of the following depending on the p
 
 #### Associated Errors
 
-* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
-* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 1 - You should log in to perform the request (Cookie `ugl_user` is missing)
+* 2 - Unauthorized request (Authentication expired. Re-login.)
 * 3 - Group id not specified (`group_id` is not POSTed)
 * 4 - Invalid group id (`group_id` is not a number)
 * 5 - Group not found
@@ -749,7 +760,7 @@ Edit the profile of the group.
 | ------ | ------------------------------------------------------- |
 | Method | POST                                                    |
 | URL    | `/api/group/edit`                                     |
-| DATA   | `user_id`=123&`ugl_token`=mytoken&`group_id`=123&`alias`=group_name&`description`=group_description&`tags`=group_tags&`status`=new_vis  |
+| DATA   | `group_id`=123&`alias`=group_name&`description`=group_description&`tags`=group_tags&`status`=new_vis  |
 
 #### Response
 
@@ -783,8 +794,8 @@ Upon success, server will return a success message with the new group data
 
 #### Associated Errors
 
-* 1 - You should log in to perform the request (At least one of POST fields `user_id` and `ugl_token` is missing)
-* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 1 - You should log in to perform the request (Cookie `ugl_user` is missing)
+* 2 - Unauthorized request (Authentication expired. Re-login.)
 * 3 - Group id not specified (`group_id` is not POSTed)
 * 4 - Invalid group id (`group_id` is not a number)
 * 5 - Group not found
@@ -802,7 +813,7 @@ Return the group information and the role permissions of the requester.
 | ------ | ----------------------------------------------------- |
 | Method | POST                                                  |
 | URL    | `/api/group/info`                                     |
-| DATA   | `user_id`=123&`ugl_token`=mytoken&`group_id`=123      |
+| DATA   | `group_id`=123      |
 
 * If `user_id` is missing, then the role will be **guest**
 	 * If the group does not allow guests to view its profile, an error message will return
@@ -864,7 +875,7 @@ Upon success, a JSON object like the following will be returned:
 #### Associated Errors
 
 * 1 - You should log in to perform the request (Only when `user_id` is given) 
-* 2 - Unauthorized request (`user_id` and `ugl_token` do not match the user)
+* 2 - Unauthorized request (Authentication expired. Re-login.)
 * 3 - Group id not specified (`group_id` is not POSTed)
 * 4 - Invalid group id (`group_id` is not a number)
 * 5 - Group not found

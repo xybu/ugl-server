@@ -70,7 +70,7 @@ class Group extends \Controller {
 	function api_getInfo($base){
 		try {
 			$user = new \models\User();
-			if ($base->exists("SESSION.user") or $base->exists("POST.user_id")){
+			if ($base->exists("COOKIE.ugl_user")){
 				$user_status = API::getUserStatus($base, $user);
 				$user_id = $user_status["user_id"];
 			} else {
@@ -376,40 +376,7 @@ class Group extends \Controller {
 	}
 	
 	function html_showGroupPage($base){
-		
-		$user = new \models\User();
-		$me = $base->get("SESSION.user");
-		$panel = $base->get("PARAMS.panel");
-		
-		if (!$user->verifyToken($me["id"], $me["ugl_token"])){
-			$me["id"] = -1;
-			$my_profile = null;
-		} else {
-			$my_profile = $user->getUserProfile($me["id"]);
-		}
-		
-		$item_id = $base->get("PARAMS.group_id");
-		if (!is_numeric($item_id))
-			throw new \Exception("Group id should be a number", 3);
-		
-		$group = new \models\Group();
-		$group_info = $group->findById($item_id);
-		
-		if (!$group_info)
-			throw new \Exception("Group not found", 4);
-		
-		$my_permissions = $group->getPermissions($me["id"], $item_id, $group_info);
-		
-		if (!$my_permissions["view_profile"])
-			throw new \Exception("You are not allowed to view the profile of this group", 5);
-		$base->set("my_permissions", $my_permissions);
-		$base->set("group_info", $group_info);
-		$sub_panel = "group";
-		
-		$base->set('page_title','Unified Group Life');
-		$base->set('group_header', true);
-		$base->set('group_footer', true);
-		$this->setView('group.html');
+		die();
 	}
 	
 }
