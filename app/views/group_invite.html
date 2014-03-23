@@ -1,0 +1,41 @@
+						<h4 class="sub-header">Profile</h4>
+						<form class="form-horizontal" method="post" action="api/group/edit" id="edit_group_form">
+							<input type="hidden" name="group_id" value="<?php echo $group_info["id"]?>" />
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td class="itemLabel">Name</td>
+										<td><input type="text" id="alias" name="alias" value="<?php echo $group_info["alias"]?>" required maxlength="32">
+										<p class="help-block">Required. Allow letters, digits, "-", and "_". No more than 32 characters.</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Description</td>
+										<td><textarea id="description" name="description" maxlength="150" oninput="limitTextArea('description', 'desc_counter', 150);"><?php echo htmlspecialchars_decode($group_info["description"])?></textarea>
+										<p class="help-block"><span id="desc_counter"><?php echo 150 - strlen($group_info["description"])?></span> character(s) left</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Tags</td>
+										<td><input type="text" id="tags" name="tags" value="<?php echo $group_info["tags"]?>" size="40">
+										<p class="help-block">Optional. Words separated by spaces.</p></td>
+									</tr>
+									<tr>
+										<td class="itemLabel">Status</td>
+										<td>
+											<input name="status" id="status-1" value="1"<?php if ($group_info["status"] == 1) echo " checked=\"checked\""?> type="radio">
+											<label for="status-2">Inactive - Group is accessible but frozen (can be re-activated later).</label><br>
+											<input name="status" id="status-2" value="2"<?php if ($group_info["status"] == 2) echo " checked=\"checked\""?> type="radio">
+											<label for="status-2">Private - Only group members can see the group.</label><br>
+											<input name="status" id="status-3" value="3"<?php if ($group_info["status"] == 3) echo " checked=\"checked\""?> type="radio">
+											<label for="status-3">Public - Everyone can see the group.</label>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="text-center">
+							<p class="hidden text-center" id="form_prompt"></p>
+							<button class="btn btn-primary" type="submit">Update</button>
+							<button class="btn btn-default" type="button">Reset</button>
+						</div>
+						</form>
