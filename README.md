@@ -440,7 +440,7 @@ Update the profile and preferences for the requester.
 
 To change the password for a user, use the API entry named `change_password`.
 
-__Last Update__: March 21, 2014
+__Last Update__: March 23, 2014
 
 #### Request
 
@@ -451,13 +451,11 @@ __Last Update__: March 21, 2014
 | DATA   | `user_id`=123&`ugl_token`=mytoken&... |
 
 * `...` stands for `email`=new_email&`first_name`=aaaa&`last_name`=bbbb&`nickname`=nick&`avatar_url`=blah&`phone`=123&`description`=oops&`autoAcceptInvitation`=true|false&`showMyProfile`=true|false&`showMyPublicGroups`=true|false
-* `email`, `first_name` and `last_name` are required
-	 * `email`, if changed, must be an email that is not registered yet
-	 * `first_name` and `last_name` are non-empty string
-* `nickname`, `avatar_url`, `phone`, if un-POSTed, will be changed to empty string
-	 * note: empty string for `avatar_url` indicates to use the default one
+* Any un-POSTed field will remain unchanged
+* `email`, if changed, must be an email that is not registered yet
+* `first_name` and `last_name` are non-empty string if POSTed
+* empty string for `avatar_url` indicates to use the default one
 * `description` will be HTML-encoded (see the description field for Group identity)
-	 * if un-POSTed, `description` will remain unchanged to save data transmission for the client
 * For every preference field, simply POST in the format `key=value`.
 
 #### Response

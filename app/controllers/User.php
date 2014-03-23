@@ -252,6 +252,15 @@ class User extends \Controller {
 					
 					if (!$my_permissions["view_profile"])
 						throw new \Exception("You are not allowed to view the profile of this group", 5);
+					
+					$new_users = array();
+					foreach ($group_info["users"] as $role => $ids){
+						foreach ($ids as $key => $val)
+							$new_users[$role][] = $user->filterOutPrivateKeys($user->findById($val));
+					}
+				
+					$group_info["users"] = $new_users;
+					
 					$base->set("my_permissions", $my_permissions);
 					$base->set("group_info", $group_info);
 					$sub_panel = "group";
@@ -318,6 +327,15 @@ class User extends \Controller {
 					
 					if (!$my_permissions["view_profile"])
 						throw new \Exception("You are not allowed to view the profile of this group", 5);
+					
+					$new_users = array();
+					foreach ($group_info["users"] as $role => $ids){
+						foreach ($ids as $key => $val)
+							$new_users[$role][] = $user->filterOutPrivateKeys($user->findById($val));
+					}
+				
+					$group_info["users"] = $new_users;
+					
 					$base->set("my_permissions", $my_permissions);
 					$base->set("group_info", $group_info);
 					$sub_panel = "group";
@@ -490,33 +508,55 @@ class User extends \Controller {
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
 			
-			$email = $base->get("POST.email");
-			if (!$user->isValidEmail($email))
-				throw new \Exception("Invalid email address", 3);
-			else if ($email != $user_info["email"]){
-				$dup_user_info = $user->findByEmail($email);
-				if ($dup_user_info)
-					throw new \Exception("Email already registered", 4);
+			if ($base->exists("POST.email")){
+				$email = $base->get("POST.email");
+				if (!$user->isValidEmail($email))
+					throw new \Exception("Invalid email address", 3);
+				else if ($email != $user_info["email"]){
+					$dup_user_info = $user->findByEmail($email);
+					if ($dup_user_info) throw new \Exception("Email already registered", 4);
+				}
+				$user_info["email"] = $email;
 			}
 			
-			$first_name = $user->filterHtmlChars($base->get("POST.first_name"));
-			$last_name = $user->filterHtmlChars($base->get("POST.last_name"));
-			$nickname = $user->filterHtmlChars("" . $base->get("POST.nickname"));
+			if ($base->exists("POST.first_name"))
+				$first_name = $user->filterHtmlChars($base->get("POST.first_name"));
+			else $first_name = $user_info["first_name"];
+			
+			if ($base->exists("POST.last_name"))
+				$last_name = $user->filterHtmlChars($base->get("POST.last_name"));
+			else $last_name = $user_info["last_name"];
+			
+			if ($base->exists("POST.nickname"))
+				$nickname = $user->filterHtmlChars($base->get("POST.nickname"));
+			else $nickname = $user_info["nickname"];
+			
+			$first_name = $user->filterHtmlChars($first_name);
+			$last_name = $user->filterHtmlChars($last_name);
+			$nickname = $user->filterHtmlChars($last_name);
 			
 			if (!$user->isValidName($first_name) or !$user->isValidName($last_name))
 				throw new \Exception("First name or last name should be non-empty words", 5);
 			
-			$avatar_url = $base->get("POST.avatar_url");
-			if (empty($avatar_url)) $avatar_url = "";
+			if ($base->exists("POST.avatar_url")){
+				$avatar_url = $base->get("POST.avatar_url");
+				if (empty($avatar_url)) $avatar_url = "";
+				$user_info["avatar_url"] = $avatar_url;
+			}
 			
-			$phone = $base->get("POST.phone");
-			if (empty($phone)) $phone = "";
+			if ($base->exists("POST.phone")){
+				$phone = $base->get("POST.phone");
+				if (empty($phone)) $phone = "";
+				$user_info["phone"] = $phone;
+			}
 			
-			$description = $user->filterDescription($base->get("POST.description"));
-			if (empty($description)) $description = $user_info["description"];
+			if ($base->exists("POST.description")){
+				$description = $user->filterDescription($base->get("POST.description"));
+				if (empty($description)) $description = "";
+				$user_info["description"] = $description;
+			}
 			
-			$prefs = $user::$DEFAULT_USER_PREFERENCES;
-			$prefs_different = false;
+			$prefs = $user_info["_preferences"];
 			
 			foreach ($prefs as $key => $value){
 				if ($base->exists("POST." . $key)){
@@ -527,12 +567,9 @@ class User extends \Controller {
 				}
 			}
 			
-			$user_info["email"] = $email;
 			$user_info["first_name"] = $first_name;
 			$user_info["last_name"] = $last_name;
 			$user_info["nickname"] = $nickname;
-			$user_info["phone"] = $phone;
-			$user_info["description"] = $description;
 			$user_info["_preferences"] = $prefs;
 			
 			$user->save($user_info);

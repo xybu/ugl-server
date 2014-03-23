@@ -215,10 +215,12 @@ if (isset($group_header)) :
 				<?php
 					foreach ($group_info["users"] as $role => $list){
 						echo "<div class=\"row\">";
-						echo "<h4 class=\"col-sm-12 col-md-12\">" . $role . " <span class=\"badge\">" . count($list) . "</span></h4>";
-						foreach ($list as $role_user_id)
-							echo "<img class=\"col-xs-1 col-sm-1 col-md-2\" src=\"assets/img/default-avatar.png\" />";
-						echo "</div>";
+						echo "<h4 class=\"col-xs-12 col-sm-12 col-md-12\">" . $role . " <span class=\"badge\">" . count($list) . "</span></h4><div class=\"col-xs-12 col-sm-12 col-md-12 avatars\">";
+						foreach ($list as $role_user_info){
+							if ($role_user_info["avatar_url"] == "") $role_user_info["avatar_url"] = "assets/img/default-avatar.png";
+							echo "<img src=\"" . $role_user_info["avatar_url"] . "\" alt=\"" . $role_user_info["first_name"] . " " . $role_user_info["last_name"] . "\" />";
+						}
+						echo "</div></div>";
 					}
 				?>
 				<!-- a pagination here? -->
@@ -236,7 +238,8 @@ if (isset($group_header)) :
 		</section>
 	</div>
 </div>
-<?php if ($my_permissions["manage"]) : ?>
+<?php 
+if ($my_permissions["manage"]) : ?>
 <div id="manage_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="manage_group_modalLabel" aria-hidden="true" data-href="async/group/<?php echo $group_info["id"]?>/man">
 	<div class="modal-dialog modal-adaptive">
 		<div class="modal-content">

@@ -102,7 +102,7 @@ class Group extends \Controller {
 							
 				foreach ($group_info["users"] as $role => $ids){
 					foreach ($ids as $key => $val)
-						$new_users[$role][] = $user->findById($val);
+						$new_users[$role][] = $user->filterOutPrivateKeys($user->findById($val));
 				}
 				
 				$target_group["users"] = $new_users;

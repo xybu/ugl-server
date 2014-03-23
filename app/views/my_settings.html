@@ -5,6 +5,8 @@
 		<ul class="nav nav-tabs" id="settingsTab">
 			<li class="active"><a href="#profile" data-toggle="tab">Profile</a></li>
 			<li><a href="#preferences" data-toggle="tab">Preferences</a></li>
+			<li><a href="#groups" data-toggle="tab">Groups</a></li>
+			<li><a href="#boards" data-toggle="tab">Boards</a></li>
 			<li><a href="#accounts" data-toggle="tab">Accounts &amp; Devices</a></li>
 			<li><a href="#stat" data-toggle="tab">Statistics</a></li>
 		</ul>
@@ -14,47 +16,32 @@
 				<div class="row form-group">
 					<label class="col-sm-3 col-md-2">First Name</label>
 					<div class="col-sm-9 col-md-10">
-						<input id="alias" name="alias" placeholder="Name of your group." class="col-md-7 col-sm-6 col-xs-6" required="" type="text">
-						<div class="col-md-5 col-sm-6 col-xs-6">error prompt</div>
-						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</div>
+						<input type="text" id="first_name" name="first_name" placeholder="<?php echo $me["first_name"]?>" value="<?php echo $me["first_name"]?>" class="col-md-7 col-sm-6 col-xs-6" maxlength="100" required />
+						<div class="col-md-5 col-sm-6 col-xs-6 help-block" id="first_name_help">Letters only.</div>
 					</div>
 				</div>
 				<div class="row form-group">
 					<label class="col-sm-3 col-md-2">Last Name</label>
 					<div class="col-sm-9 col-md-10">
-						<input id="alias" name="alias" placeholder="Name of your group." class="col-md-7 col-sm-6 col-xs-6" required="" type="text">
-						<div class="col-md-5 col-sm-6 col-xs-6">error prompt</div>
-						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</div>
+						<input type="text" id="last_name" name="last_name" placeholder="<?php echo $me["last_name"]?>" value="<?php echo $me["last_name"]?>" class="col-md-7 col-sm-6 col-xs-6" maxlength="100" required />
+						<div class="col-md-5 col-sm-6 col-xs-6 help-block" id="last_name_help">Letters only.</div>
 					</div>
 				</div>
 				<div class="row form-group">
-					<label class="col-sm-3 col-md-2">Main email</label>
+					<label class="col-sm-3 col-md-2">Nickname</label>
 					<div class="col-sm-9 col-md-10">
-						<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
-						<label for="visibility-0">aaa@bbb.com</label><br>
-						<input name="visibility" id="visibility-1" value="1" type="radio">
-						<label for="visibility-1">ccc@ddd.com</label><br>
-						<input name="visibility" id="visibility-1" value="1" type="radio">
-						<label for="visibility-1">Add a new one</label><br>
-						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Main email address is the email you use to log in and receive notifications.</div>
+						<input type="text" id="nickname" name="nickname" placeholder="<?php echo $me["nickname"]?>" value="<?php echo $me["nickname"]?>" class="col-md-7 col-sm-6 col-xs-6" maxlength="100" required />
+						<div class="col-md-5 col-sm-6 col-xs-6 help-block" id="nickname_help"></div>
 					</div>
 				</div>
 				<div class="row form-group">
 					<label class="col-sm-3 col-md-2">Phone</label>
 					<div class="col-sm-9 col-md-10">
-						<input id="alias" name="alias" placeholder="Name of your group." class="col-md-7 col-sm-6 col-xs-6" required="" type="text">
-						<div class="col-md-5 col-sm-6 col-xs-6">error prompt</div>
+						<input type="text" id="phone" name="phone" placeholder="<?php echo $me["phone"]?>" value="<?php echo $me["phone"]?>" class="col-md-7 col-sm-6 col-xs-6" maxlength="36" required />
+						<div class="col-md-5 col-sm-6 col-xs-6 help-block" id="phone_help"></div>
 					</div>
 				</div>
 				<h3 class="sub-header">Extra</h3>
-				<div class="row form-group">
-					<label class="col-sm-3 col-md-2">Nickname</label>
-					<div class="col-sm-9 col-md-10">
-						<input id="alias" name="alias" placeholder="Name of your group." class="col-md-7 col-sm-6 col-xs-6" required="" type="text">
-						<div class="col-md-5 col-sm-6 col-xs-6">error prompt</div>
-						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Consists of letters, digits, "-", and "_". No more than 64 characters.</div>
-					</div>
-				</div>
 				<div class="row form-group">
 					<label class="col-sm-3 col-md-2">Avatar</label>
 					<div class="col-sm-9 col-md-10">
@@ -68,6 +55,11 @@
 					<div class="col-sm-9 col-md-10">
 						<textarea id="description" name="description" maxlength="150" oninput="$('#desc_counter').text(150 - $('#description').val().length)"></textarea>
 						<div class="col-md-12 col-sm-12 col-xs-12 help-block"><span id="desc_counter">150</span> character(s) left</div>
+					</div>
+				</div>
+				<div class="row form-group">
+					<div class="col-sm-12 col-md-12 text-center">
+						
 					</div>
 				</div>
 			</div>
