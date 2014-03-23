@@ -27,7 +27,7 @@ The server side code of project Ugl.
 		 - [Change password](#9-change_password)
 		 - [Get profile of a user](#7-get-profile-of-a-user)
 		 - [Set profile for a user](#8-set-profile-for-a-user)
-		 - [Upload a user avatar](10-upload-user-avatar)
+		 - [Upload a user avatar](#10-upload-user-avatar)
 	 - [Group API](#2-group-api)
 		 - [Get the groups a user joins](#1-list-groups-of)
 		 - [Get the profile of a aroup](#6-get-the-profile-of-a-group)
@@ -486,8 +486,8 @@ Upload an image as the custom avatar.
 | URL    | `/api/user/upload_avatar`             |
 | DATA   | `user_id`=123&`ugl_token`=mytoken&... |
 
-* The image must be of `JPG`, `PNG`, or `GIF` format, and the file size must not exceed 100KiB.
-* The file field to POST (`...`) does not matter.
+* The image must be of `JPG`, `PNG`, or `GIF` format, and the file size must not exceed `100KiB`.
+* The name of the file field to POST (`...`) does not matter.
 * Server only accepts the FIRST file uploaded.
 * Clients may provide crop and preview panels to let the user customize the image before uploading.
 * To send POST multipart/data entry in Android, refer to http://stackoverflow.com/questions/2017414/post-multipart-request-with-android-sdk
