@@ -51,7 +51,7 @@ class User extends \Model {
 	
 	function findByEmailAndPassword($email, $password){
 		$result = $this->findByEmail($email);
-		if (!empty($result) and password_verify(static::TOKEN_SALT . $password, $result["_password"])) {
+		if (!empty($result) and password_verify(static::TOKEN_SALT . $password, $result["__password"])) {
 			$this->token_refresh($result);
 			$result["ugl_token"] = $this->token_get($result);
 			return $result;
@@ -75,7 +75,7 @@ class User extends \Model {
 		if (strlen($last_name) > 100) $last_name = substr($last_name, 0, 100);
 		
 		$this->queryDb(
-			"INSERT INTO users (email, _password, first_name, last_name, avatar_url, created_at, _token_active_at) " .
+			"INSERT INTO users (email, __password, first_name, last_name, avatar_url, created_at, __token_active_at) " .
 			"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW()); ",
 			array(
 				':email' => $email,
@@ -147,18 +147,18 @@ class User extends \Model {
 		if (strlen($user_info["avatar_url"]) > 300) $user_info["avatar_url"] = substr($user_info["avatar_url"], 0, 300);
 		
 		$this->queryDb(
-			"UPDATE users SET email=:email, _password=:password, nickname=:nickname, first_name=:first_name, last_name=:last_name, avatar_url=:avatar_url, phone=:phone, description=:description, _token_active_at=:_token_active_at, _preferences=:_preferences WHERE id=:id LIMIT 1;",
+			"UPDATE users SET email=:email, __password=:password, nickname=:nickname, first_name=:first_name, last_name=:last_name, avatar_url=:avatar_url, phone=:phone, description=:description, __token_active_at=:__token_active_at, _preferences=:_preferences WHERE id=:id LIMIT 1;",
 			array(
 				":id" => $user_info["id"],
 				":email" => $user_info["email"],
-				":password" => $user_info["_password"],
+				":password" => $user_info["__password"],
 				":nickname" => $user_info["nickname"],
 				":first_name" => $user_info["first_name"],
 				":last_name" => $user_info["last_name"],
 				":avatar_url" => $user_info["avatar_url"],
 				":phone" => $user_info["phone"],
 				":description" => $user_info["description"],
-				":_token_active_at" => $user_info["_token_active_at"],
+				":__token_active_at" => $user_info["__token_active_at"],
 				":_preferences" => $pref != null ? json_encode($pref) : null
 			)
 		);
@@ -170,7 +170,7 @@ class User extends \Model {
 	function token_verify(&$user_info, $token) {
 		if (empty($user_info) or $token === "") return false;
 		
-		$dt_str = $user_info["_token_active_at"];
+		$dt_str = $user_info["__token_active_at"];
 		
 		if (strtotime("+" . static::TOKEN_VALID_HRS . " hour", strtotime($dt_str)) < time()) {
 			$this->token_refresh($user_info);
@@ -184,15 +184,15 @@ class User extends \Model {
 	}
 	
 	function token_get($user_info, $str = null) {
-		if (empty($str)) $str = $user_info["_token_active_at"];
+		if (empty($str)) $str = $user_info["__token_active_at"];
 		
 		return password_hash(static::TOKEN_SALT . $str, PASSWORD_DEFAULT);
 	}
 	
 	function token_refresh(&$user_info) {
 		$token_base = date("Y-m-d H:i:s");
-		$user_info["_token_active_at"] = $token_base;
-		$this->queryDb("UPDATE users SET _token_active_at=:token_base WHERE id=:id", array(
+		$user_info["__token_active_at"] = $token_base;
+		$this->queryDb("UPDATE users SET __token_active_at=:token_base WHERE id=:id", array(
 			":id" => $user_info["id"], 
 			":token_base" => $token_base
 		));

@@ -490,10 +490,9 @@ class User extends \Controller {
 				if (empty($target_user_info)) throw new \Exception("User not found", 4);
 				if (!$target_user_info["_preferences"]["showMyProfile"])
 					 throw new \Exception("The profile is set private", 5);
-				$user->removePrivateKeys($target_user_info);
+				$user->removePrivateKeys($target_user_info, 1);
 			} else {
-				$target_user_info = $user->filterOutPrivateKeys($user_info);
-				$target_user_info["_preferences"] = $user_info["_preferences"];
+				$target_user_info = $user->filterOutPrivateKeys($user_info, 2);
 			}
 			$this->json_printResponse($target_user_info);
 		} catch (\Exception $e){

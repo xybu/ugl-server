@@ -54,17 +54,17 @@ class Model {
 	}
 	
 	/**
-	 * rmPrivateKeys
+	 * removePrivateKeys
 	 * Remove the private keys in an array (i.e., keys that start with an underscore)
 	 */
-	function removePrivateKeys(&$array){
+	function removePrivateKeys(&$array, $secretLvl = 1){
 		foreach ($array as $key => $val)
-			if ($key[0] == "_") unset($array[$key]);
+			if (substr($key, 0, $secretLvl) == str_repeat("_", $secretLvl)) unset($array[$key]);
 	}
 	
-	function filterOutPrivateKeys($array){
+	function filterOutPrivateKeys($array, $secretLvl = 1){
 		foreach ($array as $key => $val)
-			if ($key[0] == "_") unset($array[$key]);
+			if (substr($key, 0, $secretLvl) == str_repeat("_", $secretLvl))  unset($array[$key]);
 		
 		return $array;
 	}
