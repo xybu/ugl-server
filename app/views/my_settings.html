@@ -11,7 +11,7 @@
 			<li><a href="#stat" data-toggle="tab">Statistics</a></li>
 		</ul>
 		<div class="tab-content">
-			
+			<form id="profile_form" method="post">
 			<div class="tab-pane active" id="profile">
 				<h3 class="sub-header">Profile</h3>
 				<div class="table-responsive">
@@ -67,14 +67,14 @@
 					</table>
 				</div>
 				<div class="row form-group">
-					<div class="col-sm-12 col-md-12 text-center hidden">
-					</div>
+					<p class="col-sm-12 col-md-12 text-center hidden" id="form_prompt"></p>
 					<div class="col-sm-12 col-md-12 text-center">
 						<button class="btn btn-primary" type="submit">Update</button>
 						<button class="btn btn-default" type="button">Reset</button>
 					</div>
 				</div>
 			</div>
+			</form>
 			<div class="tab-pane" id="preferences">
 				<h3 class="sub-header">Group Preferences</h3>
 				<div class="row form-group">

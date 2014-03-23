@@ -326,6 +326,26 @@ function init_settings(){
 			}
 		}
 	});
+	
+	$("#profile_form").ajaxForm({
+		url: "/api/user/edit",
+		dataType: 'json',
+		beforeSerialize: function() {
+			$("#profile_form #form_prompt").html("<img src=\"assets/img/loader.gif\">");
+			$("#profile_form #form_prompt").removeClass("hidden");
+		},
+		complete: function(xhr) {
+			var response = xhr.responseJSON;
+			console.log(response);
+			if (response.status == "success"){
+				$("#profile_form #form_prompt").html("<span class=\"text-success\">Update success.</span>");
+				$(".navbar-nav .name").text(response.data.first_name + " " + response.data.last_name);
+			} else {
+				
+			}
+		}
+	});
+	
 	ugl_panel_initialized = true;
 }
 
