@@ -533,10 +533,6 @@ class User extends \Controller {
 				$nickname = $user->filterHtmlChars($base->get("POST.nickname"));
 			else $nickname = $user_info["nickname"];
 			
-			$first_name = $user->filterHtmlChars($first_name);
-			$last_name = $user->filterHtmlChars($last_name);
-			$nickname = $user->filterHtmlChars($last_name);
-			
 			if (!$user->isValidName($first_name) or !$user->isValidName($last_name))
 				throw new \Exception("First name or last name should be non-empty words", 5);
 			
@@ -576,8 +572,7 @@ class User extends \Controller {
 			
 			$user->save($user_info);
 			
-			$user->removePrivateKeys($user_info);
-			$user_info["_preferences"] = $prefs; // add prefs back
+			$user->removePrivateKeys($user_info, 2);
 			$this->json_printResponse($user_info);
 			
 		} catch (\Exception $e){
