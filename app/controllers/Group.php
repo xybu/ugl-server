@@ -120,7 +120,7 @@ class Group extends \Controller {
 			$user = new \models\User();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
-			$token = $user_status["ugl_token"];
+			$user_info = $user_status["user_info"];
 			
 			$group = new \models\Group();
 			
@@ -142,6 +142,9 @@ class Group extends \Controller {
 			
 			$group_data = $group->create($user_id, $group_name, $group_description, $group_tags, $group_status);
 			
+			$user->joinGroup($user_info, $group_data["id"]);
+			$user->save($user_info);
+			
 			$this->json_printResponse(array("message" => "Successfully created a new group", "group_data" => $group_data));
 			
 		} catch (\Exception $e){
@@ -154,7 +157,7 @@ class Group extends \Controller {
 			$user = new \models\User();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
-			$token = $user_status["ugl_token"];
+			$user_info = $user_status["user_info"];
 			
 			if (!$base->exists("POST.group_id"))
 				throw new \Exception("Group id not specified", 3);
@@ -192,7 +195,7 @@ class Group extends \Controller {
 						
 					}
 					
-					$group->deleteById($target_gid);
+					$group->delete($target_group, $user);
 					$this->json_printResponse(array("message" => "The group is now closed"));
 				}
 				
@@ -204,6 +207,12 @@ class Group extends \Controller {
 							continue;
 						// whether the user exists or not does not matter.
 						$group->kickUser($id, $group_data);
+						
+						$target_user_info = $user->findById($id);
+						if ($target_user_info) {
+							$user->leaveGroup($target_user_info, $target_gid);
+							$user->save($target_user_info);
+						}
 					}
 					$group->save($group_data);
 					$this->json_printResponse(array("message" => "You have successfully kicked the user"));
@@ -217,6 +226,8 @@ class Group extends \Controller {
 			
 			// the requestor leaves (aka., kick himself)
 			$group->kickUser($user_id, $group_data);
+			$user->leaveGroup($user_info, $target_gid);
+			$user->save($user_info);
 			$group->save($group_data);
 			$this->json_printResponse(array("message" => "You have successfully left the group \"" . $target_group["alias"] . "\""));
 		} catch (\Exception $e) {
@@ -297,7 +308,105 @@ class Group extends \Controller {
 	}
 	
 	function api_invite($base){
-		
+		try {
+			$user = new \models\User();
+			$user_status = API::getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			
+			if (!$base->exists("POST.group_id"))
+				throw new \Exception("Group id not specified", 3);
+			
+			$group_id = $base->get("POST.group_id");
+			if (!is_numeric($group_id))
+				throw new \Exception("Invalid group id", 4);
+			
+			$group = new \models\Group();
+			
+			$group_info = $group->findById($group_id);
+			if (empty($group_info))
+				throw new \Exception("Group not found", 5);
+			
+			$user_permissions = $group->getPermissions($user_id, $group_id, $group_info);
+			
+			if (!$user_permissions["manage"])
+				throw new \Exception("Unauthorized request", 6);
+			
+			if (!$base->exists("POST.invite"))
+				throw new \Exception("Invitation list is not specified", 7);
+			
+			$invite_list = explode(",", $base->get("POST.invite"));
+			$send_list = array();
+			$skip_list = array();
+			
+			foreach ($invite_list as $i => $email) {
+				if ($group->isValidEmail($email)) {
+					$invitee_info = $user->findByEmail($email);
+					if (!empty($invitee_info)) {
+						// the user has registered, check preference
+						$in_group = $user->isInGroup($invitee_info, $group_id);
+						
+						if ($in_group > -1) {
+							// if already in the group, do nothing
+							$skip_list[] = $email . " (already a member)";
+							continue;
+						} else if ($group->getRoleOf($group_info, $invitee_info["id"]) != "guest") {
+							$skip_list[] = $email . " (already in group member list)";
+						} else if ($invitee_info["_preferences"]["autoAcceptInvitation"]) {
+							// if accept automatically, add to group member
+							$group->addUser($invitee_info["id"], "member", $group_info);
+							$user->joinGroup($invitee_info, $group_id);
+							continue;
+						} else {
+							// add to invitee role and send email
+							$group->addUser($invitee_info["id"], "invitee", $group_info);
+						}
+					}
+					
+					$send_list[] = $email;
+					
+				} else $skip_list[] = $email . " (invalid address)";
+			}
+			
+			$group->save($group_info);
+			
+			if (count($send_list) > 0) {
+				
+				$base->set("user_info", $user_info);
+				$base->set("group_info", $group_info);
+				
+				$ticket = array(
+					"group_id" => $group_info["id"],
+					"inviter_id" => $user_info["id"],
+					"ticket_time" => date("c"),
+				);
+				
+				$ticket_str = urlencode(base64_encode(API::api_encrypt(json_encode($ticket), API::API_WIDE_KEY)));
+				$base->set("ticket_str", $ticket_str);
+				$base->set("public_group_url", $base->get("APP_URL") . "/group/" . $group_info["id"]);
+				//TODO: finish things above
+				
+				$message = \Template::instance()->render('email_groupInvitation.html');
+				
+				$mail = new \models\Mail();
+				foreach ($send_list as $email) {
+					$mail->addTo($email, "");
+				}
+				$mail->setFrom($this->base->get("SMTP_FROM"), "UGL Team");
+				$mail->setSubject("Group Invitation from " . $user_info["first_name"] . " " . $user_info["last_name"]);
+				$mail->setMessage($message);
+				$mail->send();
+				
+			}
+			
+			$this->json_printResponse(array("message" => "Invitation sent to " . implode(", ", $send_list) . ".", "skipped" => $skip_list));
+		} catch (\InvalidArgumentException $e){
+			throw new \Exception("Email did not send due to server error", 8);
+		} catch (\RuntimeException $e){
+			throw new \Exception("Email did not send due to server runtime error", 9);
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
 	}
 	
 	function api_apply($base){

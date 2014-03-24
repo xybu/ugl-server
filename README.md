@@ -881,7 +881,56 @@ Upon success, a JSON object like the following will be returned:
 * 5 - Group not found
 * 6 - You cannot access the group (The user cannot access the profile of the group)
 
-### 6) editGroupMembers
+### 7) Invite users to join a group
+
+Invite some people to join the group.
+
+#### Request
+
+| Name   | Description                                           |
+| ------ | ----------------------------------------------------- |
+| Method | POST                                                  |
+| URL    | `/api/group/invite`                                   |
+| DATA   | `group_id`=12&`invite`=a@b.com,c@d.com,ee@ff.edu      |
+
+Note that `@` will be encoded to `%2c`.
+
+**Sanity Check**
+
+* Clients should get a list of email addresses from the user, remove invalid or duplicate items, and then send the request to API.
+* It is recommended that the user invite 10 email addresses per invitation.
+* The invitation list must be non-empty.
+
+#### Responses
+
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-03-24T04:48:36+00:00",
+    "data": {
+        "message": "Invitation sent to xybu.subscription@live.com.",
+        "skipped": [
+            "xb@purdue.edu (already a member)"
+        ]
+    }
+}
+```
+
+* `message` contains the list of emails that will receive the invitation.
+* `skipped` is an array of strings of email addresses and their reason to be skipped.
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Must provide the authentication cookie `ugl_user`) 
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Group id not specified (`group_id` is not POSTed)
+* 4 - Invalid group id (`group_id` is not a number)
+* 5 - Group not found
+* 6 - Unauthorized request (the requester must have `manage` permission)
+* 7 - Invitation list is not specified
+* 8 - Email did not send due to server error
+* 9 - Email did not send due to server runtime error
+
 
 ## 3. News API
 

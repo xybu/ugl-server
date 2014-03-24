@@ -72,6 +72,26 @@ $(document).ready(function(){
 	if (!ugl_panel_initialized && typeof window['init_' + cur_event] == 'function'){
 		window['init_' + cur_event]();
 	}
+	
+	if (typeof show_notif_modal != 'undefined' && show_notif_modal){
+		var strVar="";
+		strVar += "<div class=\"modal fade\" id=\"notif_modal\">";
+		strVar += "  <div class=\"modal-dialog\">";
+		strVar += "    <div class=\"modal-content\">";
+		strVar += "      <div class=\"modal-header\">";
+		strVar += "        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;<\/button>";
+		strVar += "        <h4 class=\"modal-title\"><span class=\"label label-"+ notif_modal_type +"\">"+ notif_modal_type +"</span> "+ notif_modal_title +"<\/h4>";
+		strVar += "      <\/div>";
+		strVar += "      <div class=\"modal-body\">";
+		strVar += "         <p>" + notif_modal_msg + "</p>";
+		strVar += "      <\/div>";
+		strVar += "    <\/div><!-- \/.modal-content -->";
+		strVar += "  <\/div><!-- \/.modal-dialog -->";
+		strVar += "<\/div><!-- \/.modal -->";
+		strVar += "";
+		$("body").append(strVar);
+		$('#notif_modal').modal('show');
+	}
 });
 
 function logOut(){$.post("/api/logout");}
@@ -173,6 +193,60 @@ function init_group(){
 		e.preventDefault(); //STOP default action
 	});
 	
+	var invite_modal = $("#invite_modal");
+	if (invite_modal.length){
+		var invite_form = $("#invite_form");
+		var invite_list = $("#invite_form #email_list");
+		var invite_prompt = $("#invite_result");
+		invite_form.submit(function (e){
+			//console.log(e);
+			invite_prompt.html("");
+			invite_prompt.removeClass("hidden");
+			invite_list.val(invite_list.val().replace("\r", "").replace(",", "\n"));
+			var emails = invite_list.val().split("\n");
+			var email_to_send = [];
+			var skipped_list = "";
+			var invalid_list = "";
+			emails.forEach(function(entry) {
+				if (!entry.length) {}
+				else if (!isEmail(entry)) invalid_list = invalid_list + "\"" + entry + "\", ";
+				else if (email_to_send.length > 9) skipped_list = skipped_list + "\"" + entry + "\", ";
+				else if (email_to_send.indexOf(entry) == -1) email_to_send.push(entry);
+			});
+			if (invalid_list != ""){
+				invalid_list = invalid_list.slice(0, -2);
+				invite_prompt.append($("<div class=\"alert alert-warning alert-nomargin\" />").text("Skipped invalid email addresses " + invalid_list + "."));
+			}
+			if (skipped_list != ""){
+				skipped_list = skipped_list.slice(0, -2);
+				invite_prompt.append($("<div class=\"alert alert-info alert-nomargin text-center\" />").text("You can invite at most 10 people per time. Skipped " + skipped_list + "."));
+			}
+			if (!email_to_send.length){
+				invite_prompt.append($("<div class=\"alert alert-danger alert-nomargin text-center\" />").text("List is empty. No email will be sent."));
+			} else {
+				invite_prompt.append($("<div class=\"alert alert-info alert-nomargin text-center\" id=\"invite_loading_prompt\" />").text("Sending invitations..."));
+				$.post(
+					"/api/group/invite", 
+					{'group_id': $("#invite_form #group_id").val(), 'invite': email_to_send.join(",")},
+					function(data){
+						if (data.status == "success")
+							$("#invite_loading_prompt").removeClass("alert-info");
+							$("#invite_loading_prompt").addClass("alert-success");
+							$("#invite_loading_prompt").text(data.data.message);
+							if (data.data.skipped.length)
+								invite_prompt.append($("<div class=\"alert alert-info alert-nomargin text-center\" />").text("Did not send to:\n" + data.data.skipped.join(", ")));
+						else {
+							invite_prompt.append($("<div class=\"alert alert-danger alert-nomargin\" />").text(data.message));
+						}
+					}).fail(function(xhr, textStatus, errorThrown) {
+						invite_prompt.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+				});
+			}
+			e.preventDefault();
+		});
+	}
+	
+	if ($("#manage_group_modal").length) {
 	var man_modal = $("#manage_group_modal");
 	man_modal.on('shown.bs.modal', function (e) {
 		if (man_modal.attr("data-loaded") == undefined){
@@ -201,6 +275,7 @@ function init_group(){
 			});
 		}
 	});
+	}
 	ugl_panel_initialized = true;
 }
 
@@ -373,4 +448,8 @@ function refreshPreviewPic(elId, imgId, helperId){
 			$("#" + imgId).attr("src", old_img_src);
 		}).attr("src", elId + "?" + Math.random());
 	else $("#" + imgId).attr("src", "assets/img/default-avatar.png");
+}
+
+function isEmail(email){
+	return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test( email );
 }

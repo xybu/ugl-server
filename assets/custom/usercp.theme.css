@@ -743,7 +743,7 @@ body.loading .ajax-loading {
 	padding-right: 0.2em;
 }
 
-.modal-body #description, td #description{
+.modal-body #description, td #description, .large-textarea{
 	width: 90%;
 	max-width: 500px;
 	height: 6em;
@@ -756,4 +756,8 @@ body.loading .ajax-loading {
 .alert{
 	padding: 0.3em !important;
 	font-size: 1em !important;
+}
+
+.alert-nomargin{
+	margin-bottom: 1px;
 }

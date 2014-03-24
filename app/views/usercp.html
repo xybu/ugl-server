@@ -109,5 +109,16 @@ $menu_list[$panel][2] = " active";
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.address/1.6/jquery.address.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.form/3.49/jquery.form.min.js"></script>
 		<script src="assets/custom/usercp.js"></script>
+		
+		<?php
+		if (isset($rt_notification_modal)){
+			echo "<script type=\"text/javascript\">\n" .
+					"		var show_notif_modal = true;\n" .
+					"		var notif_modal_type = \"" . $rt_notification_modal["type"] . "\";\n" .
+					"		var notif_modal_title = \"" . $rt_notification_modal["title"] . "\";\n" .
+					"		var notif_modal_msg = \"" . $rt_notification_modal["message"] . "\";\n" .
+				"	</script>\n";
+		}
+		?>
 	</body>
 </html>

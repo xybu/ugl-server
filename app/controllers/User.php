@@ -214,7 +214,9 @@ class User extends \Controller {
 	}
 	
 	function showUserPanel($base, $args){
+		
 		$user = new \models\User();
+		
 		try {
 			$session_creds = API::getUserStatus($base, $user);
 		} catch (\Exception $e) {
@@ -228,6 +230,22 @@ class User extends \Controller {
 		if (empty($me) or !$user->token_verify($me, $session_creds["ugl_token"]))
 			$this->backToHomepage($base);
 		
+		$group = new \models\Group();
+		
+		if ($base->exists("SESSION.invitation")) {
+			$invited_group = $group->findById($base->get("SESSION.invitation")["group_id"]);
+			$group->addUser($me["id"], "member", $invited_group);
+			$user->joinGroup($me, $invited_group["id"]);
+			$user->save($me);
+			$group->save($invited_group);
+			$base->set("rt_notification_modal", array(
+				"type" => "success", 
+				"title" => "Accepting Invitation", 
+				"message" => "You have successfully joined the group " . $invited_group["alias"] . ".")
+			);
+			$base->clear("SESSION.invitation");
+		}
+		
 		$panel = $args["panel"];
 		
 		try {
@@ -235,7 +253,6 @@ class User extends \Controller {
 				case "dashboard":
 					break;
 				case "groups":
-					$group = new \models\Group();
 					$group_list = $group->listGroupsOfUserId($me["id"], $group::STATUS_INACTIVE);
 					$base->set("groupList", $group_list);
 					break;
@@ -245,7 +262,6 @@ class User extends \Controller {
 					if (!is_numeric($item_id))
 						throw new \Exception("Group id should be a number", 3);
 					
-					$group = new \models\Group();
 					$group_info = $group->findById($item_id);
 					
 					if (!$group_info)
@@ -261,7 +277,7 @@ class User extends \Controller {
 						foreach ($ids as $key => $val)
 							$new_users[$role][] = $user->filterOutPrivateKeys($user->findById($val));
 					}
-				
+					
 					$group_info["users"] = $new_users;
 					
 					$base->set("my_permissions", $my_permissions);

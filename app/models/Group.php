@@ -80,6 +80,7 @@ class Group extends \Model {
 		$result = $this->queryDb("SELECT * FROM groups WHERE id=? AND status > " . static::STATUS_CLOSED, $id);
 		if (count($result) == 1){
 			$result = $result[0];
+			$result["__users_raw"] = $result["users"];
 			$result["users"] = json_decode($result["users"], true);
 			if ($result["_preferences"]) $result["_preferences"] = json_decode($result["_preferences"], true);
 			else $result["_preferences"] = self::$DEFAULT_GROUP_PREFS;
@@ -240,11 +241,21 @@ class Group extends \Model {
 			$this->cache->set("group_id_" . $group_data["id"], $group_data);
 	}
 	
-	function deleteById($gid){
+	function delete(&$group_info, User $user = null){
 		//TODO: delete all records related to the group before deleting it
-
-		$this->queryDb("UPDATE groups SET status=:status WHERE id=:id", array(":status" => static::STATUS_CLOSED, ":id" => $gid));
-		$this->cache->clear("group_id_" . $gid);
+		
+		if ($user == null) $user = new User();
+		
+		foreach ($group_info["users"] as $role => $ids) {
+			foreach ($ids as $id){
+				$temp = $user->findById($id);
+				$user->leaveGroup($temp, $group_info["id"]);
+				$user->save($temp);
+			}
+		}
+		
+		$this->queryDb("UPDATE groups SET status=:status WHERE id=:id", array(":status" => static::STATUS_CLOSED, ":id" => $group_info["id"]));
+		$this->cache->clear("group_id_" . $group_info["id"]);
 	}
 	
 	function setCreatorUserId($uid, &$group_data){
@@ -254,23 +265,28 @@ class Group extends \Model {
 			$this->cache->set("group_id_" . $group_data["id"], $group_data);
 	}
 	
+	function hasUser($group_data, $user_id) {
+		foreach ($group_data["__users_raw"] as $role => $users){
+			$i = array_search("" . $uid . "", $users);
+			if (!($i === false)) return true;
+		}
+		return false;
+	}
+	
+	function getRoleOf($group_data, $user_id) {
+		foreach ($group_data["__users_raw"] as $role => $users){
+			$i = array_search("" . $uid . "", $users);
+			if (!($i === false)) return $role;
+		}
+		return "guest";
+	}
+	
 	function addUser($uid, $role, &$group_data){
 		$group_data["users"][$role][] = $uid;
-		
-		if ($this->cache->exists("group_id_" . $group_data["id"]))
-			$this->cache->set("group_id_" . $group_data["id"], $group_data);
 	}
 	
 	function kickUser($uid, &$group_data){
-		$flag = false;
-		
-		foreach ($group_data["users"] as $role => $users){
-			$i = array_search("" . $uid . "", $users);
-			if ($i) {
-				unset($group_data["users"][$role][$i]);
-				$flag = true;
-			}
-		}
+		$flag = $this->hasUser($group_data, $uid);
 		
 		if ($flag and $this->cache->exists("group_id_" . $group_data["id"]))
 			$this->cache->set("group_id_" . $group_data["id"], $group_data);

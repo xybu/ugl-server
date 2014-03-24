@@ -37,6 +37,11 @@ class User extends \Model {
 			if (!empty($result[0]["_preferences"]))
 				$result[0]["_preferences"] = json_decode($result[0]["_preferences"], true);
 			else $result[0]["_preferences"] = self::$DEFAULT_USER_PREFERENCES;
+			
+			if (!empty($result[0]["_joined_groups"]))
+				$result[0]["_joined_groups"] = explode(",", $result[0]["_joined_groups"] . "");
+			else $result[0]["_joined_groups"] = array();
+			
 			$this->cache->set("user_id_" . $id, $result[0], static::USER_CACHE_TTL);
 			return $result[0];
 		}
@@ -147,7 +152,7 @@ class User extends \Model {
 		if (strlen($user_info["avatar_url"]) > 300) $user_info["avatar_url"] = substr($user_info["avatar_url"], 0, 300);
 		
 		$this->queryDb(
-			"UPDATE users SET email=:email, __password=:password, nickname=:nickname, first_name=:first_name, last_name=:last_name, avatar_url=:avatar_url, phone=:phone, description=:description, __token_active_at=:__token_active_at, _preferences=:_preferences WHERE id=:id LIMIT 1;",
+			"UPDATE users SET email=:email, __password=:password, nickname=:nickname, first_name=:first_name, last_name=:last_name, avatar_url=:avatar_url, phone=:phone, description=:description, __token_active_at=:__token_active_at, _preferences=:_preferences, _joined_groups=:_joined_groups WHERE id=:id LIMIT 1;",
 			array(
 				":id" => $user_info["id"],
 				":email" => $user_info["email"],
@@ -159,7 +164,8 @@ class User extends \Model {
 				":phone" => $user_info["phone"],
 				":description" => $user_info["description"],
 				":__token_active_at" => $user_info["__token_active_at"],
-				":_preferences" => $pref != null ? json_encode($pref) : null
+				":_preferences" => $pref != null ? json_encode($pref) : null,
+				":_joined_groups" => count($user_info["_joined_groups"]) == 0 ? null : implode(",", $user_info["_joined_groups"])
 			)
 		);
 		
@@ -201,5 +207,20 @@ class User extends \Model {
 			$this->cache->set("user_id_" . $user_info["id"], $user_info);
 		
 		return $this->token_get($user_info, $token_base);
+	}
+	
+	function isInGroup($user_info, $group_id){
+		$k = array_search($group_id, $user_info["_joined_groups"]);
+		if ($k === false) return -1;
+		else return $k;
+	}
+	
+	function joinGroup(&$user_info, $group_id){
+		$user_info["_joined_groups"][] = $group_id;
+	}
+	
+	function leaveGroup(&$user_info, $group_id){
+		$k = $this->isInGroup($user_info, $group_id);
+		if ($k > -1) unset($user_info["_joined_groups"][$k]);
 	}
 }

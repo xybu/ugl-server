@@ -14,6 +14,7 @@ class API extends \Controller {
 	const RSTPWD_REQ_PER_SESSION = 3;
 	const LOGIN_REQ_PER_SESSMION = 5;
 	const RSTPWD_REQ_EXPIRATION = 24; // in hrs
+	const GROUP_INVITATION_EXPIRATION = 168; // 24 * 7 hrs
 	const API_WIDE_KEY = "1POm3YWVlVFriePu2aJfa+K5UElFA0ESeN+4Bb57YnYFyZGDit/Cw1o9rSWZQeFs";
 	
 	public static $API_KEYS = array(

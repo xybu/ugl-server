@@ -18,6 +18,69 @@ class Home extends \Controller {
 		$this->setView('homepage.html');
 	}
 	
+	function acceptInvitation_callBack($base){
+		$user = new \models\User();
+		$user_status = null;
+		try {
+			$user_status = API::getUserStatus($base, $user);
+		} catch (\Exception $e) {
+			$user_status = null; //guest
+		}
+		
+		try {
+			if (!$base->exists('GET.t'))
+				throw new \Exception("Invitation ticket not found", 1);
+			
+			$ticket_decrypt = API::api_decrypt(base64_decode(urldecode($base->get('GET.t'))), API::API_WIDE_KEY);
+			if ($ticket_decrypt == null)
+				throw new \Exception("Invalid ticket", 2);
+			
+			$ticket_json = json_decode($ticket_decrypt);
+			
+			$today = new \DateTime(date("c"));
+			$timeDiff = $today->diff(new \DateTime($ticket_json->ticket_time));
+			if ($timeDiff->h > API::GROUP_INVITATION_EXPIRATION)
+				throw new \Exception("The invitation ticket has expired.", 6);
+			
+			$inviter_info = $user->findById($ticket_json->inviter_id);
+			if (empty($inviter_info))
+				throw new \Exception("The inviter does not exist.", 7);
+			
+			$group = new \models\Group();
+			
+			$group_info = $group->findById($ticket_json->group_id);
+			if (empty($group_info))
+				throw new \Exception("Group does not exist.", 8);
+			
+			
+			$base->set("SESSION.invitation", array("group_id" => $ticket_json->group_id));
+			
+			if ($user_status) {
+				if ($user->isInGroup($user_status["user_info"], $ticket_json->group_id))
+					$base->clear("SESSION.invitation");
+				$base->reroute("@usercp(@panel=groups)");
+			}
+			
+			$base->set("rt_notification_modal", array(
+				"type" => "success", 
+				"title" => "Accepting Invitation", 
+				"message" => "You are to join the group " . $group_info["alias"] . " invited " .
+								"by " . $inviter_info["first_name"] . " " . $inviter_info["last_name"] . ". Please " .
+								"sign in or register to proceed.")
+			);
+			
+		} catch (\Exception $e) {
+			$base->set("rt_notification_modal", array(
+				"type" => "warning", 
+				"title" => "Accepting Invitation", 
+				"message" => $e->getMessage())
+			);
+		}
+		
+		$base->set('page_title','Unified Group Life');
+		$this->setView('homepage.html');
+	}
+	
 	function resetPassword_callBack($base){
 		try {
 			if (!$base->exists('GET.t'))

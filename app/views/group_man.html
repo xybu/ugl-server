@@ -140,14 +140,6 @@ function listIdsWithAvatar($id_list) {
 										</td>
 									</tr>
 									<tr>
-										<td class="itemLabel">Invitee</td>
-										<td id="pending_list">
-										<?php if (array_key_exists("invitee", $group_info["users"]))
-												listIdsWithAvatar($group_info["users"]["invitee"]);
-										?>
-										</td>
-									</tr>
-									<tr>
 										<td class="itemLabel">Blocked</td>
 										<td id="blocked_list">
 										<?php if (array_key_exists("blocked", $group_info["users"]))
