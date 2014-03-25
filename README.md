@@ -39,6 +39,7 @@ The server side code of project Ugl.
 		 - [Edit group profile](#5-edit-group-profile)
 		 - [Invite users to join a group](#7-invite-users-to-join-a-group)
 		 - [Apply to join a group](#8-apply-to-join-a-group)
+		 - [Find groups by a keyword](#9-find-groups-by-a-keyword)
 	 - [News](#3-news)
 
 ***
@@ -963,6 +964,66 @@ Don't forget the cookie `ugl_user` when sending request.
 * 5 - Group not found
 * 6 - You already applied to the group or are already a member
 * 7 - You cannot apply to join the group (permission denied)
+
+### 9) Find group by a keywords
+
+Get a list of groups that match certain keyword.
+
+#### Request
+| Name   | Description                                    |
+| ------ | ---------------------------------------------- |
+| Method | POST                                           |
+| URL    | `/api/group/find`                              |
+| DATA   | `keyword`=something                            |
+
+Cookie `ugl_user` is required to perform the request (Currently so. Changes may pend.)
+
+`keyword` must be a HTML-filtered string. Currently the API does not handle keyword combinations.
+
+#### Response
+
+Upon success, an example of searching for keyword `tester` could be
+
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-03-25T03:04:22+00:00",
+    "data": {
+        "count": 1,
+        "groups": [
+            {
+                "id": "3",
+                "status": "3",
+                "alias": "public-tester",
+                "description": "This is a dummy public tester group.",
+                "avatar_url": null,
+                "tags": "hoho tester",
+                "creator_user_id": "5",
+                "num_of_users": "1",
+                "users": {
+                    "admin": [
+                        "5"
+                    ]
+                },
+                "created_at": "2014-03-25 01:00:05"
+            }
+        ]
+    }
+}
+```
+
+Notes:
+
+* Only public groups will be returned.
+* No result is an error instead of returning count of 0.
+* Currently it will return at most **15** results.
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Must provide the authentication cookie `ugl_user`) 
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Empty keyword
+* 4 - No group match the given keyword
 
 ## 3. News API
 
