@@ -3,18 +3,12 @@ namespace controllers;
 
 class User extends \Controller {
 	
-	protected $user;
-	protected $auth;
-	protected $isUser = false;
-	
 	function __construct() {
 		parent::__construct();
 	}
 	
 	/**
 	 * oauth_getConfig()
-	 * 
-	 * HybridAuth config implementation
 	 */
 	function oauth_getConfig(){
 		return array(
