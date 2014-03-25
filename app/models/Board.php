@@ -70,7 +70,14 @@ class Board extends \Model {
 		return $this->findById($result[0]["id"]);
 	}
 	
-	function save(&$board_info){
+	function delete($board_info) {
+		$this->queryDb("DELETE FROM boards WHERE id=? LIMIT 1;", $board_info["id"]);
+		
+		if ($this->cache->exists("board_id_" . $board_info["id"]))
+			$this->cache->clear("board_id_" . $board_info["id"]);
+	}
+	
+	function save(&$board_info) {
 		$this->queryDb("UPDATE boards " .
 			"SET order=:order, user_id=:user_id, group_id=:group_id, title=:title, description=:description, last_active_at=NOW() ".
 			"WHERE id=:id;",
