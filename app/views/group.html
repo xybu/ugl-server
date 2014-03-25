@@ -58,13 +58,13 @@ if (isset($group_header)) :
 	<div class="pull-right">
 		<?php
 			if ($my_permissions["apply"])
-				echo "<a class=\"btn btn-primary\" role=\"button\" data-toggle=\"modal\" data-target=\"#leave_group_modal\"><i class=\"fa fa-cog\"></i> Join</a> ";
+				echo "<a class=\"btn btn-primary\" role=\"button\" data-toggle=\"modal\" data-target=\"#join_group_modal\"><i class=\"fa fa-sign-in fa-fw\"></i> Join</a> ";
 			if ($my_permissions["manage"]) {
-				echo "<a class=\"btn btn-primary\" role=\"button\" data-toggle=\"modal\" data-target=\"#invite_modal\"><i class=\"fa fa-share\"></i> Invite</a> ";
-				echo "<a class=\"btn btn-success\" role=\"button\" data-toggle=\"modal\" data-target=\"#manage_group_modal\"><i class=\"fa fa-cog\"></i> Manage</a> ";
+				echo "<a class=\"btn btn-primary\" role=\"button\" data-toggle=\"modal\" data-target=\"#invite_modal\"><i class=\"fa fa-share fa-fw\"></i> Invite</a> ";
+				echo "<a class=\"btn btn-success\" role=\"button\" data-toggle=\"modal\" data-target=\"#manage_group_modal\"><i class=\"fa fa-cog fa-fw\"></i> Manage</a> ";
 			}
 			if ($my_permissions["role_name"] != "guest" and !$my_permissions["apply"])
-				echo "<a class=\"btn btn-default\" role=\"button\" data-toggle=\"modal\" data-target=\"#leave_group_modal\"><i class=\"fa fa-sign-out\"></i> Leave</a> ";
+				echo "<a class=\"btn btn-default\" role=\"button\" data-toggle=\"modal\" data-target=\"#leave_group_modal\"><i class=\"fa fa-sign-out fa-fw\"></i> Leave</a> ";
 		?>
 	</div>
 	</h1>
@@ -246,6 +246,33 @@ if (isset($group_header)) :
 	</div>
 </div>
 <?php 
+if ($my_permissions["apply"]) : ?>
+<div id="join_group_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="join_group_modalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button"><i class="fa fa-times"></i></button>
+				<h3 class="modal-title"><i class="fa fa-sign-in"></i> Apply to Join</h3>
+			</div>
+			<form id="apply_form" method="post" action="/api/group/apply">
+				<div class="modal-body">
+					<input type="hidden" id="group_id" name="group_id" value="<?php echo $group_info["id"]?>" />
+					<div class="form-group text-center">
+						<textarea id="message" name="message" class="large-textarea" placeholder="Write something to the group admin..."></textarea>
+						<p class="help_block hidden"></p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" type="submit">Apply</button>
+					<button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<?php
+endif;
+
 if ($my_permissions["manage"]) : ?>
 <div id="invite_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="invite_modalLabel" aria-hidden="true">
 	<div class="modal-dialog">
