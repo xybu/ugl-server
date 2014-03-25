@@ -144,6 +144,12 @@ function init_groups(){
 	
 	$("#create_group_form").submit(function(e){
 		var prompt_dom = $("#create_group_prompt");
+		var group_alias = $("#create_group_form #alias");
+		if (!group_alias.val().match("^[a-zA-Z0-9_-]{1,32}$")) {
+			group_alias.focus();
+			group_alias.tooltip("show");
+			return false;
+		}
 		prompt_dom.html("<img src=\"assets/img/loader.gif\" />").removeClass("hidden");
 		$.post(
 			"/api/group/create", 
@@ -166,6 +172,40 @@ function init_groups(){
 		});
 		e.preventDefault(); //STOP default action
 	});
+	
+	$("input").on('focus focusout hover blur click', function(e){
+		$(this).tooltip('destroy');
+	});
+	
+	$("#find-form").submit(function(e){
+		var keyDom = $("#find-keyword");
+		if (keyDom.val() == "") {
+			keyDom.tooltip('show');
+			return false;
+		}
+		var prompt_dom = $("#find-result");
+		prompt_dom.html("<div class=\"col-sm-12 col-md-12 text-center\"><img src=\"assets/img/loader.gif\" /></div>");
+		$.post(
+			"/api/group/find", 
+			$(this).serialize(),
+			function(data){
+				if (data.status == "success"){
+					prompt_dom.html("<div class=\"col-sm-12 col-md-12 text-center text-success\">Found " + data.data.count + " groups.</div>");
+					data.data.groups.forEach(function(entry){
+						prompt_dom.append("<div class=\"callout callout-info col-md-12 col-sm-12 callout-narrow animated fadeIn\"><h4><a id=\"find-link\" href=\"/my/group/"+entry.id+"\">"+entry.alias+"</a></h4><p>"+entry.description+"</p><p>Tags: "+entry.tags+"</p></div>");
+						//console.log(entry);
+					});
+					$('#find-link').address();
+				} else {
+					prompt_dom.html("<div class=\"col-sm-12 col-md-12 text-center text-warning\">" + data.message + "</div>");
+				}
+			}).fail(function(xhr, textStatus, errorThrown) {
+				prompt_dom.html("<div class=\"col-sm-12 col-md-12 text-center alert alert-warning\">" + xhr.responseText + "</div>");
+		});
+		
+		e.preventDefault();
+	});
+	
 	$('a.enter-group').address();
 	ugl_panel_initialized = true;
 }
@@ -294,14 +334,14 @@ function renderGroupListItem(listId, groupObject, hide){
 	
 	if (!groupObject.avatar_url) groupObject.avatar_url = "assets/img/default-avatar-group.png";
 	
-	listDom.append("<div class=\"col-sm-6 col-md-4" + hide + "\" id=\"group_" + groupObject.id + "\" data-visibility=\"" + groupObject.visibility + "\" data-creator=\"" + groupObject.creator_user_id + "\">" +
-		"<div class=\"thumbnail\"><img class=\"group-avatar\" src=\"" + groupObject.avatar_url + "\" />" +
+	listDom.append("<div class=\"col-sm-6 col-md-4 "+hide+"\" id=\"group_" + groupObject.id + "\" data-status=\"" + groupObject.status + "\" data-creator=\"" + groupObject.creator_user_id + "\">" +
+		"<div class=\"thumbnail\"><img class=\"large-avatar\" src=\"" + groupObject.avatar_url + "\" />" +
 		"<div class=\"caption text-center\">" +
-		"<h3 class=\"group_alias\">" + groupObject.alias + "</h3>" +
-		"<p class=\"group_desc\">" +groupObject.description + "</p>" +
-		"<div><a class=\"btn btn-primary enter-group\" role=\"button\">Enter</a> " +
-		"<a class=\"btn btn-default\" role=\"button\">Profile</a> <a class=\"btn btn-warning\" role=\"button\">Leave</a></div>" +
+		"<h3 class=\"group_alias\"><a href=\"/my/group/" + groupObject.id + "\" class=\"enter-group\">" + groupObject.alias + "</a></h3>" +
+		"<p class=\"group_desc\">" + groupObject.description + "</p>" +
 		"</div></div></div>");
+	
+	$('a.enter-group').address();
 }
 
 function init_boards(){

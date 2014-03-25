@@ -100,13 +100,13 @@ class Group extends \Model {
 	
 	// public only
 	function findByKeyword($keyword){
-		$ids = $this->queryDb("SELECT id FROM groups WHERE status=" . static::STATUS_PUBLIC . " AND CONCAT_WS(' ', alias, description, tags) LIKE '?';", "%" . $keyword . "%", 7200);
-		if (count($ids) > 0){
+		$ids = $this->queryDb("SELECT id FROM groups WHERE status=" . static::STATUS_PUBLIC . " AND CONCAT_WS(' ', id, alias, description, tags) LIKE ? LIMIT 0, 15;", "%" . $keyword . "%", 7200);
+		if (count($ids) > 0) {
 			$result = array();
-			foreach ($ids as $k => $id) $result[] = $this->findById($id);
-			return $result;
+			foreach ($ids as $k => $i) $result[] = $this->findById($i["id"]);
+			return array("count" => count($ids), "groups" => $result);
 		}
-		return null;
+		return array("count" => 0);
 	}
 	
 	// corresponding to static::STATUS_INACTIVE
@@ -283,15 +283,18 @@ class Group extends \Model {
 	
 	function addUser($uid, $role, &$group_data){
 		$group_data["users"][$role][] = $uid;
+		++$group_data["num_of_users"];
 	}
 	
 	function kickUser($uid, &$group_data){
-		$flag = $this->hasUser($group_data, $uid);
-		
-		if ($flag and $this->cache->exists("group_id_" . $group_data["id"]))
-			$this->cache->set("group_id_" . $group_data["id"], $group_data);
-		
-		return $flag;
+		foreach ($group_data["__users_raw"] as $role => $users){
+			$i = array_search("" . $uid . "", $users);
+			if (!($i === false)){
+				unset($group_data["__users_raw"][$role][$i]);
+				unset($group_data["users"][$role][$i]);
+				--$group_data["num_of_users"];
+			}
+		}
 	}
 	
 	function changeUserRole($uid, $role, &$group_data){

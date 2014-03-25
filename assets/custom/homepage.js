@@ -1,6 +1,6 @@
 $(document).ready(function() {
 	$("input").on('focus focusout', function(e){
-		$(this).tooltip('hide');
+		$(this).tooltip('destroy');
 	});
 	
 	$("#nav-login").submit(function(e){

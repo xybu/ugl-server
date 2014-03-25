@@ -9,10 +9,8 @@
 			$group_str = $group_str . "<div class=\"col-sm-6 col-md-4\" id=\"group_" . $item["id"] . "\" data-status=\"" . $item["status"] . "\" data-creator=\"" . $item["creator_user_id"] . "\">" .
 				"<div class=\"thumbnail\"><img class=\"large-avatar\" src=\"" . $item["avatar_url"] . "\" />" .
 				"<div class=\"caption text-center\">" .
-				"<h3 class=\"group_alias\">" . $item["alias"] . "</h3>" .
+				"<h3 class=\"group_alias\"><a href=\"/my/group/" . $item["id"] . "\" class=\"enter-group\">" . $item["alias"] . "</a></h3>" .
 				"<p class=\"group_desc\">" . $item["description"] . "</p>" .
-				"<div><a href=\"/my/group/" . $item["id"] . "\" class=\"btn btn-primary enter-group\" role=\"button\">Enter</a> " .
-				"<a class=\"btn btn-default\" role=\"button\">Profile</a> <a class=\"btn btn-warning\" role=\"button\">Leave</a></div>" .
 				"</div></div></div>";
 		}
 	}
@@ -40,13 +38,15 @@
 	<div class="row">
 		<div class="col-sm-6 col-md-7">
 			<h2 class="sub-header"><i class="fa fa-search"></i> Find</h2>
-			<section class="row">
-				<div class="col-md-12">
-					<input type="text" placeholder="Search..." class="form-control">
+			<form id="find-form" method="post" class="container-fluid">
+				<div class="row">
+					<div class="col-md-12">
+						<input type="text" id="find-keyword" name="keyword" placeholder="Type keyword and hit enter..." class="form-control" data-toggle="tooltip" data-placement="bottom" title="Please type a keyword">
+					</div>
 				</div>
-			</section>
-			<section class="row" id="find-result">
-			</section>
+				<section id="find-result">
+				</section>
+			</form>
 		</div>
 		<div class="col-sm-6 col-md-5">
 			<h2 class="sub-header"><i class="fa fa-bullhorn"></i> News</h2>
@@ -74,7 +74,7 @@
 					<div class="row form-group">
 						<div class="col-sm-4 col-md-3 itemLabel">Name</div>
 						<div class="col-sm-8 col-md-9">
-							<input type="text" id="alias" name="alias" placeholder="Name of your group." required maxlength="32">
+							<input type="text" id="alias" name="alias" placeholder="Name of your group." required maxlength="32" data-toggle="tooltip" data-placement="right" title="Please type a valid group name">
 							<p class="help-block">Required. Allow letters, digits, "-", and "_". No more than 32 characters.</p>
 						</div>
 					</div>
