@@ -114,7 +114,7 @@ class Group extends \Controller {
 			$this->json_printException($e);
 		}
 	}
-	/*
+	
 	function api_find($base) {
 		try {
 			$user = new \models\User();
@@ -122,10 +122,35 @@ class Group extends \Controller {
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
 			
+			$keyword = $user->filterHtmlChars($base->get("POST.keyword"));
+			if (empty($keyword)) throw new \Exception("Empty keyword", 3);
+			
 			$group = new \models\Group();
+			$search_result = $group->findByKeyword($keyword);
+			
+			if ($search_result["count"] == 0)
+				throw new \Exception("No group match the given keyword", 4);
+			
+			foreach ($search_result["groups"] as $k => $group_info) {
+				$user_permissions = $group->getPermissions($user_id, $group_info["id"], $group_info);
+				
+				if (!$user_permissions["view_profile"]){
+					$search_result["count"] -= 1;
+					unset($search_result["groups"][$k]);
+				}
+				
+				$group->removePrivateKeys($search_result["groups"][$k]);
+			}
+			
+			if ($search_result["count"] == 0)
+				throw new \Exception("No group match the given keyword", 4);
+			
+			$this->json_printResponse(array("count" => $search_result["count"], "groups" => $search_result["groups"]));
+		} catch (\Exception $e){
+			$this->json_printException($e);
 		}
 	}
-	*/
+	
 	function api_create($base) {
 		try {
 			$user = new \models\User();
@@ -442,7 +467,7 @@ class Group extends \Controller {
 			
 			$user_permissions = $group->getPermissions($user_id, $group_id, $target_group);
 			
-			if ($group->hasUser($target_group, $user_id)) {
+			if ($group->hasUser($target_group, $user_id))
 				throw new \Exception("You already applied to the group or are already a member", 6);
 			
 			if (!$user_permissions["apply"])
