@@ -38,6 +38,7 @@ The server side code of project Ugl.
 		 - [Transfer ownership](#4-transfer-ownership-of-a-group)
 		 - [Edit group profile](#5-edit-group-profile)
 		 - [Invite users to join a group](#7-invite-users-to-join-a-group)
+		 - [Apply to join a group](#8-apply-to-join-a-group)
 	 - [News](#3-news)
 
 ***
@@ -932,6 +933,36 @@ Note that `@` will be encoded to `%2c`.
 * 8 - Email did not send due to server error
 * 9 - Email did not send due to server runtime error
 
+### 8) Apply to Join a Group
+
+Let a user that is not a group member apply to join a group.
+
+#### Request
+
+| Name   | Description                                    |
+| ------ | ---------------------------------------------- |
+| Method | POST                                           |
+| URL    | `/api/group/apply`                             |
+| DATA   | `group_id`=12                                  |
+
+`group_id` is the id of the group to join.
+
+Don't forget the cookie `ugl_user` when sending request.
+
+#### Response
+
+* If the group automatically approves of applications, a success message _You have joined the group_ is returned.
+* If not, then a success message _You have applied to the group_ is returned.
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Must provide the authentication cookie `ugl_user`) 
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Group id not specified (`group_id` is not POSTed)
+* 4 - Invalid group id (`group_id` is not a number)
+* 5 - Group not found
+* 6 - You already applied to the group or are already a member
+* 7 - You cannot apply to join the group (permission denied)
 
 ## 3. News API
 

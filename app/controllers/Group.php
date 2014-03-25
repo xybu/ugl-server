@@ -114,8 +114,19 @@ class Group extends \Controller {
 			$this->json_printException($e);
 		}
 	}
-	
-	function api_create($base){
+	/*
+	function api_find($base) {
+		try {
+			$user = new \models\User();
+			$user_status = API::getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			
+			$group = new \models\Group();
+		}
+	}
+	*/
+	function api_create($base) {
 		try {
 			$user = new \models\User();
 			$user_status = API::getUserStatus($base, $user);
@@ -414,28 +425,39 @@ class Group extends \Controller {
 			$user = new \models\User();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
 			
 			if (!$base->exists("POST.group_id"))
 				throw new \Exception("Group id not specified", 3);
 			
-			$target_gid = $base->get("POST.group_id");
-			if (!is_numeric($target_gid))
+			$group_id = $base->get("POST.group_id");
+			if (!is_numeric($group_id))
 				throw new \Exception("Invalid group id", 4);
 			
 			$group = new \models\Group();
 			
-			$target_group = $group->findById($target_gid);
+			$target_group = $group->findById($group_id);
 			if (empty($target_group))
 				throw new \Exception("Group not found", 5);
 			
-			$user_permissions = $group->getPermissions($user_id, $target_gid, $target_group);
+			$user_permissions = $group->getPermissions($user_id, $group_id, $target_group);
+			
+			if ($group->hasUser($target_group, $user_id)) {
+				throw new \Exception("You already applied to the group or are already a member", 6);
 			
 			if (!$user_permissions["apply"])
-				throw new \Exception("You cannot apply to join the group", 6);
+				throw new \Exception("You cannot apply to join the group", 7);
 			
-			// if the group is totally open, simply add the user to member role
-						
-			//TODO: fix the logic above
+			if ($target_group["_preferences"]["autoApproveApplication"]) {
+				$group->addUser($user_id, "member", $target_group);
+				$message = "You have joined the group";
+			} else {
+				$group->addUser($user_id, "pending", $target_group);
+				$message = "You have applied to the group";
+				//TODO: send an email
+			}
+			$group->save($target_group);
+			$this->json_printResponse(array("message" => $message));
 			
 		} catch (\Exception $e){
 			$this->json_printException($e);
