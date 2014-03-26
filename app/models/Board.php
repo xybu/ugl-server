@@ -26,7 +26,7 @@ class Board extends \Model {
 	}
 	
 	function findByUserId($user_id) {
-		$result = $this->queryDb("SELECT id FROM boards WHERE user_id=? LIMIT 1;", $user_id);
+		$result = $this->queryDb("SELECT id FROM boards WHERE user_id=?;", $user_id);
 		if (empty($result) or count($result) == 0) return null;
 		
 		$boards = array();
@@ -35,7 +35,7 @@ class Board extends \Model {
 	}
 	
 	function findByGroupId($group_id) {
-		$result = $this->queryDb("SELECT id FROM boards WHERE group_id=? LIMIT 1;", $group_id);
+		$result = $this->queryDb("SELECT id FROM boards WHERE group_id=?;", $group_id);
 		if (empty($result) or count($result) == 0) return null;
 		
 		$boards = array();
@@ -78,8 +78,9 @@ class Board extends \Model {
 	}
 	
 	function save(&$board_info) {
+		$board_info["last_active_at"] = date("Y-m-d H:i:s");
 		$this->queryDb("UPDATE boards " .
-			"SET order=:order, user_id=:user_id, group_id=:group_id, title=:title, description=:description, last_active_at=NOW() ".
+			"SET order=:order, user_id=:user_id, group_id=:group_id, title=:title, description=:description, last_active_at=:last_active_at ".
 			"WHERE id=:id;",
 			array(
 				":id" => $board_info["id"],
@@ -87,7 +88,8 @@ class Board extends \Model {
 				":user_id" => $board_info["user_id"],
 				":group_id" => $board_info["group_id"],
 				":title" => $board_info["title"],
-				":description" => $board_info["description"]
+				":description" => $board_info["description"],
+				":last_active_at" => $board_info["last_active_at"]
 			)
 		);
 		
