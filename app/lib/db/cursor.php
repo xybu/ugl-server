@@ -32,6 +32,12 @@ abstract class Cursor extends \Magic {
 		$trigger=array();
 
 	/**
+	*	Return database type
+	*	@return string
+	**/
+	abstract function dbtype();
+
+	/**
 	*	Return fields of mapper object as an associative array
 	*	@return array
 	*	@param $obj object
@@ -110,9 +116,10 @@ abstract class Cursor extends \Magic {
 	*	@param $size int
 	*	@param $filter string|array
 	*	@param $options array
-	* 	@param $ttl int
+	*	@param $ttl int
 	**/
-	function paginate($pos=0,$size=10,$filter=NULL,array $options=NULL,$ttl=0) {
+	function paginate(
+		$pos=0,$size=10,$filter=NULL,array $options=NULL,$ttl=0) {
 		$total=$this->count($filter,$ttl);
 		$count=ceil($total/$size);
 		$pos=max(0,min($pos,$count-1));
@@ -121,7 +128,8 @@ abstract class Cursor extends \Magic {
 				array_merge(
 					$options?:array(),
 					array('limit'=>$size,'offset'=>$pos*$size)
-				),$ttl
+				),
+				$ttl
 			),
 			'total'=>$total,
 			'limit'=>$size,
@@ -205,34 +213,92 @@ abstract class Cursor extends \Magic {
 
 	/**
 	*	Define onload trigger
-	*	@return closure
+	*	@return callback
+	*	@param $func callback
 	**/
 	function onload($func) {
 		return $this->trigger['load']=$func;
 	}
 
 	/**
+	*	Define beforeinsert trigger
+	*	@return callback
+	*	@param $func callback
+	**/
+	function beforeinsert($func) {
+		return $this->trigger['beforeinsert']=$func;
+	}
+
+	/**
+	*	Define afterinsert trigger
+	*	@return callback
+	*	@param $func callback
+	**/
+	function afterinsert($func) {
+		return $this->trigger['afterinsert']=$func;
+	}
+
+	/**
 	*	Define oninsert trigger
-	*	@return closure
+	*	@return callback
+	*	@param $func callback
 	**/
 	function oninsert($func) {
-		return $this->trigger['insert']=$func;
+		return $this->afterinsert($func);
+	}
+
+	/**
+	*	Define beforeupdate trigger
+	*	@return callback
+	*	@param $func callback
+	**/
+	function beforeupdate($func) {
+		return $this->trigger['beforeupdate']=$func;
+	}
+
+	/**
+	*	Define afterupdate trigger
+	*	@return callback
+	*	@param $func callback
+	**/
+	function afterupdate($func) {
+		return $this->trigger['afterupdate']=$func;
 	}
 
 	/**
 	*	Define onupdate trigger
-	*	@return closure
+	*	@return callback
+	*	@param $func callback
 	**/
 	function onupdate($func) {
-		return $this->trigger['update']=$func;
+		return $this->afterupdate($func);
+	}
+
+	/**
+	*	Define beforeerase trigger
+	*	@return callback
+	*	@param $func callback
+	**/
+	function beforeerase($func) {
+		return $this->trigger['beforeerase']=$func;
+	}
+
+	/**
+	*	Define aftererase trigger
+	*	@return callback
+	*	@param $func callback
+	**/
+	function aftererase($func) {
+		return $this->trigger['aftererase']=$func;
 	}
 
 	/**
 	*	Define onerase trigger
-	*	@return closure
+	*	@return callback
+	*	@param $func callback
 	**/
 	function onerase($func) {
-		return $this->trigger['erase']=$func;
+		return $this->aftererase($func);
 	}
 
 	/**
