@@ -78,6 +78,14 @@ Notes:
 	 * Username: ugl@sige.us
 	 * Password: Boilermaker!
 
+## Licenses
+ * Fat-Free Framework: GPLv3
+ * Opauth: MIT License
+	 * Source code modified conforming to MIT License
+ * Bootstrap:
+ * jQuery:
+	 * jQuery Address 1.6
+
 ***
 
 # Server API Notes
