@@ -16,5 +16,9 @@ class Board extends \Controller {
 	function api_edit($base) {
 	}
 	
-	function api_list($base) {
+	function api_list($base, $args) {
+		$identity = $args["identity"];
+		$id = $args["id"];
+		
+		
 	}

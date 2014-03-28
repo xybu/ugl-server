@@ -278,6 +278,13 @@ class User extends \Controller {
 					$base->set("group_info", $group_info);
 					$sub_panel = "group";
 				case "boards":
+					$board = new \models\Board();
+					$board_list = $board->findByUserId($me["id"]);
+					$discussion = new \models\Discussion();
+					foreach ($board_list["boards"] as $id => $board){
+						$board_list["boards"][$id]["discussions"] = $discussion->
+					}
+					$base->set("board_list", $board_list);
 					break;
 				case "items":
 					break;

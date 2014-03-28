@@ -26,12 +26,12 @@ class Board extends \Model {
 	}
 	
 	function findByUserId($user_id) {
-		$result = $this->queryDb("SELECT id FROM boards WHERE user_id=?;", $user_id);
+		$result = $this->queryDb("SELECT id FROM boards WHERE user_id=:user_id OR group_id IN (SELECT _joined_groups FROM users WHERE id=:user_id)", array(":user_id" => $user_id));
 		if (empty($result) or count($result) == 0) return null;
 		
 		$boards = array();
 		foreach ($result as $k => $v) $boards[] = $this->findById($v["id"]);
-		return $boards;
+		return array("count" => count($boards), "boards" => $boards);
 	}
 	
 	function findByGroupId($group_id) {
