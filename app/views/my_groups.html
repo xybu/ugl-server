@@ -14,18 +14,19 @@
 				"</div></div></div>";
 		}
 	}
-?><div class="container-fluid">
+?>
+<h1 class="page-header">My Groups <span class="badge" id="group_count"><?php echo $groupList["count"]?></span>
+	<div class="pull-right wider-screen">
+		<button type="button" data-toggle="modal" data-target="#create_group_modal" class="btn btn-primary"><i class="fa fa-plus-square fa-fw"></i> Create</button>
+		<button type="button" data-toggle="modal" data-target="#join_group_modal" class="btn btn-success"><i class="fa fa-sign-in fa-fw"></i> Join</button>
+	</div>
+</h1>
+<div class="container-fluid">
 	<div class="row">
-		<div class="col-md-12">
-			<h1 class="page-header">My Groups <span class="badge" id="group_count"><?php echo $groupList["count"]?></span>
-				<div class="pull-right wider-screen">
-					<button type="button" data-toggle="modal" data-target="#create_group_modal" class="btn btn-primary"><i class="fa fa-plus-square fa-fw"></i> Create</button>
-					<button type="button" data-toggle="modal" data-target="#join_group_modal" class="btn btn-success"><i class="fa fa-sign-in fa-fw"></i> Join</button>
-				</div>
-			</h1>
+		<div class="col-md-12">			
 			<section class="row tablet-only">
-				<button type="button" class="btn btn-primary"><i class="fa fa-plus-square"></i> Create</button>
-				<button type="button" class="btn btn-info"><i class="fa fa-sign-in"></i> Join</button>
+				<button type="button" data-toggle="modal" data-target="#create_group_modal" class="btn btn-primary"><i class="fa fa-plus-square"></i> Create</button>
+				<button type="button" data-toggle="modal" data-target="#join_group_modal" class="btn btn-success"><i class="fa fa-sign-in"></i> Join</button>
 			</section>
 			<section class="row" id="group-list">
 				<?php echo $group_str?>
