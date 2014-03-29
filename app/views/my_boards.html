@@ -19,12 +19,12 @@ foreach ($board_list["boards"] as $board_item){
 					<i class="fa fa-plus-square"></i> Create a new board
 					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button></h3>
 			</div>
-			<form class="form-horizontal" action="post" id="create_group_form">
+			<form class="form-horizontal" action="post" id="create_board_form">
 				<div class="modal-body">
 					<div class="row form-group">
 						<div class="col-sm-4 col-md-3 itemLabel">Name</div>
 						<div class="col-sm-8 col-md-9">
-							<input type="text" id="alias" name="alias" placeholder="Name of your group." required maxlength="32" data-toggle="tooltip" data-placement="right" title="Please type a valid group name">
+							<input type="text" id="alias" name="alias" placeholder="short and succinct" required maxlength="32" data-toggle="tooltip" data-placement="right" title="Please type a valid group name">
 							<p class="help-block">Required. Allow letters, digits, "-", and "_". No more than 32 characters.</p>
 						</div>
 					</div>
@@ -36,19 +36,18 @@ foreach ($board_list["boards"] as $board_item){
 						</div>
 					</div>
 					<div class="row form-group">
-						<div class="col-sm-4 col-md-3 itemLabel">Tags</div>
+						<div class="col-sm-4 col-md-3 itemLabel">Visibility</div>
 						<div class="col-sm-8 col-md-9">
-							<input type="text" id="tags" name="tags" placeholder="eg., purdue cs php" size="40">
-							<p class="help-block">Optional. Words separated by spaces.</p>
-						</div>
-					</div>
-					<div class="row form-group">
-						<div class="col-sm-4 col-md-3 itemLabel">Status</div>
-						<div class="col-sm-8 col-md-9">
-							<input name="status" id="status-2" value="2" type="radio">
-							<label for="status-2">Private - Only group members can see the group.</label><br>
-							<input name="status" id="status-3" value="3" type="radio">
-							<label for="status-3">Public - Everyone can see the group.</label>
+							<select class="selectpicker" data-live-search="true" id="group_id" name="group_id">
+								<option value="0">Only I can see the board.</option>
+								<?php
+								foreach ($me["_joined_groups"] as $key => $val) {
+									if (!$val["my_permissions"]["new_board"]) $disabled = " disabled";
+									else $disabled = "";
+									echo "<option value=\"" . $val["id"] . "\"". $disabled .">Visible to group " . $val["alias"] . ".</option>";
+								}
+								?>
+							</select>
 						</div>
 					</div>
 					<div class="row hidden text-center" id="create_group_prompt">
