@@ -361,6 +361,7 @@ function toggleBoard(id){
 
 function init_boards(){
 	document.title = "Boards | Ugl";
+	$('.selectpicker').selectpicker();
 	ugl_panel_initialized = true;
 }
 

@@ -270,7 +270,7 @@ body.loading .ajax-loading {
     top: 15px;
     left: -20px;
     position: absolute;
-    background: url("../img/disc-arrow.png") no-repeat;
+    background: url("/assets/img/disc-arrow.png") no-repeat;
     background-size: 20px 20px;
 }
 .discussions ul li .author {
