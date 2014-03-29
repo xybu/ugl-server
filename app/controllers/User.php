@@ -84,8 +84,8 @@ class User extends \Controller {
 					throw new \Exception("Invalid response: " . $reason, 3);
 				
 				// load user and authentication models
-				$authentication = new \models\Authentication();
-				$user = new \models\User();
+				$authentication = \models\Authentication::instance();
+				$user = \models\User::instance();
 				
 				// check if user already has authenticated using this provider before				
 				$oauth_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
@@ -160,8 +160,8 @@ class User extends \Controller {
 			$oauth_obj->loadJSON($oauth_str);
 			$response = $oauth_obj->toArray();
 			
-			$authentication = new \models\Authentication();
-			$user = new \models\User();
+			$authentication = \models\Authentication::instance();
+			$user = \models\User::instance();
 			
 			$oauth_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
 			$user_id = null;
@@ -209,7 +209,7 @@ class User extends \Controller {
 	
 	function showUserPanel($base, $args){
 		
-		$user = new \models\User();
+		$user = \models\User::instance();
 		
 		try {
 			$session_creds = API::getUserStatus($base, $user);
@@ -224,7 +224,7 @@ class User extends \Controller {
 		if (empty($me) or !$user->token_verify($me, $session_creds["ugl_token"]))
 			$this->backToHomepage($base);
 		
-		$group = new \models\Group();
+		$group = \models\Group::instance();
 		
 		if ($base->exists("SESSION.invitation")) {
 			$invited_group = $group->findById($base->get("SESSION.invitation")["group_id"]);
@@ -278,12 +278,14 @@ class User extends \Controller {
 					$base->set("group_info", $group_info);
 					$sub_panel = "group";
 				case "boards":
-					$board = new \models\Board();
+					$board = \models\Board::instance();
 					$board_list = $board->findByUserId($me["id"]);
-					$discussion = new \models\Discussion();
-					foreach ($board_list["boards"] as $id => $board){
-						$board_list["boards"][$id]["discussions"] = $discussion->
+					$discussion = \models\Discussion::instance();
+					foreach ($board_list["boards"] as $keyId => $board){
+						$board_list["boards"][$keyId]["discussion_list"] = $discussion->listByBoardId($board["id"]);
 					}
+					//var_dump($board_list);
+					//die();
 					$base->set("board_list", $board_list);
 					break;
 				case "items":
@@ -310,7 +312,7 @@ class User extends \Controller {
 	}
 	
 	function loadUserPanel($base, $args){
-		$user = new \models\User();
+		$user = \models\User::instance();
 		try {
 			$session_creds = API::getUserStatus($base, $user);
 		} catch (\Exception $e) {
@@ -326,7 +328,7 @@ class User extends \Controller {
 				case "dashboard":
 					break;
 				case "groups":
-					$group = new \models\Group();
+					$group = \models\Group::instance();
 					$group_list = $group->listGroupsOfUserId($me["id"], $group::STATUS_INACTIVE);
 					$base->set("groupList", $group_list);
 					break;
@@ -336,7 +338,7 @@ class User extends \Controller {
 					if (!is_numeric($item_id))
 						throw new \Exception("Group id should be a number", 3);
 					
-					$group = new \models\Group();
+					$group = \models\Group::instance();
 					$group_info = $group->findById($item_id);
 					
 					if (!$group_info)
@@ -383,7 +385,7 @@ class User extends \Controller {
 	}
 	
 	function loadUserModal($base, $args){
-		$user = new \models\User();
+		$user = \models\User::instance();
 		try {
 			$session_creds = API::getUserStatus($base, $user);
 		} catch (\Exception $e) {
@@ -407,7 +409,7 @@ class User extends \Controller {
 							if (!is_numeric($item_id))
 								throw new \Exception("Group id should be a number", 3);
 							
-							$group = new \models\Group();
+							$group = \models\Group::instance();
 							$group_info = $group->findById($item_id);
 						
 							if (!$group_info)
@@ -463,7 +465,7 @@ class User extends \Controller {
 				!$base->exists("POST.first_name") or !$base->exists("POST.last_name"))
 					throw new \Exception("Email, password, or name not provided", 100);
 			
-			$user = new \models\User();
+			$user = \models\User::instance();
 			
 			$email = $base->get("POST.email");
 			
@@ -498,7 +500,7 @@ class User extends \Controller {
 	
 	function api_getInfo($base, $args){
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
@@ -522,7 +524,7 @@ class User extends \Controller {
 	
 	function api_setInfo($base){
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
@@ -599,12 +601,12 @@ class User extends \Controller {
 	
 	function api_uploadAvatar($base){
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
 			
-			$upload = new \models\Upload();
+			$upload = \models\Upload::instance();
 			$numOfFiles = $upload->uploadImages($base->get("UPLOAD_AVATARS_DIR"), array("user_" . $user_id . ".png"));
 			
 			if ($numOfFiles == 1) {

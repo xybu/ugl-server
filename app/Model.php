@@ -7,19 +7,19 @@
  * @date	Mar 16, 2014
  */
 
-class Model {
-	protected $base;
-	protected $cache;
+class Model extends \Prefab{
+	protected $base = null;
+	protected $cache = null;
 	protected $db = null;
 	protected $logger = null;
 	
 	function __construct(){
-		$this->base=Base::instance();
+		$this->base = \Base::instance();
 		$this->cache = \Cache::instance();
-		$this->db = new DB\SQL("mysql:host=" . $this->base->get("DB_HOST") . ";port=" . $this->base->get("DB_PORT") . ";dbname=" . $this->base->get("DB_NAME") . "", $this->base->get("DB_USER"), $this->base->get("DB_PASS"));
+		$this->db = new \DB\SQL("mysql:host=" . $this->base->get("DB_HOST") . ";port=" . $this->base->get("DB_PORT") . ";dbname=" . $this->base->get("DB_NAME") . "", $this->base->get("DB_USER"), $this->base->get("DB_PASS"));
 	}
 	
-	function queryDb($cmds, $args=NULL, $ttl=0, $log=TRUE) {
+	function queryDb($cmds, $args = null, $ttl=0, $log = true) {
 		return $this->db->exec($cmds, $args, $ttl, $log);
 	}
 	

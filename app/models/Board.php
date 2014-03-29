@@ -16,7 +16,7 @@ class Board extends \Model {
 		if ($this->cache->exists("board_id_" . $id))
 			return $this->cache->get("board_id_" . $id);
 		
-		$result = $this->queryDb("SELECT * FROM boards WHERE id=? LIMIT 1;", $id);
+		$result = self::queryDb("SELECT * FROM boards WHERE id=? LIMIT 1;", $id);
 		if (count($result) == 1){
 			$result = $result[0];
 			$this->cache->set("board_id_" . $id, $result, static::BOARD_CACHE_TTL);
@@ -26,7 +26,7 @@ class Board extends \Model {
 	}
 	
 	function findByUserId($user_id) {
-		$result = $this->queryDb("SELECT id FROM boards WHERE user_id=:user_id OR group_id IN (SELECT _joined_groups FROM users WHERE id=:user_id)", array(":user_id" => $user_id));
+		$result = self::queryDb("SELECT id FROM boards WHERE user_id=:user_id OR group_id IN (SELECT _joined_groups FROM users WHERE id=:user_id)", array(":user_id" => $user_id));
 		if (empty($result) or count($result) == 0) return null;
 		
 		$boards = array();
@@ -35,7 +35,7 @@ class Board extends \Model {
 	}
 	
 	function findByGroupId($group_id) {
-		$result = $this->queryDb("SELECT id FROM boards WHERE group_id=?;", $group_id);
+		$result = self::queryDb("SELECT id FROM boards WHERE group_id=?;", $group_id);
 		if (empty($result) or count($result) == 0) return null;
 		
 		$boards = array();
@@ -45,7 +45,7 @@ class Board extends \Model {
 	
 	function create($user_id, $group_id, $title, $description, $order = 0){
 		$created_at = date("Y-m-d H:i:s");
-		$this->queryDb(
+		self::queryDb(
 			"INSERT INTO boards (user_id, group_id, title, description, order, created_at, last_active_at) " .
 			"VALUES (:user_id, :group_id, :title, :description, :order, :created_at, NOW()); ",
 			array(
@@ -58,7 +58,7 @@ class Board extends \Model {
 			)
 		);
 		
-		$result = $this->queryDb(
+		$result = self::queryDb(
 			"SELECT id FROM boards WHERE user_id=:user_id AND group_id=:group_id AND created_at=:created_at LIMIT 1;", 
 			array(
 				':user_id' => $user_id,
@@ -71,7 +71,7 @@ class Board extends \Model {
 	}
 	
 	function delete($board_info) {
-		$this->queryDb("DELETE FROM boards WHERE id=? LIMIT 1;", $board_info["id"]);
+		self::queryDb("DELETE FROM boards WHERE id=? LIMIT 1;", $board_info["id"]);
 		
 		if ($this->cache->exists("board_id_" . $board_info["id"]))
 			$this->cache->clear("board_id_" . $board_info["id"]);
@@ -79,7 +79,7 @@ class Board extends \Model {
 	
 	function save(&$board_info) {
 		$board_info["last_active_at"] = date("Y-m-d H:i:s");
-		$this->queryDb("UPDATE boards " .
+		self::queryDb("UPDATE boards " .
 			"SET order=:order, user_id=:user_id, group_id=:group_id, title=:title, description=:description, last_active_at=:last_active_at ".
 			"WHERE id=:id;",
 			array(

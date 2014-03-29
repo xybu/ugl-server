@@ -21,8 +21,8 @@ class Group extends \Controller {
 	function api_listByUserId($base){
 		try {
 			
-			$user = new \models\User();
-			$group = new \models\Group();
+			$user = \models\User::instance();
+			$group = \models\Group::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$token = $user_status["ugl_token"];
@@ -69,7 +69,7 @@ class Group extends \Controller {
 	 */
 	function api_getInfo($base){
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			if ($base->exists("COOKIE.ugl_user")){
 				$user_status = API::getUserStatus($base, $user);
 				$user_id = $user_status["user_id"];
@@ -84,7 +84,7 @@ class Group extends \Controller {
 			if (!is_numeric($target_gid))
 				throw new \Exception("Invalid group id", 4);
 			
-			$group = new \models\Group();
+			$group = \models\Group::instance();
 			
 			$target_group = $group->findById($target_gid);
 			if (empty($target_group))
@@ -117,7 +117,7 @@ class Group extends \Controller {
 	
 	function api_find($base) {
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
@@ -125,7 +125,7 @@ class Group extends \Controller {
 			$keyword = $user->filterHtmlChars($base->get("POST.keyword"));
 			if (empty($keyword)) throw new \Exception("Empty keyword", 3);
 			
-			$group = new \models\Group();
+			$group = \models\Group::instance();
 			$search_result = $group->findByKeyword($keyword);
 			
 			if ($search_result["count"] == 0)
@@ -153,12 +153,12 @@ class Group extends \Controller {
 	
 	function api_create($base) {
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
 			
-			$group = new \models\Group();
+			$group = \models\Group::instance();
 			
 			$group_name = $base->get("POST.alias");
 			if (!$group->isValidAlias($group_name)) throw new \Exception("Group name is not of the specified format. Plese check", 3);
@@ -190,7 +190,7 @@ class Group extends \Controller {
 	
 	function api_leave($base){
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
@@ -202,7 +202,7 @@ class Group extends \Controller {
 			if (!is_numeric($target_gid))
 				throw new \Exception("Invalid group id", 4);
 			
-			$group = new \models\Group();
+			$group = \models\Group::instance();
 			
 			$target_group = $group->findById($target_gid);
 			if (empty($target_group))
@@ -273,7 +273,7 @@ class Group extends \Controller {
 	
 	function api_edit($base){
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			
@@ -284,7 +284,7 @@ class Group extends \Controller {
 			if (!is_numeric($target_gid))
 				throw new \Exception("Invalid group id", 4);
 			
-			$group = new \models\Group();
+			$group = \models\Group::instance();
 			
 			$target_group = $group->findById($target_gid);
 			if (empty($target_group))
@@ -345,7 +345,7 @@ class Group extends \Controller {
 	
 	function api_invite($base){
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
@@ -357,7 +357,7 @@ class Group extends \Controller {
 			if (!is_numeric($group_id))
 				throw new \Exception("Invalid group id", 4);
 			
-			$group = new \models\Group();
+			$group = \models\Group::instance();
 			
 			$group_info = $group->findById($group_id);
 			if (empty($group_info))
@@ -447,7 +447,7 @@ class Group extends \Controller {
 	
 	function api_apply($base){
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
@@ -459,7 +459,7 @@ class Group extends \Controller {
 			if (!is_numeric($group_id))
 				throw new \Exception("Invalid group id", 4);
 			
-			$group = new \models\Group();
+			$group = \models\Group::instance();
 			
 			$target_group = $group->findById($group_id);
 			if (empty($target_group))
@@ -491,7 +491,7 @@ class Group extends \Controller {
 	
 	function api_uploadAvatar($base){
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
@@ -503,7 +503,7 @@ class Group extends \Controller {
 			if (!is_numeric($target_gid))
 				throw new \Exception("Invalid group id", 4);
 			
-			$group = new \models\Group();
+			$group = \models\Group::instance();
 			
 			$target_group = $group->findById($target_gid);
 			if (empty($target_group))
@@ -514,7 +514,7 @@ class Group extends \Controller {
 			if (!$user_permissions["manage"])
 				throw new \Exception("Unauthorized request", 6);
 			
-			$upload = new \models\Upload();
+			$upload = \models\Upload::instance();
 			$numOfFiles = $upload->uploadImages($base->get("UPLOAD_AVATARS_DIR"), array("group_" . $target_gid . ".png"));
 			
 			if ($numOfFiles == 1) {

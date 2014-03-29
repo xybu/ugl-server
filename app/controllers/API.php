@@ -46,7 +46,7 @@ class API extends \Controller {
 			if (!$base->exists("POST.email") or !$base->exists("POST.password"))
 				throw new \Exception("Email or password not provided", 100);
 			
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$email = $base->get("POST.email");
 			$password = $base->get("POST.password");
 			
@@ -86,7 +86,7 @@ class API extends \Controller {
 	
 	function revokeToken($base, $no_output = false){
 		try {
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$user_status = self::getUserStatus($base, $user);
 			
 			$user->token_refresh($user_status["user_info"]);
@@ -105,7 +105,7 @@ class API extends \Controller {
 			if ($base->exists("SESSION.resetPass_count") && intval($base->get("SESSION.resetPass_count")) > static::RSTPWD_REQ_PER_SESSION)
 				throw new \Exception("Please try this operation later", 2);
 			
-			$user = new \models\User();
+			$user = \models\User::instance();
 			$email = $base->get("POST.email");
 			if (!$user->isValidEmail($email))
 				throw new \Exception("Invalid email address", 3);

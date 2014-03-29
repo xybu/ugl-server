@@ -19,7 +19,7 @@ class Home extends \Controller {
 	}
 	
 	function acceptInvitation_callBack($base){
-		$user = new \models\User();
+		$user = \models\User::instance();
 		$user_status = null;
 		try {
 			$user_status = API::getUserStatus($base, $user);
@@ -46,7 +46,7 @@ class Home extends \Controller {
 			if (empty($inviter_info))
 				throw new \Exception("The inviter does not exist.", 7);
 			
-			$group = new \models\Group();
+			$group = \models\Group::instance();
 			
 			$group_info = $group->findById($ticket_json->group_id);
 			if (empty($group_info))
@@ -92,7 +92,7 @@ class Home extends \Controller {
 			
 			$ticket_json = json_decode($ticket_decrypt);
 			
-			$user = new \models\User();
+			$user = \models\User::instance();
 			
 			$email = $ticket_json->email;
 			if (!$user->isValidEmail($email))

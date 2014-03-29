@@ -16,16 +16,28 @@ class Discussion extends \Model {
 	 * Support level2 list only.
 	 */
 	function listById($id) {
-		$result = $this->queryDb("SELECT * FROM discussions WHERE id=:id OR parent_id=:id ORDER BY created_at ASC;", array(":id" => $id));
+		$result = self::queryDb("SELECT * FROM discussions WHERE id=:id OR parent_id=:id ORDER BY created_at ASC;", array(":id" => $id));
 		$ret = array("count" => 0);
 		if (empty($result) or count($result) == 0) return $ret;
 		$ret["discussions"] = $result;
-		return array("count" => count($result), "discussion" => $discussions);
+		$ret["count"] = count($result);
+		return $ret;
+	}
+	
+	function listByBoardId($id) {
+		$result = self::queryDb("SELECT id FROM discussions WHERE board_id=:id AND parent_id=0 ORDER BY created_at DESC, pin DESC;", array(":id" => $id));
+		if (empty($result) or count($result) == 0) return null;
+		
+		$discussions = array();
+		foreach ($result as $key => $val)
+			$discussions[] = $this->listById($val["id"]);
+		
+		return $discussions;
 	}
 	
 	function create($parent_id, $user_id, $board_id, $discussion, $body){
 		$created_at = date("Y-m-d H:i:s");
-		$this->queryDb(
+		self::queryDb(
 			"INSERT INTO discussions (parent_id, user_id, board_id, discussion, body, created_at, last_update_at) " .
 			"VALUES (:parent_id, :user_id, :board_id, :discussion, :body, :last_update_at, :last_update_at);",
 			array(
@@ -38,7 +50,7 @@ class Discussion extends \Model {
 			)
 		);
 		
-		$result = $this->queryDb(
+		$result = self::queryDb(
 			"SELECT id FROM discussions WHERE parent_id=:parent_id AND user_id=:user_id AND board_id=:board_id AND created_at=:created_at LIMIT 1;", 
 			array(
 				':parent_id' => $parent_id,
@@ -54,12 +66,12 @@ class Discussion extends \Model {
 	}
 	
 	function delete($id) {
-		$this->queryDb("DELETE FROM discussions WHERE id=:id OR parent_id=:id LIMIT 1;", array(":id" => $id));
+		self::queryDb("DELETE FROM discussions WHERE id=:id OR parent_id=:id LIMIT 1;", array(":id" => $id));
 	}
 	
 	function save(&$discussion_info) {
 		$discussion_info["last_update_at"] = date("Y-m-d H:i:s");
-		$this->queryDb("UPDATE discussions " .
+		self::queryDb("UPDATE discussions " .
 			"SET parent_id=:parent_id, user_id=:user_id, board_id=:board_id, discussion=:discussion, body=:body, last_update_at=:last_update_at ".
 			"WHERE id=:id;",
 			array(
