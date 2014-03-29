@@ -344,6 +344,21 @@ function renderGroupListItem(listId, groupObject, hide){
 	$('a.enter-group').address();
 }
 
+function toggleBoard(id){
+	var dom = $("#board-" + id + "-discussions");
+	var toggle_btn = $("#board-" + id + "-toggle i");
+	dom.toggle(function() {
+		$(this).data("toggled", !$(this).data("toggled"));
+	});
+	if (dom.data("toggled")) {
+		toggle_btn.removeClass("fa-angle-down");
+		toggle_btn.addClass("fa-angle-up");
+	} else {
+		toggle_btn.removeClass("fa-angle-up");
+		toggle_btn.addClass("fa-angle-down");
+	}
+}
+
 function init_boards(){
 	document.title = "Boards | Ugl";
 	ugl_panel_initialized = true;

@@ -373,15 +373,20 @@ body.loading .ajax-loading {
 .discussions ul li ul li .message {
     border-bottom: 0;
 }
-.discussions ul li ul li textarea {
+.discussions textarea {
     border: 0;
-    background: #c7cbd5;
+    background: #efefef;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
     width: 100%;
+	height: 67px;
     padding: 5px 8px;
+    overflow: hidden;
+    resize: horizontal;
+    word-wrap: break-word;
 }
+
 .chat {
     position: relative;
     background: white;

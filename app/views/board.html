@@ -1,60 +1,74 @@
+<?
+if (!function_exists("renderDiscussionItem")) {
+	function renderDiscussionItem($discussion){
+		$user_info = \models\User::instance()->findById($discussion["user_id"]);
+		if ($user_info["avatar_url"] == "") $user_info["avatar_url"] = "/assets/img/default-avatar.png";
+		if (!empty($user_info["first_name"]) or !empty($user_info["last_name"]))
+			$name = $user_info["first_name"] . " " . $user_info["last_name"];
+		else $name = $user_info["nickname"];
+		
+		return "<li>".
+			"	<div class=\"author\">".
+			"		<img alt=\"avatar\" src=\"" . $user_info["avatar_url"] . "\">".
+			"	</div>".
+			"	<div class=\"name\">" . $name . "</div>".
+			"	<div class=\"date\">" . $discussion["created_at"] . "</div>".
+			"	<div class=\"delete\"><i class=\"fa fa-times\"></i></div>".
+			"	<div class=\"message\"><div class=\"subject\"></div><div class=\"body\">". $discussion["body"] .
+			"	</div></div>".
+			""; // note the special handling of the corresponding li
+	}
+}
+
+if (empty($me["avatar_url"]))
+	$me["avatar_url"] = "assets/img/default-avatar.png";
+?>
 <div class="container-fluid">
 	<div class="row">
-		<h2 class="sub-header"><?php echo $board_item["title"]?></h2>
-		<div class="col-md-12 discussions">
-			<ul>
-				<li>
-					<?php
-					echo \View::instance()->render("discussion.html");
-					?>
-					<ul>
-						<li>
-							<?php
-					echo \View::instance()->render("discussion.html");
-					?>
-						</li>
-						<li>
-							<?php
-					echo \View::instance()->render("discussion.html");
-					?>
-						</li>
-						<li>
-							<div class="author">
-								<img alt="avatar" src="assets/img/default-avatar.png">
-							</div>
-							<textarea placeholder="Write comment" class="diss-form" style="height: 67px; overflow: hidden; word-wrap: break-word; resize: horizontal;"></textarea>
-						</li>
-					</ul>
-				</li>
-				<li>
-					<?php
-					echo \View::instance()->render("discussion.html");
-					?>
-					<ul>
-						<?php
-						/*foreach ($subjects as $single_subjects){
-							echo "123";
-							echo "discussion<br>";
-							foreach ($single_subjects["sub_subjects"] as $sub_subject){
-								echo "sub_discussion<br>";
-							}
-							echo "/123";
-						}*/
-						?>
-						<li>
-							<?php
-					echo \View::instance()->render("discussion.html");
-					?>
-						</li>
-						<li>
-							<div class="author">
-								<img alt="avatar" src="assets/img/avatar9.jpg">
-							</div>
-							<textarea placeholder="Write comment" class="diss-form" style="height: 67px; overflow: hidden; word-wrap: break-word; resize: horizontal;"></textarea>
-						</li>
-					</ul>
-				</li>
-			</ul>
+		<h2 class="sub-header"><?php echo $board_item["title"]?>
+			<small><?php echo $board_item["description"]?></small>
+			<div class="btn-group pull-right">
+				<a role="button" class="btn btn-default" id="board-<?php echo $board_item["id"]?>-toggle" onclick="toggleBoard(<?php echo $board_item["id"]?>)">
+					<i class="fa fa-angle-up"></i>
+				</a>
+				<a role="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+					<span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu pull-right" role="menu">
+					<li><a href="#">Edit</a></li>
+					<li><a href="#">Delete</a></li>
+					<li class="divider"></li>
+					<li><a href="#">Refresh</a></li>
+				</ul>
+			</div>
+		</h2>
+		<div class="col-md-12 discussions" id="board-<?php echo $board_item["id"]?>-discussions">
+<?php
+if ($board_item["discussion_list"])
+	foreach($board_item["discussion_list"] as $key => $value) {
+			$count = $value["count"]; // number of discussion items
+			$buf = "<li>".
+					"<div class=\"author\">".
+					"	<img alt=\"avatar\" src=\"". $me["avatar_url"] ."\">".
+					"</div>".
+					"<textarea placeholder=\"Write comment\" class=\"diss-form\"></textarea>".
+				"</li>";
+			while ($count > 1) { // there are replies
+				$buf = renderDiscussionItem($value["discussions"][$count - 1]) . "</li>" . $buf;
+				--$count;
+			}
+			$buf = "<ul>" . $buf . "</ul>";
+			echo "<ul>" . renderDiscussionItem($value["discussions"][0]) . $buf . "</li></ul>";
+	}
+
+echo "<ul><li>".
+		"<div class=\"author\">".
+		"	<img alt=\"avatar\" src=\"" . $me["avatar_url"] . "\">".
+		"</div>".
+		"<textarea placeholder=\"Write comment\" class=\"diss-form\"></textarea>".
+	"</li></ul>";
+?>
+		<hr class="page-divider" />
 		</div><!--/col-->
 	</div>
 </div>
