@@ -2,24 +2,25 @@
 
 The server side code of project Ugl.
 
-## Please pay attention to the new Cookie-based authentication mechanism ##
+# Notices
+ * Please deploy the Cookie-based authentication method. (March 23, 2014)
 
 # Table of Contents
 
  - [Introduction](#introduction)
-  - [Architecture](#architecture)
-  - [Files](#files)
-  - [Keys](#keys)
-  - [Planning](#planning)
+	 - [Architecture](#architecture)
+	 - [Files](#files)
+	 - [Keys](#keys)
+	 - [Planning](#planning)
  - [Server API Notes](#server-api-notes)
-  - [Types of Responses](#types-of-responses)
-     - [Success](#1-success)
-     - [Error](#2-error)
-  - [Encryption](#encryption)
-     - [One-way Encryption](#1-one-way-encryption)
-     - [Two-way Encryption](#2-two-way-encryption)
+	 - [Types of Responses](#types-of-responses)
+		 - [Success](#1-success)
+		 - [Error](#2-error)
+	 - [Encryption](#encryption)
+		 - [One-way Encryption](#1-one-way-encryption)
+		 - [Two-way Encryption](#2-two-way-encryption)
  - [API Events](#api)
-	 - [User Identities](#1-user-identities)
+	 - [User API](#1-user-identities)
 		 - [login](#1-login)
 		 - [logout](#2-logout)
 		 - [register](#3-register)
@@ -40,25 +41,33 @@ The server side code of project Ugl.
 		 - [Invite users to join a group](#7-invite-users-to-join-a-group)
 		 - [Apply to join a group](#8-apply-to-join-a-group)
 		 - [Find groups by a keyword](#9-find-groups-by-a-keyword)
-	 - [News](#3-news)
-
-***
+		 - [Manage Users of a Group](#10-manage-users-of-a-group)
+	 - [Board and Discussion API](#3-board-and-discussion-api)
+		 - [List Boards by User](#1-list-boards-by-user)
+		 - [List Boards by Group](#2-list-boards-by-group)
+		 - [Create a Board](#3-create-a-board)
+		 - [Delete a Board](#4-delete-a-board)
+		 - [Edit a Board](#5-edit-a-board)
+		 - [Add a Post](#6-add-a-post)
+		 - [Edit a Post](#7-edit-a-post)
+		 - [Delete a Post](#8-delete-a-post)
 
 # Introduction
 
 ## Architecture
+
 Basic features:
 
 * written in PHP 5.5+ and run on Nginx 1.5+
-* follows MVC model with autoloader
-* generic caching mechanism
+* follows MVC model
+* generic autoload and caching mechanism
 * generic database class
 
 Notes:
 
 * keep an eye on facebook's HipHop VM
 * Xiangyu owns the root of the server so the infrastructure can be changed when needed
-* Web Client front-end is written in HTML5 and CSS3 built ono top of Bootstrap framework.
+* Web Client front-end is written in HTML5 and CSS3 built on top of Bootstrap framework.
 
 ## Files
  * `app` (0750) stores the libraries, configuration files, controllers and models
@@ -78,15 +87,15 @@ Notes:
 	 * Username: ugl@sige.us
 	 * Password: Boilermaker!
 
-## Licenses
- * Fat-Free Framework: GPLv3
+## Licenses of 3rd-Party Components
+ * Fat-Free Framework _3.2.1_: GPLv3 license
  * Opauth: MIT License
 	 * Source code modified conforming to MIT License
- * Bootstrap:
+ * Bootstrap _3.1.1_: MIT license by Twitter (c) 2014
  * jQuery:
-	 * jQuery Address 1.6
-
-***
+	 * jQuery _1.11.0_: MIT license by jQuery project
+	 * jQuery Address _1.6_: GPLv2 and MIT dual licenses
+	 * jQuery Mousewheel _3.1.9_: MIT license by Brandon Aaron (http://brandon.aaron.sh)
 
 # Server API Notes
 
@@ -158,11 +167,9 @@ All data that contains critical information and needs to be decoded should be en
 
 In short `$str=urlencode(base64_encode(aes256($str, $key)))`
 
-***
-
 # API
 
-## 1. User Identities
+## 1. User API
 
 The data fields for User model are defined as below:
 
@@ -759,8 +766,11 @@ Upon success, the requester will receive one of the following depending on the p
 This API sets a new creator for this group, other information remaining unchanged.
 
 #### Request
+
 #### Response
+
 #### Associated Errors
+
 
 ### 5) Edit Group Profile
 
@@ -1032,6 +1042,39 @@ Notes:
 * 2 - Unauthorized request (Authentication expired. Re-login.)
 * 3 - Empty keyword
 * 4 - No group match the given keyword
+
+### 10) Manage Users of a Group
+
+## 3. Board and Discussion API
+
+ * **Board** is the container of **discussions**  (i.e., "topics", "posts" in the context of blogs or forums.)
+	 * Properties:
+		 * `id` (auto_increment)
+		 * `title` (required)
+		 * `user_id` (required)
+		 * `group_id` (optional)
+		 * `description` (optional)
+		 * `created_at` (auto generated)
+ * A **discussion** consists of a root post and zero or more reply posts.
+	 * A discussion can be pinned at the top of discussion list.
+ 
+ 
+### 1) List Boards by User
+
+### 2) List Boards by Group
+
+### 3) Create a Board
+
+### 4) Delete a Board
+
+### 5) Edit a Board
+
+### 6) Add a Post
+
+### 7) Edit a Post
+
+### 8) Delete a Post
+
 
 ## 3. News API
 

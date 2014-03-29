@@ -277,7 +277,13 @@ class User extends \Controller {
 					$base->set("my_permissions", $my_permissions);
 					$base->set("group_info", $group_info);
 					$sub_panel = "group";
+					break;
 				case "boards":
+					$group = \models\Group::instance();
+					foreach ($me["_joined_groups"] as $key => $id) {
+						$me["_joined_groups"][$key] = $group->findById($id);
+						$me["_joined_groups"][$key]["my_permissions"] = $group->getPermissions($me["id"], $id, $me["_joined_groups"][$key]);
+					}
 					$board = \models\Board::instance();
 					$board_list = $board->findByUserId($me["id"]);
 					$discussion = \models\Discussion::instance();
@@ -360,7 +366,22 @@ class User extends \Controller {
 					$base->set("my_permissions", $my_permissions);
 					$base->set("group_info", $group_info);
 					$sub_panel = "group";
+					break;
 				case "boards":
+					$group = \models\Group::instance();
+					foreach ($me["_joined_groups"] as $key => $id) {
+						$me["_joined_groups"][$key] = $group->findById($id);
+						$me["_joined_groups"][$key]["my_permissions"] = $group->getPermissions($me["id"], $id, $me["_joined_groups"][$key]);
+					}
+					$board = \models\Board::instance();
+					$board_list = $board->findByUserId($me["id"]);
+					$discussion = \models\Discussion::instance();
+					foreach ($board_list["boards"] as $keyId => $board){
+						$board_list["boards"][$keyId]["discussion_list"] = $discussion->listByBoardId($board["id"]);
+					}
+					//var_dump($board_list);
+					//die();
+					$base->set("board_list", $board_list);
 					break;
 				case "items":
 					break;
