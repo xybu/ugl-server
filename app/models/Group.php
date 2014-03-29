@@ -258,13 +258,6 @@ class Group extends \Model {
 		$this->cache->clear("group_id_" . $group_info["id"]);
 	}
 	
-	function setCreatorUserId($uid, &$group_data){
-		$group_data["creator_user_id"] = $uid;
-		
-		if ($this->cache->exists("group_id_" . $group_data["id"]))
-			$this->cache->set("group_id_" . $group_data["id"], $group_data);
-	}
-	
 	function hasUser($group_data, $user_id) {
 		foreach ($group_data["__users_raw"] as $role => $users){
 			$i = array_search("" . $uid . "", $users);

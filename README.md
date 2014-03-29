@@ -767,9 +767,31 @@ This API sets a new creator for this group, other information remaining unchange
 
 #### Request
 
+| Name   | Description                               |
+| ------ | ----------------------------------------- |
+| Method | POST                                      |
+| URL    | `/api/group/change_creator`               |
+| DATA   | `group_id`=123&`new_creator_id`=44        |
+
 #### Response
 
+Upon success, it returns the new group information (the role array and `creator_user_id` are updated).
+
+```javascript
+//TODO: To be fetched
+```
+
 #### Associated Errors
+
+* 1 - You should log in to perform the request (Cookie `ugl_user` is missing)
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Group id not specified (`group_id` is not POSTed)
+* 4 - Invalid group id (`group_id` is not a number)
+* 5 - Group not found
+* 6 - Only the creator can transfer ownership of the group
+* 7 - The new creator user is unset
+* 8 - The new creator user not found
+* 9 - The new creator is not in the group
 
 
 ### 5) Edit Group Profile

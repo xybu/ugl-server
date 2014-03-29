@@ -1,10 +1,9 @@
 <?php
 /**
- * Group.php
  * The group controller
  *
  * @author	Xiangyu Bu
- * @date	Mar 10, 2014
+ * @date	Mar 28, 2014
  */
 
 namespace controllers;
@@ -20,7 +19,6 @@ class Group extends \Controller {
 	
 	function api_listByUserId($base){
 		try {
-			
 			$user = \models\User::instance();
 			$group = \models\Group::instance();
 			$user_status = API::getUserStatus($base, $user);
@@ -320,23 +318,47 @@ class Group extends \Controller {
 	}
 	
 	function api_changeCreator($base){
-		// to change the founder of the group
-			if ($base->exists("POST.new_creator_user_id")){
-				if ($group_info["creator_user_id"] != $user_id)
-					throw new \Exception("Only the creator can transfer ownership", 6);
-				
-				$new_creator = $base->get("POST.new_creator_user_id");
-				if (!is_numeric($new_creator))
-					throw new \Exception("User id must be a number", 7);
-				else if ($new_creator != $user_id){
-					if (!$user->findById($new_creator))
-						throw new \Exception("The specified new creator does not exist", 8);
-					
-					$group->changeCreatorUserId($target_gid, $new_creator);
-				}
-				
-				// if the old and new creators are the same, skip this step
-			}
+		try {
+			$user = \models\User::instance();
+			$user_status = API::getUserStatus($base, $user);
+			$user_id = $user_status["user_id"];
+			
+			if (!$base->exists("POST.group_id"))
+				throw new \Exception("Group id not specified", 3);
+			
+			$target_gid = $base->get("POST.group_id");
+			if (!is_numeric($target_gid))
+				throw new \Exception("Invalid group id", 4);
+			
+			$group = \models\Group::instance();
+			
+			$target_group = $group->findById($target_gid);
+			if (empty($target_group))
+				throw new \Exception("Group not found", 5);
+			
+			if ($target_group["creator_user_id"] != $user_id)
+				throw new \Exception("Only the creator can transfer ownership of the group", 6);
+			
+			$new_creator_id = $base->get("POST.new_creator_id");
+			if (!is_numeric($new_creator_id) or empty($new_creator_id))
+				throw new \Exception("The new creator user is unset", 7);
+			
+			$target_user = $user->findById($new_creator_id);
+			if (empty($target_user))
+				throw new \Exception("The new creator user not found", 8);
+			
+			if (!$group->hasUser($target_group, $new_creator_id))
+				throw new \Exception("The new creator is not in the group", 9);
+			
+			$group->changeUserRole($new_creator_id, "admin", $target_group);
+			$target_group["creator_user_id"] = $new_creator_id;
+			$group->save($target_group);
+			
+			$this->json_printResponse(array("message" => "You have successfully transferred the ownership of the group.", "group_data" => $target_group));
+			
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
 	}
 	
 	function api_changeUsers($base){
