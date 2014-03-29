@@ -77,7 +77,7 @@ class Group extends \Model {
 		if ($this->cache->exists("group_id_" . $id))
 			return $this->cache->get("group_id_" . $id);
 		
-		$result = self::queryDb("SELECT * FROM groups WHERE id=? AND status > " . static::STATUS_CLOSED, $id);
+		$result = $this->queryDb("SELECT * FROM groups WHERE id=? AND status > " . static::STATUS_CLOSED, $id);
 		if (count($result) == 1){
 			$result = $result[0];
 			$result["__users_raw"] = $result["users"];
@@ -92,7 +92,7 @@ class Group extends \Model {
 	}
 	
 	function findByAlias($alias){
-		$result = self::queryDb("SELECT id FROM groups WHERE alias=? AND status > " . static::STATUS_CLOSED, $alias);
+		$result = $this->queryDb("SELECT id FROM groups WHERE alias=? AND status > " . static::STATUS_CLOSED, $alias);
 		if (count($result) == 1)
 			return $this->findById($result[0]["id"]);
 		return null;
@@ -100,7 +100,7 @@ class Group extends \Model {
 	
 	// public only
 	function findByKeyword($keyword){
-		$ids = self::queryDb("SELECT id FROM groups WHERE status=" . static::STATUS_PUBLIC . " AND CONCAT_WS(' ', id, alias, description, tags) LIKE ? LIMIT 0, 15;", "%" . $keyword . "%", 7200);
+		$ids = $this->queryDb("SELECT id FROM groups WHERE status=" . static::STATUS_PUBLIC . " AND CONCAT_WS(' ', id, alias, description, tags) LIKE ? LIMIT 0, 15;", "%" . $keyword . "%", 7200);
 		if (count($ids) > 0) {
 			$result = array();
 			foreach ($ids as $k => $i) $result[] = $this->findById($i["id"]);
@@ -111,7 +111,7 @@ class Group extends \Model {
 	
 	// corresponding to static::STATUS_INACTIVE
 	function listGroupsOfUserId($user_id, $target_status = 1){
-		$ids = self::queryDb("SELECT id FROM groups WHERE status >= " . $target_status . " AND users LIKE '%\"" . $user_id . "\"%' ORDER BY status DESC");
+		$ids = $this->queryDb("SELECT id FROM groups WHERE status >= " . $target_status . " AND users LIKE '%\"" . $user_id . "\"%' ORDER BY status DESC");
 		$result = array();
 		foreach ($ids as $i => $d)
 			$result[] = $this->findById($d["id"]);
@@ -179,7 +179,7 @@ class Group extends \Model {
 	}
 	
 	function create($user_id, $alias, $desc, $tags, $status){
-		self::queryDb(
+		$this->queryDb(
 			"INSERT INTO groups (creator_user_id, status, alias, description, tags, users, created_at) " .
 			"VALUES (:user_id, :status, :alias, :desc, :tags, :users, NOW()); ",
 			array(
@@ -222,7 +222,7 @@ class Group extends \Model {
 	}
 	
 	function save($group_data){
-		self::queryDb("UPDATE groups " .
+		$this->queryDb("UPDATE groups " .
 			"SET status=:status, alias=:alias, description=:description, avatar_url=:avatar_url, tags=:tags, creator_user_id=:creator_user_id, users=:users, _preferences=:prefs ".
 			"WHERE id=:id;",
 			array(
@@ -254,7 +254,7 @@ class Group extends \Model {
 			}
 		}
 		
-		self::queryDb("UPDATE groups SET status=:status WHERE id=:id", array(":status" => static::STATUS_CLOSED, ":id" => $group_info["id"]));
+		$this->queryDb("UPDATE groups SET status=:status WHERE id=:id", array(":status" => static::STATUS_CLOSED, ":id" => $group_info["id"]));
 		$this->cache->clear("group_id_" . $group_info["id"]);
 	}
 	

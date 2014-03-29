@@ -5,21 +5,21 @@ namespace models;
 class Authentication extends \Model {
 	
 	function findByProviderUid($provider, $provider_uid){
-		$result = self::queryDb("SELECT * FROM authentications WHERE provider = :provider AND provider_uid = :provider_uid LIMIT 1", 
+		$result = $this->queryDb("SELECT * FROM authentications WHERE provider = :provider AND provider_uid = :provider_uid LIMIT 1", 
 							array(":provider" => $provider, ":provider_uid" => $provider_uid));
 		if (count($result) == 1) return $result[0];
 		return null;
 	}
 	
 	function findByUserId($user_id){
-		$result = self::queryDb("SELECT * FROM authentications WHERE user_id = ? LIMIT 1", $user_id);
+		$result = $this->queryDb("SELECT * FROM authentications WHERE user_id = ? LIMIT 1", $user_id);
 		if (count($result) == 1) return $result[0];
 		return null;
 	}
 	
 	function createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url){ 
 		
-		$result = self::queryDb(
+		$result = $this->queryDb(
 			"INSERT INTO authentications (user_id, provider, provider_uid, email, display_name, first_name, last_name, avatar_url, website_url, created_at) VALUES (:user_id, :provider, :provider_uid, :email, :display_name, :first_name, :last_name, :avatar_url, :website_url, NOW()); " .
 			"SELECT id FROM authentications WHERE user_id=:user_id AND provider_uid=:provider_uid LIMIT 1;", 
 			array(

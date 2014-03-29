@@ -32,7 +32,7 @@ class User extends \Model {
 		if ($this->cache->exists("user_id_" . $id))
 			return $this->cache->get("user_id_" . $id);
 		
-		$result = self::queryDb("SELECT * FROM users WHERE id=? LIMIT 1;", $id);
+		$result = $this->queryDb("SELECT * FROM users WHERE id=? LIMIT 1;", $id);
 		if (count($result) == 1){
 			if (!empty($result[0]["_preferences"]))
 				$result[0]["_preferences"] = json_decode($result[0]["_preferences"], true);
@@ -49,7 +49,7 @@ class User extends \Model {
 	}
 	
 	function findByEmail($email){
-		$result = self::queryDb("SELECT id FROM users WHERE email=? LIMIT 1;", $email);
+		$result = $this->queryDb("SELECT id FROM users WHERE email=? LIMIT 1;", $email);
 		if (count($result) == 1) return $this->findById($result[0]["id"]);
 		return null;
 	}
@@ -79,7 +79,7 @@ class User extends \Model {
 		if (strlen($first_name) > 100) $first_name = substr($first_name, 0, 100);
 		if (strlen($last_name) > 100) $last_name = substr($last_name, 0, 100);
 		
-		self::queryDb(
+		$this->queryDb(
 			"INSERT INTO users (email, __password, first_name, last_name, avatar_url, created_at, __token_active_at) " .
 			"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW()); ",
 			array(
@@ -151,7 +151,7 @@ class User extends \Model {
 		if (strlen($user_info["phone"]) > 36) $user_info["phone"] = substr($user_info["phone"], 0, 36);
 		if (strlen($user_info["avatar_url"]) > 300) $user_info["avatar_url"] = substr($user_info["avatar_url"], 0, 300);
 		
-		self::queryDb(
+		$this->queryDb(
 			"UPDATE users SET email=:email, __password=:password, nickname=:nickname, first_name=:first_name, last_name=:last_name, avatar_url=:avatar_url, phone=:phone, description=:description, __token_active_at=:__token_active_at, _preferences=:_preferences, _joined_groups=:_joined_groups WHERE id=:id LIMIT 1;",
 			array(
 				":id" => $user_info["id"],
@@ -198,7 +198,7 @@ class User extends \Model {
 	function token_refresh(&$user_info) {
 		$token_base = date("Y-m-d H:i:s");
 		$user_info["__token_active_at"] = $token_base;
-		self::queryDb("UPDATE users SET __token_active_at=:token_base WHERE id=:id", array(
+		$this->queryDb("UPDATE users SET __token_active_at=:token_base WHERE id=:id", array(
 			":id" => $user_info["id"], 
 			":token_base" => $token_base
 		));

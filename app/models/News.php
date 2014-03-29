@@ -49,7 +49,7 @@ class News extends \Model{
 	}
 	
 	public function deleteByGroupId($gid, $time = time()){
-		self::queryDb("DELETE FROM news WHERE group_id=:gid AND created_at < :time;", 
+		$this->queryDb("DELETE FROM news WHERE group_id=:gid AND created_at < :time;", 
 			array(":gid" => $gid, ":time" => $time));
 	}
 	
@@ -85,7 +85,7 @@ class News extends \Model{
 	}
 	
 	public function create($uid, $gid, $visibility, $category, $descriptor){
-		self::queryDb(
+		$this->queryDb(
 			"INSERT INTO news (user_id, group_id, visibility, category, descriptor, created_at) " .
 			"VALUES (:user_id, :group_id, :visibility, :category, :descriptor, NOW()); ",
 			array(
