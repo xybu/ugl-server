@@ -64,7 +64,7 @@ Some basic functionality include:
  * Users can form **groups**
  * Users and groups have public or private **boards** to write down messages and such
  * Users and groups have **bags** to manage their items and borrow and lend records
- * Users and groups have **wallets* to manage the group fund and keep track of the incomes and spendings
+ * Users and groups have **wallets** to manage the group fund and keep track of the incomes and spendings
 
 ## Architecture
 
