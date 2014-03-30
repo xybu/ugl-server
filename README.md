@@ -83,9 +83,8 @@ Notes:
 
 ## Keys
  * Mail Server:
-     * Refer to http://windows.microsoft.com/en-us/windows/outlook/send-receive-from-app
-	 * Username: ugl@sige.us
-	 * Password: Boilermaker!
+	 * Server will use PHP `mail()` function to deliver emails.
+	 * For 3rd party mail server, refer to * Refer to http://windows.microsoft.com/en-us/windows/outlook/send-receive-from-app
 
 ## Licenses of 3rd-Party Components
  * Fat-Free Framework _3.2.1_: GPLv3 license
