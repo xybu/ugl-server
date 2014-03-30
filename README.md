@@ -1,6 +1,6 @@
 # Ugl-server
 
-The server side code of project Ugl.
+Project Ugl is a collective life management web application written in PHP+MySQL.
 
 # Notices
  * Please deploy the Cookie-based authentication method. (March 23, 2014)
@@ -10,7 +10,7 @@ The server side code of project Ugl.
  - [Introduction](#introduction)
 	 - [Architecture](#architecture)
 	 - [Files](#files)
-	 - [Keys](#keys)
+	 - [Installation](#installation)
 	 - [Planning](#planning)
  - [Server API Notes](#server-api-notes)
 	 - [Types of Responses](#types-of-responses)
@@ -54,39 +54,61 @@ The server side code of project Ugl.
 
 # Introduction
 
+## Functionality
+
+The application aims to help people organize their group life via a "group hub". 
+Some basic functionality include:
+
+ * User login and registration, profile
+ 	 * Also supports logging in from OAuth providers
+ * Users can form **groups**
+ * Users and groups have public or private **boards** to write down messages and such
+ * Users and groups have **bags** to manage their items and borrow and lend records
+ * Users and groups have **wallets* to manage the group fund and keep track of the incomes and spendings
+
 ## Architecture
 
-Basic features:
-
-* written in PHP 5.5+ and run on Nginx 1.5+
-* follows MVC model
-* generic autoload and caching mechanism
-* generic database class
-
-Notes:
-
-* keep an eye on facebook's HipHop VM
-* Xiangyu owns the root of the server so the infrastructure can be changed when needed
-* Web Client front-end is written in HTML5 and CSS3 built on top of Bootstrap framework.
+ * Generic C/S architecture and MVC model
+ * Generic autoload and caching mechanism
+ * Generic database class that enables to use more than MySQL database
 
 ## Files
  * `app` (0750) stores the libraries, configuration files, controllers and models
+	 * `conf` saves the configuration files
 	 * `controllers` stores the controllers
 	 * `models` saves all the model files
 	 * `views` stores the views (templates)
  * `assets` (0750) has the public accessible files like images, css, and javascript
+	 * `css`
+	 * `js`
+	 * `img`
+	 * `upload`
  * `data` (0774) stores logs and files uploaded by users
 	 * `log` (0755) system log
 	 * `upload` (0774) user upload files
- * `tmp` if exists, will store temporary files like cache
+ * `tmp` if exists, will store temporary files like cache and pre-uploading files
  * `vendor` if exists, stores reference libraries
 
-## Keys
- * Mail Server:
-	 * Server will use PHP `mail()` function to deliver emails.
-	 * For 3rd party mail server, refer to * Refer to http://windows.microsoft.com/en-us/windows/outlook/send-receive-from-app
+## Installation
+ 
+### Pre-requisites
+
+ * Apache 2.2+ Or Nginx 1.5+ (recommended)
+ 	 * A sample Nginx configuration file is given.
+ * A working mail server (MTA) on host OS
+ 	 * Configure sSMTP and use Hotmail:
+ 		 * https://wiki.debian.org/sSMTP
+ 		 * http://windows.microsoft.com/en-us/windows/outlook/send-receive-from-app
+ * PHP 5.5+
+ 	 * PHP `mail()` function should be able to deliver emails via mail daemon of host OS. 
+ * It is recommended to have at least one PHP cache extension enabled (`APCu`, `memcache`, `xcache`, `wincache`)
+ 	 * Otherwise the server app will use file-based caching mechanism.
+ * It is strongly recommended to have `opcache` extension, or the equivalent part of `wincache` or `xcache` enabled.
+
+### Set-up
 
 ## Licenses of 3rd-Party Components
+
  * Fat-Free Framework _3.2.1_: GPLv3 license
  * Opauth: MIT License
 	 * Source code modified conforming to MIT License

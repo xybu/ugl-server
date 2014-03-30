@@ -24,6 +24,6 @@ $RECYCLE.BIN/
 tmp/
 tools/
 trash/
-app/conf/*.prod
+app/conf/globals.ini
 data/log
 assets/upload/
