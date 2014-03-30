@@ -3,10 +3,8 @@
 namespace models;
 
 class User extends \Model {
-
-	const ENABLE_LOG = true;
+	
 	const TOKEN_SALT = "ugl>salt.";
-	const TOKEN_VALID_HRS = 168; // one week, in hrs
 	const USER_CACHE_TTL = 3600;
 	const MAX_DESC_LENGTH = 150;
 	
@@ -18,8 +16,6 @@ class User extends \Model {
 	
 	function __construct(){
 		parent::__construct();
-		if (static::ENABLE_LOG)
-			$this->logger = new \Log("model.user.log");
 	}
 	
 	static function filterDescription($str){
@@ -106,11 +102,9 @@ class User extends \Model {
 									"Best,\nUGL Team");
 				$mail->send();
 			} catch (\InvalidArgumentException $e) {
-				if (static::ENABLE_LOG)
-					$this->logger->write($e->__toString());
+				
 			} catch (\RuntimeException $e) {
-				if (static::ENABLE_LOG)
-					$this->logger->write($e->__toString());
+				
 			}
 		}
 		
@@ -173,12 +167,12 @@ class User extends \Model {
 			$this->cache->set("user_id_" . $user_info["id"], $user_info);
 	}
 	
-	function token_verify(&$user_info, $token) {
+	function token_verify(&$user_info, $token, $timeSpan = 168) {
 		if (empty($user_info) or $token === "") return false;
 		
 		$dt_str = $user_info["__token_active_at"];
 		
-		if (strtotime("+" . static::TOKEN_VALID_HRS . " hour", strtotime($dt_str)) < time()) {
+		if (strtotime("+" . $timeSpan . " hour", strtotime($dt_str)) < time()) {
 			$this->token_refresh($user_info);
 			return false;
 		}

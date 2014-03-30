@@ -1,0 +1,24 @@
+; globals.ini.default
+; The configuration file
+;
+; @author	Xiangyu Bu
+
+[globals]
+DEBUG=3
+CACHE=true
+
+AUTOLOAD=app/
+UI=app/views/
+LOGS=data/log/
+UPLOADS=tmp/upload/
+UPLOAD_AVATARS_DIR=assets/upload/avatars/
+APP_URL=http://127.0.0.1
+APP_VERSION=0.5.0329
+
+SMTP_FROM=$SMTP_FROM
+
+DB_HOST=$MYSQL_HOST
+DB_PORT=$MYSQL_PORT
+DB_USER=$MYSQL_USERNAME
+DB_PASS=$MYSQL_PASSWORD
+DB_NAME=$MYSQL_DBNAME

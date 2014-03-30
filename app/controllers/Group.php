@@ -19,9 +19,9 @@ class Group extends \Controller {
 	
 	function api_listByUserId($base){
 		try {
-			$user = \models\User::instance();
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
 			$group = \models\Group::instance();
-			$user_status = API::getUserStatus($base, $user);
 			$user_id = $user_status["user_id"];
 			$token = $user_status["ugl_token"];
 			$target_user_id = $user_id;
@@ -67,13 +67,15 @@ class Group extends \Controller {
 	 */
 	function api_getInfo($base){
 		try {
-			$user = \models\User::instance();
 			if ($base->exists("COOKIE.ugl_user")){
-				$user_status = API::getUserStatus($base, $user);
+				$user_status = $this->getUserStatus();
+				$user = $this->user;
 				$user_id = $user_status["user_id"];
 			} else {
 				$user_id = -1;
+				$user = \models\User::instance();
 			}
+			
 			
 			if (!$base->exists("POST.group_id"))
 				throw new \Exception("Group id not specified", 3);
@@ -115,10 +117,10 @@ class Group extends \Controller {
 	
 	function api_find($base) {
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user_status = $this->getUserStatus();
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
+			$user = $this->user;
 			
 			$keyword = $user->filterHtmlChars($base->get("POST.keyword"));
 			if (empty($keyword)) throw new \Exception("Empty keyword", 3);
@@ -151,8 +153,8 @@ class Group extends \Controller {
 	
 	function api_create($base) {
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
 			
@@ -188,10 +190,10 @@ class Group extends \Controller {
 	
 	function api_leave($base){
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user_status = $this->getUserStatus();
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
+			$user = $this->user;
 			
 			if (!$base->exists("POST.group_id"))
 				throw new \Exception("Group id not specified", 3);
@@ -271,10 +273,9 @@ class Group extends \Controller {
 	
 	function api_edit($base){
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user_status = $this->getUserStatus();
 			$user_id = $user_status["user_id"];
-			
+			$user = $this->user;
 			if (!$base->exists("POST.group_id"))
 				throw new \Exception("Group id not specified", 3);
 			
@@ -319,8 +320,8 @@ class Group extends \Controller {
 	
 	function api_changeCreator($base){
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
 			$user_id = $user_status["user_id"];
 			
 			if (!$base->exists("POST.group_id"))
@@ -367,11 +368,10 @@ class Group extends \Controller {
 	
 	function api_invite($base){
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user_status = $this->getUserStatus();
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
-			
+			$user = $this->user;
 			if (!$base->exists("POST.group_id"))
 				throw new \Exception("Group id not specified", 3);
 			
@@ -439,7 +439,7 @@ class Group extends \Controller {
 					"ticket_time" => date("c"),
 				);
 				
-				$ticket_str = urlencode(base64_encode(API::api_encrypt(json_encode($ticket), API::API_WIDE_KEY)));
+				$ticket_str = urlencode(base64_encode(self::api_encrypt(json_encode($ticket), $base->get("API_WIDE_KEY"))));
 				$base->set("ticket_str", $ticket_str);
 				$base->set("public_group_url", $base->get("APP_URL") . "/group/" . $group_info["id"]);
 				//TODO: finish things above
@@ -469,11 +469,10 @@ class Group extends \Controller {
 	
 	function api_apply($base){
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user_status = $this->getUserStatus();
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
-			
+			$user = $this->user;
 			if (!$base->exists("POST.group_id"))
 				throw new \Exception("Group id not specified", 3);
 			
@@ -513,11 +512,10 @@ class Group extends \Controller {
 	
 	function api_uploadAvatar($base){
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user_status = $this->getUserStatus();
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
-			
+			$user = $this->user;
 			if (!$base->exists("POST.group_id"))
 				throw new \Exception("Group id not specified", 3);
 			

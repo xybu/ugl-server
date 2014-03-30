@@ -10,6 +10,7 @@
 namespace controllers;
 
 class Home extends \Controller {
+	const GROUP_INVITATION_EXPIRATION = 168; // 24 * 7 hrs
 	
 	function showHomepage($base) {
 		$base->set('page_title','Unified Group Life');
@@ -22,7 +23,7 @@ class Home extends \Controller {
 		$user = \models\User::instance();
 		$user_status = null;
 		try {
-			$user_status = API::getUserStatus($base, $user);
+			$user_status = $this->getUserStatus();
 		} catch (\Exception $e) {
 			$user_status = null; //guest
 		}
@@ -31,7 +32,7 @@ class Home extends \Controller {
 			if (!$base->exists('GET.t'))
 				throw new \Exception("Invitation ticket not found", 1);
 			
-			$ticket_decrypt = API::api_decrypt(base64_decode(urldecode($base->get('GET.t'))), API::API_WIDE_KEY);
+			$ticket_decrypt = self::api_decrypt(base64_decode(urldecode($base->get('GET.t'))), $base->get("API_WIDE_KEY"));
 			if ($ticket_decrypt == null)
 				throw new \Exception("Invalid ticket", 2);
 			
@@ -39,7 +40,7 @@ class Home extends \Controller {
 			
 			$today = new \DateTime(date("c"));
 			$timeDiff = $today->diff(new \DateTime($ticket_json->ticket_time));
-			if ($timeDiff->h > API::GROUP_INVITATION_EXPIRATION)
+			if ($timeDiff->h > self::GROUP_INVITATION_EXPIRATION)
 				throw new \Exception("The invitation ticket has expired.", 6);
 			
 			$inviter_info = $user->findById($ticket_json->inviter_id);
@@ -86,7 +87,7 @@ class Home extends \Controller {
 			if (!$base->exists('GET.t'))
 				throw new \Exception("Ticket not set", 1);
 			
-			$ticket_decrypt = API::api_decrypt(base64_decode(urldecode($base->get('GET.t'))), API::API_WIDE_KEY);
+			$ticket_decrypt = self::api_decrypt(base64_decode(urldecode($base->get('GET.t'))), $base->get("API_WIDE_KEY"));
 			if ($ticket_decrypt == null)
 				throw new \Exception("Invalid ticket", 2);
 			
@@ -107,7 +108,7 @@ class Home extends \Controller {
 			
 			$today = new \DateTime(date("c"));
 			$timeDiff = $today->diff(new \DateTime($ticket_json->time));
-			if ($timeDiff->h > API::RSTPWD_REQ_EXPIRATION)
+			if ($timeDiff->h > self::RSTPWD_REQ_EXPIRATION)
 				throw new \Exception("The password reset ticket has expired.", 6);
 			
 			$new_pass = $user->updatePassword($email);
@@ -135,12 +136,8 @@ class Home extends \Controller {
 			);
 			
 		} catch (\InvalidArgumentException $e){
-			if (static::ENABLE_LOG)
-				$this->logger->write($e->__toString());
 			throw new \Exception("Email did not send due to server error", 7);
 		} catch (\RuntimeException $e){
-			if (static::ENABLE_LOG)
-				$this->logger->write($e->__toString());
 			throw new \Exception("Email did not send due to server runtime error", 8);
 		} catch (\Exception $e) {
 			$base->set("rt_notification_modal", array(

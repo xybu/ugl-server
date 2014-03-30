@@ -11,7 +11,6 @@ class Model extends \Prefab{
 	protected $base = null;
 	protected $cache = null;
 	protected $db = null;
-	protected $logger = null;
 	
 	function __construct(){
 		$this->base = \Base::instance();

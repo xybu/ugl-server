@@ -10,7 +10,8 @@
 
 $base = require('app/lib/base.php');
 
-$base->config('app/conf/settings.ini');
+$base->config('app/conf/globals.ini');
+$base->config('app/conf/routes.ini');
 /*$base->set('ONERROR', function($base){
 	echo \Template::instance()->render('error.html');
 });

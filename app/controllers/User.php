@@ -3,6 +3,10 @@ namespace controllers;
 
 class User extends \Controller {
 	
+	const RSTPWD_REQ_PER_SESSION = 3;
+	const LOGIN_REQ_PER_SESSMION = 5;
+	const RSTPWD_REQ_EXPIRATION = 24; // in hrs
+	
 	function __construct() {
 		parent::__construct();
 	}
@@ -85,14 +89,14 @@ class User extends \Controller {
 				
 				// load user and authentication models
 				$authentication = \models\Authentication::instance();
-				$user = \models\User::instance();
+				$user = $this->user;
 				
 				// check if user already has authenticated using this provider before				
 				$oauth_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
 				
 				// if authentication already exists, reroute to dashboard
 				if ($oauth_info){
-					API::setUserStatus($base, $user, $oauth_info["user_id"], $user->token_refresh(array("id" => $oauth_info["user_id"])));
+					$this->setUserStatus($oauth_info["user_id"], $user->token_refresh(array("id" => $oauth_info["user_id"])));
 					$base->reroute("@usercp(@panel=dashboard)");
 				}
 				
@@ -129,7 +133,7 @@ class User extends \Controller {
 					$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					$reroute_panel = "settings";
 				}
-				API::setUserStatus($base, $user, $user_id, $user_token);
+				$this->setUserStatus($user_id, $user_token);
 				$base->reroute("@usercp(@panel=". $reroute_panel .")");
 			}
 		} catch (\Exception $e) {
@@ -145,14 +149,16 @@ class User extends \Controller {
 	
 	function oauth_clientCallback($base){
 		try {
+			$client_key_name = strtoupper($base->get("POST.from") . "") . "_KEY";
+			
 			if (!$base->exists("POST.data") or !$base->exists("POST.from"))
 				throw new \Exception("Missing required POST fields", 1);
-			if (!array_key_exists($base->get("POST.from"), API::$API_KEYS))
+			if (!$base->exists($client_key_name))
 				throw new \Exception("Unrecognized client", 2);
 			
 			$oauth_str = urldecode($base->get("POST.data"));
 			$oauth_str = base64_decode($oauth_str);
-			$oauth_str = API::api_decrypt($oauth_str, API::$API_KEYS[$base->get("POST.from")]);
+			$oauth_str = self::api_decrypt($oauth_str, $base->get($client_key_name));
 			if (empty($oauth_str))
 				throw new \Exception("Failed to decrypt the information", 3);
 			
@@ -161,7 +167,7 @@ class User extends \Controller {
 			$response = $oauth_obj->toArray();
 			
 			$authentication = \models\Authentication::instance();
-			$user = \models\User::instance();
+			$user = $this->user;
 			
 			$oauth_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
 			$user_id = null;
@@ -207,22 +213,14 @@ class User extends \Controller {
 		}
 	}
 	
-	function showUserPanel($base, $args){
-		
-		$user = \models\User::instance();
-		
+	function showUserPanel($base, $args){		
 		try {
-			$session_creds = API::getUserStatus($base, $user);
+			$session_creds = $this->getUserStatus();
 		} catch (\Exception $e) {
 			$this->backToHomepage($base);
 		}
-		
+		$user = $this->user;
 		$me = $session_creds["user_info"];
-		//var_dump($me);
-		//die();
-		
-		if (empty($me) or !$user->token_verify($me, $session_creds["ugl_token"]))
-			$this->backToHomepage($base);
 		
 		$group = \models\Group::instance();
 		
@@ -318,13 +316,12 @@ class User extends \Controller {
 	}
 	
 	function loadUserPanel($base, $args){
-		$user = \models\User::instance();
 		try {
-			$session_creds = API::getUserStatus($base, $user);
+			$session_creds = $this->getUserStatus();
 		} catch (\Exception $e) {
 			die();
 		}
-		
+		$user = $this->user;
 		$me = $session_creds["user_info"];
 		
 		$panel = $args["panel"];
@@ -406,17 +403,13 @@ class User extends \Controller {
 	}
 	
 	function loadUserModal($base, $args){
-		$user = \models\User::instance();
 		try {
-			$session_creds = API::getUserStatus($base, $user);
+			$session_creds = $this->getUserStatus();
 		} catch (\Exception $e) {
 			die();
 		}
-		
+		$user = $this->user;
 		$me = $session_creds["user_info"];
-		
-		if (empty($me) or !$user->token_verify($me, $session_creds["ugl_token"]))
-			die();
 		
 		$panel = $args["panel"];
 		$item_id = $args["id"];
@@ -472,9 +465,65 @@ class User extends \Controller {
 	function backToHomepage($base, $revokeSession = true, $redirect = true){
 		//var_dump($base->get("SESSION.user"));
 		//die();
-		if ($revokeSession) API::voidUserStatus($base);
+		if ($revokeSession) $this->voidUserStatus();
 		if ($redirect) $base->reroute("/");
 		else die();
+	}
+	
+	function api_loginUser($base){
+		try {
+			if ($base->exists("SESSION.loginFail_count") && intval($base->get("SESSION.loginFail_count")) > static::LOGIN_REQ_PER_SESSMION)
+				throw new \Exception("Your account is temporarily on held for security concern. Please retry later or log in with your social account", 104);
+			
+			if (!$base->exists("POST.email") or !$base->exists("POST.password"))
+				throw new \Exception("Email or password not provided", 100);
+			
+			$this->user = \models\User::instance();
+			$email = $base->get("POST.email");
+			$password = $base->get("POST.password");
+			
+			if (!$this->user->isValidEmail($email))
+				throw new \Exception("Invalid email address", 101);
+			
+			if (!$this->user->isValidPassword($password))
+				throw new \Exception("Password should not be empty", 103);
+			
+			$user_data = $this->user->findByEmailAndPassword($email, $password);
+			
+			// user found?
+			if ($user_data){
+				$this->setUserStatus($user_data["id"], $user_data["ugl_token"]);
+				$user_creds = array("user_id" => $user_data["id"]);
+				if ($base->exists("SESSION.loginFail_count")) $base->clear("SESSION.loginFail_count");
+				$this->json_printResponse($user_creds);
+			} else {
+				if ($base->exists("SESSION.loginFail_count")){
+					$base->set("SESSION.loginFail_count", intval($base->get("SESSION.loginFail_count")) + 1, 0);
+				} else $base->set("SESSION.loginFail_count", 1, 1800);
+				
+				throw new \Exception("User not found, or email and password do not match.", 102);
+			}
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
+	}
+	
+	function web_logoutUser($base){
+		if ($base->exists("COOKIE.ugl_user")){
+			$this->api_revokeToken($base, true);
+			self::voidUserStatus($base);
+		}
+		$this->json_printResponse(array("message" => "You have successfully logged out"));
+	}
+	
+	function api_revokeToken($base, $no_output = false){
+		try {
+			$user_status = $this->getUserStatus();
+			$this->user->token_refresh($user_status["user_info"]);
+			if (!$no_output) $this->json_printResponse(array("message" => "Token has been revoked."));
+		} catch (\Exception $e){
+			if (!$no_output) $this->json_printException($e);
+		}
 	}
 	
 	function api_register($base){
@@ -512,7 +561,7 @@ class User extends \Controller {
 				throw new \Exception("Email already registered", 104);
 			
 			$new_user_info = $user->create($email, $password, $first_name, $last_name);
-			API::setUserStatus($base, $user, $new_user_info["id"], $new_user_info["ugl_token"]);
+			$this->setUserStatus($new_user_info["id"], $new_user_info["ugl_token"]);
 			$this->json_printResponse(array("user_id" => $new_user_info["id"]));
 		} catch (\Exception $e){
 			$this->json_printException($e);
@@ -521,8 +570,8 @@ class User extends \Controller {
 	
 	function api_getInfo($base, $args){
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
 			$target_user_id = $args["target_user_id"];
@@ -545,8 +594,8 @@ class User extends \Controller {
 	
 	function api_setInfo($base){
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user = $this->user;
+			$user_status = $this->getUserStatus();
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
 			
@@ -622,8 +671,8 @@ class User extends \Controller {
 	
 	function api_uploadAvatar($base){
 		try {
-			$user = \models\User::instance();
-			$user_status = API::getUserStatus($base, $user);
+			$user = $this->user;
+			$user_status = $this->getUserStatus();
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
 			
@@ -639,6 +688,57 @@ class User extends \Controller {
 				throw new \Exception("File upload failed. Please check if the file is an image of JPEG, PNG, or GIF format with size no more than 100KiB.", 3);
 				// should use $upload->MAX_AVATAR_FILE_SIZE as max file size
 			else trigger_error("Uploaded more than one file: " . $numOfFiles, E_USER_ERROR);
+		} catch (\Exception $e){
+			$this->json_printException($e);
+		}
+	}
+	
+	function api_resetPassword($base){
+		try {
+			if (!$base->exists("POST.email"))
+				throw new \Exception("Please enter your email address", 1);
+			
+			if ($base->exists("SESSION.resetPass_count") && intval($base->get("SESSION.resetPass_count")) > static::RSTPWD_REQ_PER_SESSION)
+				throw new \Exception("Please try this operation later", 2);
+			
+			$user = $this->user;
+			$email = $base->get("POST.email");
+			if (!$user->isValidEmail($email))
+				throw new \Exception("Invalid email address", 3);
+			
+			$user_info = $user->findByEmail($email);
+			if (!$user_info)
+				throw new \Exception("Email not registered", 4);			
+			
+			$first_name = $user_info["first_name"];
+			$last_name = $user_info["last_name"];
+			
+			$ticket_info = array("email" => $email, "old_pass" => $user_info["password"], "time" => date("c"));
+			
+			$url = $base->get("APP_URL") . "/forgot_pass?t=" . urlencode(base64_encode(static::api_encrypt(json_encode($ticket_info), $base->get("API_WIDE_KEY"))));
+			
+			$mail = new \models\Mail();
+			$mail->addTo($email, $first_name . ' ' . $last_name);
+			$mail->setFrom($this->base->get("SMTP_FROM"), "UGL Team");
+			$mail->setSubject("Reset Your Password");
+			$mail->setMessage("Hello " . $first_name . ' ' . $last_name . ",\n\n" .
+								"Thanks for using Ugl. To change your password, please open this link in your browser:\n" .
+								"" . $url . "\n\n" .
+								
+								"If you did not request this email, please disregard this.\n\nThanks for using our service.\n\n" .
+								"Best,\nUGL Team");
+			$mail->send();
+			
+			$base->set("SESSION.resetPass_count", intval($base->get("SESSION.resetPass_count")) + 1);
+			
+			$this->json_printResponse(array("message" => "An email containing the steps to reset password has been sent to your email account."));
+			
+		} catch (\InvalidArgumentException $e){
+			
+			throw new \Exception("Email did not send due to server error", 5);
+		} catch (\RuntimeException $e){
+			
+			throw new \Exception("Email did not send due to server runtime error", 6);
 		} catch (\Exception $e){
 			$this->json_printException($e);
 		}
