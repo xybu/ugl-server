@@ -160,8 +160,8 @@ class Group extends \Controller {
 			
 			$group = \models\Group::instance();
 			
-			$group_name = $base->get("POST.alias");
-			if (!$group->isValidAlias($group_name)) throw new \Exception("Group name is not of the specified format. Plese check", 3);
+			$group_name = $group->filterAlias($base->get("POST.alias"));
+			if (empty($group_name)) throw new \Exception("Group name is not of the specified format. Plese check", 3);
 			if ($group->findByAlias($group_name)) throw new \Exception("Group name \"" . $group_name . "\" is already taken", 4);
 			
 			if ($base->exists("POST.description"))
@@ -180,6 +180,12 @@ class Group extends \Controller {
 			
 			$user->joinGroup($user_info, $group_data["id"]);
 			$user->save($user_info);
+			
+			if ($base->exists("POST.returnHtml")) {
+				$group_data["avatar_url"] = "assets/img/default-avatar-group.png";
+				$base->set("item", $group_data);
+				$group_data = \View::instance()->render("my_groups_item.html");
+			}
 			
 			$this->json_printResponse(array("message" => "Successfully created a new group", "group_data" => $group_data));
 			

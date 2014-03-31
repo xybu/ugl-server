@@ -1,21 +1,18 @@
 <?php
-	$group_str = "";
+$Base = \Base::instance();
+$View = \View::instance();
+$group_str = "";
 	
-	if ($groupList["count"] == 0){
-		$group_str = "<div id=\"no_group_alert\" class=\"col-md-12 text-center\"><span class=\"alert alert-info\">Oops... You don't have any groups yet.</span></div>";
-	} else {
-		foreach($groupList["groups"] as $item){
-			if (empty($item["avatar_url"])) $item["avatar_url"] = "assets/img/default-avatar-group.png";
-			$group_str = $group_str . "<div class=\"col-sm-6 col-md-4\" id=\"group_" . $item["id"] . "\" data-status=\"" . $item["status"] . "\" data-creator=\"" . $item["creator_user_id"] . "\">" .
-				"<div class=\"thumbnail\"><img class=\"large-avatar\" src=\"" . $item["avatar_url"] . "\" />" .
-				"<div class=\"caption text-center\">" .
-				"<h3 class=\"group_alias\"><a href=\"/my/group/" . $item["id"] . "\" class=\"enter-group\">" . $item["alias"] . "</a></h3>" .
-				"<p class=\"group_desc\">" . $item["description"] . "</p>" .
-				"</div></div></div>";
-		}
+if ($groupList["count"] == 0){
+	$group_str = "<div id=\"no_group_alert\" class=\"col-md-12 text-center\"><span class=\"alert alert-info\">Oops... You don't have any groups yet.</span></div>";
+} else {
+	foreach($groupList["groups"] as $item){
+		if (empty($item["avatar_url"])) $item["avatar_url"] = "assets/img/default-avatar-group.png";
+		$Base->set("item", $item);
+		$group_str = $group_str . $View->render("my_groups_item.html");
 	}
-?>
-<h1 class="page-header">My Groups <span class="badge" id="group_count"><?php echo $groupList["count"]?></span>
+}
+?><h1 class="page-header">My Groups <span class="badge" id="group_count"><?php echo $groupList["count"]?></span>
 	<div class="pull-right wider-screen">
 		<button type="button" data-toggle="modal" data-target="#create_group_modal" class="btn btn-primary"><i class="fa fa-plus-square fa-fw"></i> Create</button>
 		<button type="button" data-toggle="modal" data-target="#join_group_modal" class="btn btn-success"><i class="fa fa-sign-in fa-fw"></i> Join</button>
@@ -71,6 +68,7 @@
 					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button></h3>
 			</div>
 			<form class="form-horizontal" action="post" id="create_group_form">
+				<input type="hidden" name="returnHtml" value="1" />
 				<div class="modal-body">
 					<div class="row form-group">
 						<div class="col-sm-4 col-md-3 itemLabel">Name</div>

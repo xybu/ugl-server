@@ -18,10 +18,8 @@ class User extends \Model {
 		parent::__construct();
 	}
 	
-	static function filterDescription($str){
-		$str = htmlspecialchars($str);
-		$str = substr($str, 0, static::MAX_DESC_LENGTH);
-		return $str;
+	function filterDescription($str){
+		return $this->filterContent($str, static::MAX_DESC_LENGTH);
 	}
 	
 	function findById($id){
@@ -80,7 +78,7 @@ class User extends \Model {
 			"VALUES (:email, :password, :first_name, :last_name, :avatar_url, NOW(), NOW()); ",
 			array(
 				':email' => $email,
-				':password' => $this->token_get(array(), $password),
+				':password' => password_hash(static::TOKEN_SALT . $password, PASSWORD_DEFAULT),
 				':first_name' => $first_name,
 				':last_name' => $last_name,
 				':avatar_url' => $avatar_url
@@ -168,7 +166,7 @@ class User extends \Model {
 	}
 	
 	function token_verify(&$user_info, $token, $timeSpan = 168) {
-		if (empty($user_info) or $token === "") return false;
+		if (empty($user_info) or empty($token)) return false;
 		
 		$dt_str = $user_info["__token_active_at"];
 		
@@ -177,7 +175,7 @@ class User extends \Model {
 			return false;
 		}
 		
-		if (password_verify(static::TOKEN_SALT . $dt_str, $token))
+		if (md5(static::TOKEN_SALT . $dt_str) == $token)
 			return true;
 		
 		return false;
@@ -186,7 +184,7 @@ class User extends \Model {
 	function token_get($user_info, $str = null) {
 		if (empty($str)) $str = $user_info["__token_active_at"];
 		
-		return password_hash(static::TOKEN_SALT . $str, PASSWORD_DEFAULT);
+		return md5(static::TOKEN_SALT . $str);
 	}
 	
 	function token_refresh(&$user_info) {

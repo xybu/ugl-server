@@ -73,6 +73,10 @@ $(document).ready(function(){
 		window['init_' + cur_event]();
 	}
 	
+	$("input[data-toggle=tooltip]").on('focus focusout hover blur click', function(e){
+		$(this).tooltip('destroy');
+	});
+	
 	if (typeof show_notif_modal != 'undefined' && show_notif_modal){
 		var strVar="";
 		strVar += "<div class=\"modal fade\" id=\"notif_modal\">";
@@ -133,10 +137,6 @@ function init_groups(){
 				prompt_dom.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
 		});
 		e.preventDefault(); //STOP default action
-	});
-	
-	$("input").on('focus focusout hover blur click', function(e){
-		$(this).tooltip('destroy');
 	});
 	
 	$("#find-form").submit(function(e){
@@ -281,28 +281,11 @@ function init_group(){
 	ugl_panel_initialized = true;
 }
 
-function renderGroupListItem(listId, groupObject, hide){
-	var listDom = $("#" + listId);
-	console.log(groupObject);
-	
-	if (typeof groupObject == "string")
-		groupObject = jQuery.parseJSON(groupObject);
-	
-	if (typeof groupObject != "object")
-		return false;
-	
-	if (hide == 1) hide = " hidden";
-	else hide = "";
-	
-	if (!groupObject.avatar_url) groupObject.avatar_url = "assets/img/default-avatar-group.png";
-	
-	listDom.append("<div class=\"col-sm-6 col-md-4 "+hide+"\" id=\"group_" + groupObject.id + "\" data-status=\"" + groupObject.status + "\" data-creator=\"" + groupObject.creator_user_id + "\">" +
-		"<div class=\"thumbnail\"><img class=\"large-avatar\" src=\"" + groupObject.avatar_url + "\" />" +
-		"<div class=\"caption text-center\">" +
-		"<h3 class=\"group_alias\"><a href=\"/my/group/" + groupObject.id + "\" class=\"enter-group\">" + groupObject.alias + "</a></h3>" +
-		"<p class=\"group_desc\">" + groupObject.description + "</p>" +
-		"</div></div></div>");
-	
+function renderGroupListItem(listId, groupStr){
+	console.log(groupStr);
+	var group_dom = $(groupStr);
+	$("#" + listId).append(group_dom);
+	group_dom.addClass("animated tada");
 	$('a.enter-group').address();
 }
 
@@ -324,6 +307,35 @@ function toggleBoard(id){
 function init_boards(){
 	document.title = "Boards | Ugl";
 	$('.selectpicker').selectpicker();
+	$('a[data-toggle=popover]').popover();
+	$("#create_board_form").submit(function(e){
+		var board_title_dom = $("#create_board_form #title");
+		if (!board_title_dom.val().match("^[\w\d][-\w\d_ ]{1,32}$")) {
+			board_title_dom.focus();
+			board_title_dom.tooltip("show");
+			return false;
+		}
+		
+		var prompt_dom = $("#create_board_form #prompt");
+		prompt_dom.html("<img src=\"assets/img/loader.gif\" />").removeClass("hidden");
+		$.post(
+			"/api/board/create",
+			$(this).serialize(),
+			function(data){
+				if (data.status == "success"){
+					var new_board = $(data.data.board_data);
+					$("#main").append(new_board);
+					document.getElementById($(new_board).attr("id")).scrollIntoView();
+					$("#create_board_modal").modal('hide');
+					new_board.addClass("animated bounceInDown");
+				} else {
+					prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
+				}
+			}).fail(function(xhr, textStatus, errorThrown) {
+				prompt_dom.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+		});
+		e.preventDefault();
+	});
 	ugl_panel_initialized = true;
 }
 

@@ -13,9 +13,9 @@ class Controller {
 
 	// Cache is a singleton
 	protected $cache;
-	protected $view = null;
 	protected $base;
 	protected $user;
+	protected $view = null;
 	
 	const TOKEN_VALID_HRS = 168; // in hrs
 	

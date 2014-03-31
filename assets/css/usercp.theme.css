@@ -28,6 +28,10 @@ body {
 	border-bottom: 1px solid #eee;
 }
 
+.sub-header .title {
+	cursor: pointer;
+}
+
 .hidden{
 	display: none;
 }
@@ -237,6 +241,10 @@ body.loading .ajax-loading {
 
 .dropdown-menu .divider {
 	margin: 0.2em 0 !important;
+}
+
+.board_item h2 small {
+	font-size: 55%;
 }
 
 .discussions ul {

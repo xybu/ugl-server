@@ -22,15 +22,13 @@ if (!function_exists("renderDiscussionItem")) {
 
 if (empty($me["avatar_url"]))
 	$me["avatar_url"] = "assets/img/default-avatar.png";
-?>
-<div class="container-fluid">
+?><div class="container-fluid board_item" id="board_<?php echo $board_item["id"]?>">
 	<div class="row">
-		<h2 class="sub-header"><?php echo $board_item["title"]?>
-			<small><?php echo $board_item["description"]?></small>
+		<h2 class="sub-header">
+			<span class="title" name="board_<?php echo $board_item["id"]?>_title" id="board-<?php echo $board_item["id"]?>-toggle" onclick="toggleBoard(<?php echo $board_item["id"]?>)">
+				<i class="fa fa-angle-up"></i> <?php echo $board_item["title"]?>
+			</span>
 			<div class="btn-group pull-right">
-				<a role="button" class="btn btn-default" id="board-<?php echo $board_item["id"]?>-toggle" onclick="toggleBoard(<?php echo $board_item["id"]?>)">
-					<i class="fa fa-angle-up"></i>
-				</a>
 				<a role="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 					<span class="caret"></span>
 				</a>

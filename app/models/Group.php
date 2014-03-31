@@ -56,13 +56,11 @@ class Group extends \Model {
 		return is_numeric($v) and $v > static::STATUS_CLOSED and $v <= static::STATUS_PUBLIC;
 	}
 	
-	static function filterDescription($str){
-		$str = htmlspecialchars($str);
-		$str = substr($str, 0, static::MAX_DESC_LENGTH);
-		return $str;
+	function filterDescription($str){
+		return $this->filterContent($str, static::MAX_DESC_LENGTH);
 	}
 	
-	static function filterTags($str){
+	function filterTags($str){
 		// remove non alphanumerical chars or delimiters
 		$str = preg_replace("/[^A-Za-z0-9 ]/", "", strtolower($str));
 		// remove repeated words
@@ -111,7 +109,7 @@ class Group extends \Model {
 	
 	// corresponding to static::STATUS_INACTIVE
 	function listGroupsOfUserId($user_id, $target_status = 1){
-		$ids = $this->queryDb("SELECT id FROM groups WHERE status >= " . $target_status . " AND users LIKE '%\"" . $user_id . "\"%' ORDER BY status DESC");
+		$ids = $this->queryDb("SELECT id FROM groups WHERE status >= " . $target_status . " AND users LIKE '%\"" . $user_id . "\"%' ORDER BY created_at ASC");
 		$result = array();
 		foreach ($ids as $i => $d)
 			$result[] = $this->findById($d["id"]);

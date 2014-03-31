@@ -250,6 +250,8 @@ For example,
 }
 ```
 
+__As of Mar 30, more information will be provided in the response.__
+
 Notes:
 
 * The client should save the `user_id` for later use. 
@@ -341,10 +343,8 @@ A typical success message with data->message being "Token has been revoked.".
 * 2 - User id should be a number (`user_id` is not a numeric value)
 
 ### 5) oauth_clientCallback
-**Under Construction**
 
-native client-only API used for telling server that a user successfully authenticates 
-the app with the oauth provider.
+Native client-only API used for telling server that a user successfully authenticates the app with an oauth provider.
 
 #### Request
 
@@ -397,7 +397,11 @@ And then use two-way encryption to encode the json text above. Let $data denote 
 Same as the log in response.
 
 #### Associated Errors
-TBD.
+
+ * 1 - Missing required POST fields (either `data` or `from`)
+ * 2 - Unrecognized client
+ * 3 - Failed to decrypt the information
+ * 4 - `Email` does not exist in the fields
 
 ### 6) forgot_password
 Send an email to the user who requests to reset the password. 
@@ -1093,11 +1097,15 @@ Notes:
  * **Board** is the container of **discussions**  (i.e., "topics", "posts" in the context of blogs or forums.)
 	 * Properties:
 		 * `id` (auto_increment)
-		 * `title` (required)
-		 * `user_id` (required)
-		 * `group_id` (optional)
-		 * `description` (optional)
+		 * `title` (required): A user-defined identifier of the board
+			 * Regex is `^[\w\d][-\w\d_ ]{0,31}$` and consecutive whitespaces will be combined to one.
+			 * No more than 32 chars.
+			 * Unique to the group, or unique in the private boards of a user.
+		 * `user_id` (required): The owner of the board.
+		 * `group_id` (optional): If the board belongs to a group, this value will be the id of the group.
+		 * `description` (optional): HTML-escaped string with a max length of 70 chars.
 		 * `created_at` (auto generated)
+		 * `last_active_at` (auto generated)
  * A **discussion** consists of a root post and zero or more reply posts.
 	 * A discussion can be pinned at the top of discussion list.
  
@@ -1107,6 +1115,62 @@ Notes:
 ### 2) List Boards by Group
 
 ### 3) Create a Board
+
+Create a new board.
+
+#### Request
+| Name   | Description                                      |
+| ------ | ------------------------------------------------ |
+| Method | POST                                             |
+| URL    | `/api/board/create`                              |
+| DATA   | `title`=board_title&`description`=description&`group_id`=123 |
+
+Authentication cookie `ugl_user` is required to perform the operation.
+
+Notes:
+
+ * The field `group_id` is needed only when the board is created for a group.
+	 * When creating a board for a group, `new_board` permission must be `true` for the user's role in the group.
+	 * Omitting `group_id` or setting `group_id` to `0` means the board is private to the user.
+ * Don't forget to do sanity check for the data.
+ 
+#### Response
+
+Upon success, something like the following will be returned.
+
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-03-30T06:58:16+00:00",
+    "data": {
+        "message": "You have successfully created a board.",
+        "board_data": {
+            "id": "21",
+            "user_id": "5",
+            "group_id": null,
+            "title": "test_createBoard",
+            "description": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam non.",
+            "created_at": "2014-03-30 06:58:16",
+            "last_active_at": "2014-03-30 06:58:16",
+            "discussion_list": [
+
+            ]
+        }
+    }
+}
+```
+
+* Since the board is newly created, `discussion_list` is definitely an empty array.
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Must provide the authentication cookie `ugl_user`) 
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Invalid group id
+* 4 - Group not found
+* 5 - You are not allowed to create boards for the group
+* 6 - Board title is empty or contains invalid chars
+* 7 - Board title has been used in the specified visibility scope (the group has a board with the same title, or the user has a private board with the same title)
 
 ### 4) Delete a Board
 

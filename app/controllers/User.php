@@ -96,7 +96,8 @@ class User extends \Controller {
 				
 				// if authentication already exists, reroute to dashboard
 				if ($oauth_info){
-					$this->setUserStatus($oauth_info["user_id"], $user->token_refresh(array("id" => $oauth_info["user_id"])));
+					$user_info = $user->findById($oauth_info["user_id"]);
+					$this->setUserStatus($oauth_info["user_id"], $user->token_refresh($user_info));
 					$base->reroute("@usercp(@panel=dashboard)");
 				}
 				
@@ -172,10 +173,12 @@ class User extends \Controller {
 			$oauth_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
 			$user_id = null;
 			$user_token = null;
+			$user_info = null;
 			// if authentication already exists, reroute to dashboard
 			if ($oauth_info){
 				$user_id = $oauth_info["user_id"];
-				$user_token = $user->token_refresh(array("id" => $oauth_info["user_id"]));
+				$user_info = $user->findById($oauth_info["user_id"]);
+				$user_token = $user->token_refresh($user_info);
 			} else {
 				$provider = $response['auth']['provider']; // replace 'callback' by the real provider
 				$provider_uid = $response['auth']['uid'];
@@ -200,14 +203,15 @@ class User extends \Controller {
 					} else {
 						// the user hasn't registered the email
 						// User model will generate a random password and send email
-						$user_creds = $user->create($email, "", $first_name, $last_name, $avatar_url);
-						$user_id = $user_creds["id"];
-						$user_token = $user_creds["ugl_token"];
+						$user_info = $user->create($email, "", $first_name, $last_name, $avatar_url);
+						$user_id = $user_info["id"];
+						$user_token = $user_info["ugl_token"];
 						$authentication->createAuth($user_id, $provider, $provider_uid, $email, $display_name, $first_name, $last_name, $avatar_url, $website_url);
 					}
 				} else throw new \Exception("Email does not exist in the fields", 4);
 			}
-			$this->json_printResponse(array("user_id" => $user_id, "ugl_token" => $user_token));
+			$this->setUserStatus($user_id, $user_token);
+			$this->json_printResponse(array("user_id" => $user_id));
 		} catch (\Exception $e) {
 			$this->json_printException($e);
 		}
@@ -488,14 +492,15 @@ class User extends \Controller {
 			if (!$this->user->isValidPassword($password))
 				throw new \Exception("Password should not be empty", 103);
 			
+			$base->clear("COOKIE.ugl_user");
+			
 			$user_data = $this->user->findByEmailAndPassword($email, $password);
 			
 			// user found?
 			if ($user_data){
 				$this->setUserStatus($user_data["id"], $user_data["ugl_token"]);
-				$user_creds = array("user_id" => $user_data["id"]);
 				if ($base->exists("SESSION.loginFail_count")) $base->clear("SESSION.loginFail_count");
-				$this->json_printResponse($user_creds);
+				$this->json_printResponse(array("user_id" => $user_data["id"]));
 			} else {
 				if ($base->exists("SESSION.loginFail_count")){
 					$base->set("SESSION.loginFail_count", intval($base->get("SESSION.loginFail_count")) + 1, 0);
