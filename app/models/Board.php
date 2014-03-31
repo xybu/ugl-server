@@ -43,31 +43,32 @@ class Board extends \Model {
 		return $boards;
 	}
 	
-	function create($user_id, $group_id, $title, $description, $order = 0){
-		$created_at = date("Y-m-d H:i:s");
+	function findByTitleAndIds($title, $user_id, $group_id) {
+		$result = $this->queryDb("SELECT id FROM boards WHERE title=:title AND (group_id=:group_id OR (user_id=:user_id AND group_id IS NULL)) LIMIT 1;",
+			array(
+				":title" => $title, 
+				":user_id" => $user_id, 
+				":group_id" => $group_id
+			)
+		);
+		
+		if (empty($result) or count($result) == 0) return null;
+		
+		return $this->findById($result[0]["id"]);
+	}
+	
+	function create($user_id, $group_id, $title, $description) {
 		$this->queryDb(
-			"INSERT INTO boards (user_id, group_id, title, description, order, created_at, last_active_at) " .
-			"VALUES (:user_id, :group_id, :title, :description, :order, :created_at, NOW()); ",
+			"INSERT INTO boards (user_id, group_id, title, description, created_at, last_active_at) " .
+			"VALUES (:user_id, :group_id, :title, :description, NOW(), NOW()); ",
 			array(
 				':user_id' => $user_id,
 				':group_id' => $group_id,
 				':title' => $title,
-				':description' => $description,
-				':order' => $order,
-				':created_at' => $created_at
+				':description' => $description
 			)
 		);
-		
-		$result = $this->queryDb(
-			"SELECT id FROM boards WHERE user_id=:user_id AND group_id=:group_id AND created_at=:created_at LIMIT 1;", 
-			array(
-				':user_id' => $user_id,
-				':group_id' => $group_id,
-				':created_at' => $created_at
-			)
-		);
-		
-		return $this->findById($result[0]["id"]);
+		return $this->findByTitleAndIds($title, $user_id, $group_id);
 	}
 	
 	function delete($board_info) {
