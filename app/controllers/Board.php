@@ -77,23 +77,82 @@ class Board extends \Controller {
 	 * Optional:	group_id
 	 */
 	function api_delete($base) {
-		
+		try {
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			$board_id = $base->get("POST.board_id");
+			
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
 	}
 	
 	function api_edit($base) {
-		
+		try {
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			$board_id = $base->get("POST.board_id");
+			
+			$Board = \models\Board::instance();
+			
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
 	}
 	
 	function api_addPost($base) {
-		
+		try {
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			$board_id = $base->get("POST.board_id");
+			$parent_post_id = $base->get("POST.parent_post_id");
+			
+			$Board = \models\Board::instance();
+			$Discussion = \models\Discussion::instance();
+			
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
 	}
 	
 	function api_editPost($base) {
-		
+		try {
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			$board_id = $base->get("POST.board_id");
+			$post_id = $base->get("POST.post_id");
+			
+			$Board = \models\Board::instance();
+			$Discussion = \models\Discussion::instance();
+			
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
 	}
 	
 	function api_delPost($base) {
-		
+		try {
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			$board_id = $base->get("POST.board_id");
+			$post_id = $base->get("POST.post_id");
+			
+			$Board = \models\Board::instance();
+			$Discussion = \models\Discussion::instance();
+			
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
 	}
 	
 }
