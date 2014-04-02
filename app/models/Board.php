@@ -82,11 +82,10 @@ class Board extends \Model {
 	function save(&$board_info) {
 		$board_info["last_active_at"] = date("Y-m-d H:i:s");
 		$this->queryDb("UPDATE boards " .
-			"SET order=:order, user_id=:user_id, group_id=:group_id, title=:title, description=:description, last_active_at=:last_active_at ".
+			"SET user_id=:user_id, group_id=:group_id, title=:title, description=:description, last_active_at=:last_active_at ".
 			"WHERE id=:id;",
 			array(
 				":id" => $board_info["id"],
-				":order" => $board_info["order"],
 				":user_id" => $board_info["user_id"],
 				":group_id" => $board_info["group_id"],
 				":title" => $board_info["title"],
