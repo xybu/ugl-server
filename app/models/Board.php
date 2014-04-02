@@ -11,6 +11,7 @@ namespace models;
 class Board extends \Model {
 
 	const BOARD_CACHE_TTL = 1800;
+	const BOARD_QUERY_CACHE_TTL = 600;
 	
 	function findById($id) {
 		if ($this->cache->exists("board_id_" . $id))
@@ -26,7 +27,7 @@ class Board extends \Model {
 	}
 	
 	function findByUserId($user_id) {
-		$result = $this->queryDb("SELECT id FROM boards WHERE user_id=:user_id OR group_id IN (SELECT _joined_groups FROM users WHERE id=:user_id)", array(":user_id" => $user_id));
+		$result = $this->queryDb("SELECT id FROM boards WHERE user_id=:user_id OR group_id IN (SELECT _joined_groups FROM users WHERE id=:user_id)", array(":user_id" => $user_id), static::BOARD_QUERY_CACHE_TTL);
 		if (empty($result) or count($result) == 0) return null;
 		
 		$boards = array();
@@ -35,7 +36,7 @@ class Board extends \Model {
 	}
 	
 	function findByGroupId($group_id) {
-		$result = $this->queryDb("SELECT id FROM boards WHERE group_id=?;", $group_id);
+		$result = $this->queryDb("SELECT id FROM boards WHERE group_id=?;", $group_id, static::BOARD_QUERY_CACHE_TTL);
 		if (empty($result) or count($result) == 0) return null;
 		
 		$boards = array();
