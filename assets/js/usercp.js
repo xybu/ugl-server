@@ -289,9 +289,9 @@ function renderGroupListItem(listId, groupStr){
 	$('a.enter-group').address();
 }
 
-function toggleBoard(id){
-	var dom = $("#board-" + id + "-discussions");
-	var toggle_btn = $("#board-" + id + "-toggle i");
+function togglePanel(p){
+	var dom = $(p).parent().parent().find("#content");
+	var toggle_btn = $(p).find("i");
 	dom.toggle(function() {
 		$(this).data("toggled", !$(this).data("toggled"));
 	});
@@ -310,7 +310,7 @@ function init_boards(){
 	$('a[data-toggle=popover]').popover();
 	$("#create_board_form").submit(function(e){
 		var board_title_dom = $("#create_board_form #title");
-		if (!board_title_dom.val().match("^[\w\d][-\w\d_ ]{1,32}$")) {
+		if (!board_title_dom.val().match(/^[\w\d][-\w\d_\ ]{1,32}$/)) {
 			board_title_dom.focus();
 			board_title_dom.tooltip("show");
 			return false;
@@ -344,9 +344,39 @@ function init_items(){
 	ugl_panel_initialized = true;
 }
 
-function init_wallet(){
-	document.title = "Wallet | Ugl";
-	
+function init_wallets(){
+	document.title = "Wallets | Ugl";
+	$('.selectpicker').selectpicker();
+	$('a[data-toggle=popover]').popover();
+	$("#create_wallet_form").submit(function(e){
+		var wallet_name_dom = $("#create_wallet_form #name");
+		if (!wallet_name_dom.val().match(/^[\w\d][-\w\d_\ ]{1,32}$/)) {
+			console.log(wallet_name_dom.val());
+			wallet_name_dom.focus();
+			wallet_name_dom.tooltip("show");
+			return false;
+		}
+		
+		var prompt_dom = $("#create_wallet_form #prompt");
+		prompt_dom.html("<img src=\"assets/img/loader.gif\" />").removeClass("hidden");
+		$.post(
+			"/api/wallet/create",
+			$(this).serialize(),
+			function(data){
+				if (data.status == "success"){
+					var nw = $(data.data.wallet_data);
+					$("#main").append(nw);
+					document.getElementById($(nw).attr("id")).scrollIntoView();
+					$("#create_wallet_modal").modal('hide');
+					nw.addClass("animated bounceInDown");
+				} else {
+					prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
+				}
+			}).fail(function(xhr, textStatus, errorThrown) {
+				prompt_dom.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+		});
+		e.preventDefault();
+	});
 	ugl_panel_initialized = true;
 }
 

@@ -25,7 +25,7 @@ if (empty($me["avatar_url"]))
 ?><div class="container-fluid board_item" id="board_<?php echo $board_item["id"]?>">
 	<div class="row">
 		<h2 class="sub-header">
-			<span class="title" name="board_<?php echo $board_item["id"]?>_title" id="board-<?php echo $board_item["id"]?>-toggle" onclick="toggleBoard(<?php echo $board_item["id"]?>)">
+			<span class="cursor-pointer" onclick="togglePanel(this)">
 				<i class="fa fa-angle-up"></i> <?php echo $board_item["title"]?>
 			</span>
 			<div class="btn-group pull-right">
@@ -40,7 +40,7 @@ if (empty($me["avatar_url"]))
 				</ul>
 			</div>
 		</h2>
-		<div class="col-md-12 discussions" id="board-<?php echo $board_item["id"]?>-discussions">
+		<div class="col-md-12 discussions" id="content">
 <?php
 if ($board_item["discussion_list"])
 	foreach($board_item["discussion_list"] as $key => $value) {

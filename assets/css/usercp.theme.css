@@ -28,7 +28,7 @@ body {
 	border-bottom: 1px solid #eee;
 }
 
-.sub-header .title {
+.cursor-pointer {
 	cursor: pointer;
 }
 
@@ -748,7 +748,7 @@ body.loading .ajax-loading {
     width: 100px;
 }
 
-.modal-body .itemLabel, td.itemLabel {
+.itemLabel {
 	font-size: 1.1em !important;
 	width: 20%;
 	min-width: 6em;
