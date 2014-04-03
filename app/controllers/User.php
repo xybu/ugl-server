@@ -89,7 +89,7 @@ class User extends \Controller {
 				
 				// load user and authentication models
 				$authentication = \models\Authentication::instance();
-				$user = $this->user;
+				$user = \models\User::instance();
 				
 				// check if user already has authenticated using this provider before				
 				$oauth_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
@@ -168,7 +168,7 @@ class User extends \Controller {
 			$response = $oauth_obj->toArray();
 			
 			$authentication = \models\Authentication::instance();
-			$user = $this->user;
+			$user = \models\User::instance();
 			
 			$oauth_info = $authentication->findByProviderUid($response['auth']['provider'], $response['auth']['uid']);
 			$user_id = null;
