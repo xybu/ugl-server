@@ -1,4 +1,4 @@
-<?
+<?php
 if (!function_exists("renderDiscussionItem")) {
 	function renderDiscussionItem($discussion){
 		$user_info = \models\User::instance()->findById($discussion["user_id"]);
@@ -67,6 +67,6 @@ echo "<ul><li>".
 	"</li></ul>";
 ?>
 		<hr class="page-divider" />
-		</div><!--/col-->
+		</div>
 	</div>
 </div>
