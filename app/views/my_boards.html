@@ -7,10 +7,13 @@
 $base = \Base::instance();
 $View = \View::instance();
 
-foreach ($board_list["boards"] as $board_item) {
-	$base->set("board_item", $board_item);
-	echo $View->render("board.html");
-}
+if ($board_list["count"] == 0) {
+	$group_str = "<div id=\"no_board_alert\" class=\"col-md-12 text-center\"><span class=\"alert alert-info\">Oops... You don't have any boards yet... Create one?</span></div>";
+} else
+	foreach ($board_list["boards"] as $board_item) {
+		$base->set("board_item", $board_item);
+		echo $View->render("board.html");
+	}
 ?>
 <div id="create_board_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="create_board_modalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-adaptive">
