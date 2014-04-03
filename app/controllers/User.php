@@ -289,9 +289,10 @@ class User extends \Controller {
 					$board = \models\Board::instance();
 					$board_list = $board->findByUserId($me["id"]);
 					$discussion = \models\Discussion::instance();
-					foreach ($board_list["boards"] as $keyId => &$board){
-						$board["discussion_list"] = $discussion->listByBoardId($board["id"]);
-					}
+					if ($board_list["count"] > 0)
+						foreach ($board_list["boards"] as $keyId => &$board){
+							$board["discussion_list"] = $discussion->listByBoardId($board["id"]);
+						}
 					$base->set("board_list", $board_list);
 					break;
 				case "items":
