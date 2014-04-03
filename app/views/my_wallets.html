@@ -1,0 +1,70 @@
+<h1 class="page-header">My Wallets
+	<div class="pull-right wider-screen">
+		<button type="button" data-toggle="modal" data-target="#create_wallet_modal" class="btn btn-primary"><i class="fa fa-plus-square fa-fw"></i> Create</button>
+	</div>
+</h1>
+<?php
+if ($wallet_list["count"] == 0) {
+	echo "<div id=\"no_wallet_alert\" class=\"col-md-12 text-center\"><span class=\"alert alert-info\">Oops... You don't have any wallets yet. What about creating one?</span></div>";
+} else {
+	$Base = \Base::instance();
+	$View = \View::instance();
+	
+	foreach ($wallet_list["wallets"] as $wallet_item) {
+		$Base->set("wallet_item", $wallet_item);
+		echo $View->render("wallet_brief.html");
+	}
+}
+?>
+<div id="create_wallet_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="create_wallet_modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-adaptive">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">
+					<i class="fa fa-plus-square"></i> Create a new wallet
+					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button></h3>
+			</div>
+			<form class="form-horizontal" id="create_wallet_form">
+				<input type="hidden" name="returnHtml" value="1" />
+				<div class="modal-body">
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Name</div>
+						<div class="col-sm-8 col-md-9">
+							<input type="text" id="name" name="name" placeholder="short and succinct" required maxlength="32" data-toggle="tooltip" data-placement="right" title="Please make it short and sensible">
+							<p class="help-block">Something like "General Expenses" or "My_wallet-2014". No more than 32 characters.</p>
+						</div>
+					</div>
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Description</div>
+						<div class="col-sm-8 col-md-9">                     
+							<textarea id="description" name="description" maxlength="70" oninput="limitTextArea('description', 'desc_counter', 150);"></textarea>
+							<p class="help-block"><span id="desc_counter">150</span> character(s) left</p>
+						</div>
+					</div>
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Visibility</div>
+						<div class="col-sm-8 col-md-9">
+							<p class="help-block">Is this wallet for a group?</p>
+							<select class="selectpicker" data-live-search="true" id="group_id" name="group_id">
+								<option value="0">The wallet is private to myself.</option>
+								<?php
+								foreach ($me["_joined_groups"] as $key => $val) {
+									if (!$val["my_permissions"]["create_wallet"]) $disabled = " disabled";
+									else $disabled = "";
+									echo "<option value=\"" . $val["id"] . "\"". $disabled .">Group " . $val["alias"] . ".</option>";
+								}
+								?>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="pull-left text-center hidden" id="prompt">
+					</div>
+					<button class="btn btn-primary" type="submit">Create</button>
+					<button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

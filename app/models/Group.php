@@ -24,6 +24,7 @@ class Group extends \Model {
 		"role_name" => "guest",
 		"view_profile" => false,	// view group profile
 		"apply" => false, 		// apply to join
+		"manage" => false, 	// manage members and change profile
 		"view_board" => false,	// view the boards
 		"new_board" => false,	// new board
 		"edit_board" => false,	// edit a board
@@ -32,7 +33,13 @@ class Group extends \Model {
 		"comment" => false, // comment on posts
 		"delete" => false,	// delete posts
 		"edit" => false, 	// edit subjects
-		"manage" => false 	// manage members and change profile
+		"create_wallet" => false,
+		"edit_wallet" => false,
+		"delete_wallet" => false,
+		"create_record" => false,
+		"edit_record" => false,
+		"delete_record" => false,
+		"add_record_notes" => false
 	);
 	
 	// default group preferences
@@ -119,18 +126,6 @@ class Group extends \Model {
 		return array("count" => 0);
 	}
 	
-	function getDefaultRoleName(){
-		return "member";
-	}
-	
-	function getPendingRoleName(){
-		return "pending";
-	}
-	
-	function getInviteeRoleName(){
-		return "invitee";
-	}
-	
 	function getPermissions($user_id, $group_id, $group_data = null){
 		
 		$permissions = self::$DEFAULT_GROUP_PERMISSION;
@@ -147,6 +142,13 @@ class Group extends \Model {
 				$permissions["post"] = true; 
 				$permissions["comment"] = true; 
 				$permissions["delete"] = true;
+				$permissions["create_wallet"] = true;
+				$permissions["edit_wallet"] = true;
+				$permissions["delete_wallet"] = true;
+				$permissions["create_record"] = true;
+				$permissions["edit_record"] = true;
+				$permissions["delete_record"] = true;
+				$permissions["add_record_notes"] = true;
 			}
 			$permissions["edit"] = true;
 			$permissions["manage"] = true;
@@ -159,6 +161,9 @@ class Group extends \Model {
 				$permissions["edit_board"] = true;
 				$permissions["post"] = true;
 				$permissions["comment"] = true;
+				$permissions["create_wallet"] = true;
+				$permissions["create_record"] = true;
+				$permissions["add_record_notes"] = true;
 			}
 		} else {
 			// invitees and applicants are treated as guests

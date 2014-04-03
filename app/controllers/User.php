@@ -289,14 +289,26 @@ class User extends \Controller {
 					$board = \models\Board::instance();
 					$board_list = $board->findByUserId($me["id"]);
 					$discussion = \models\Discussion::instance();
-					foreach ($board_list["boards"] as $keyId => $board){
-						$board_list["boards"][$keyId]["discussion_list"] = $discussion->listByBoardId($board["id"]);
+					foreach ($board_list["boards"] as $keyId => &$board){
+						$board["discussion_list"] = $discussion->listByBoardId($board["id"]);
 					}
-					//var_dump($board_list);
-					//die();
 					$base->set("board_list", $board_list);
 					break;
 				case "items":
+					break;
+				case "wallets":
+					$group = \models\Group::instance();
+					foreach ($me["_joined_groups"] as $key => $id) {
+						$me["_joined_groups"][$key] = $group->findById($id);
+						$me["_joined_groups"][$key]["my_permissions"] = $group->getPermissions($me["id"], $id, $me["_joined_groups"][$key]);
+					}
+					$Wallet = \models\Wallet::instance();
+					$wallet_list = $Wallet->findByUserId($me["id"]);
+					if ($wallet_list["count"] > 0)
+						foreach ($wallet_list["wallets"] as $key => &$wallet_info) {
+							$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"], 5);
+						}
+					$base->set("wallet_list", $wallet_list);
 					break;
 				case "wallet":
 					break;
@@ -377,14 +389,28 @@ class User extends \Controller {
 					$board = \models\Board::instance();
 					$board_list = $board->findByUserId($me["id"]);
 					$discussion = \models\Discussion::instance();
-					foreach ($board_list["boards"] as $keyId => $board){
-						$board_list["boards"][$keyId]["discussion_list"] = $discussion->listByBoardId($board["id"]);
+					foreach ($board_list["boards"] as $keyId => &$board){
+						$board["discussion_list"] = $discussion->listByBoardId($board["id"]);
 					}
 					//var_dump($board_list);
 					//die();
 					$base->set("board_list", $board_list);
 					break;
 				case "items":
+					break;
+				case "wallets":
+					$group = \models\Group::instance();
+					foreach ($me["_joined_groups"] as $key => $id) {
+						$me["_joined_groups"][$key] = $group->findById($id);
+						$me["_joined_groups"][$key]["my_permissions"] = $group->getPermissions($me["id"], $id, $me["_joined_groups"][$key]);
+					}
+					$Wallet = \models\Wallet::instance();
+					$wallet_list = $Wallet->findByUserId($me["id"]);
+					if ($wallet_list["count"] > 0)
+						foreach ($wallet_list["wallets"] as $key => &$wallet_info) {
+							$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"], 5);
+						}
+					$base->set("wallet_list", $wallet_list);
 					break;
 				case "wallet":
 					break;

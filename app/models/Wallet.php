@@ -11,8 +11,8 @@ class Wallet extends \Model {
 	const WALLET_QUERY_CACHE_TTL = 600;
 	
 	function findById($id) {
-		//if ($this->cache->exists("wallet_id_" . $id))
-		//	return $this->cache->get("wallet_id_" . $id);
+		if ($this->cache->exists("wallet_id_" . $id))
+			return $this->cache->get("wallet_id_" . $id);
 		
 		$result = $this->queryDb("SELECT * FROM wallets WHERE id=? LIMIT 1;", $id);
 		if (count($result) == 1) {
@@ -24,7 +24,7 @@ class Wallet extends \Model {
 	}
 	
 	function findByUserId($user_id) {
-		$result = $this->queryDb("SELECT id FROM wallets WHERE user_id=:user_id OR group_id IN (SELECT _joined_groups FROM users WHERE id=:user_id)", array(":user_id" => $user_id), static::WALLET_QUERY_CACHE_TTL);
+		$result = $this->queryDb("SELECT id FROM wallets WHERE user_id=:user_id OR group_id IN (SELECT _joined_groups FROM users WHERE id=:user_id) ORDER BY group_id ASC", array(":user_id" => $user_id));
 		if (empty($result) or count($result) == 0) return null;
 		
 		$wallets = array();
@@ -79,7 +79,7 @@ class Wallet extends \Model {
 	function save(&$wallet_info) {
 		$wallet_info["last_update_at"] = date("Y-m-d H:i:s");
 		$this->queryDb("UPDATE wallets " .
-			"SET user_id=:user_id, group_id=:group_id, name=:name, description=:description, last_active_at=:last_update_at ".
+			"SET user_id=:user_id, group_id=:group_id, name=:name, description=:description, balance=:balance, last_active_at=:last_update_at ".
 			"WHERE id=:id;",
 			array(
 				":id" => $wallet_info["id"],
@@ -87,16 +87,19 @@ class Wallet extends \Model {
 				":group_id" => $wallet_info["group_id"],
 				":name" => $wallet_info["name"],
 				":description" => $wallet_info["description"],
+				":balance" => $wallet_info["balance"],
 				":last_update_at" => $wallet_info["last_update_at"]
 			)
 		);
 		
-		//if ($this->cache->exists("wallet_id_" . $board_info["id"]))
-		//	$this->cache->set("wallet_id_" . $board_info["id"], $board_info);
+		if ($this->cache->exists("wallet_id_" . $wallet_info["id"]))
+			$this->cache->set("wallet_id_" . $wallet_info["id"], $wallet_info);
 	}
 	
-	function findAllRecords($wallet_id) {
-		$result = $this->queryDb("SELECT * FROM wallet_records WHERE id=?;", $wallet_id);
+	function findRecordsByWalletId($wallet_id, $limit = null) {
+		if (!empty($limit)) $limit = " LIMIT " . $limit;
+		else $limit = "";
+		$result = $this->queryDb("SELECT * FROM wallet_records WHERE wallet_id=? ORDER BY created_at DESC" . $limit . "", $wallet_id);
 		$ret = array("count" => count($result));
 		if (count($result) > 0) {
 			// array_column is a PHP function >= 5.5.0
@@ -131,7 +134,7 @@ class Wallet extends \Model {
 		return $result[0];
 	}
 	
-	function createRecord($user_id, $wallet_id, $category, $sub_category, $amount, $description) {
+	function createRecord($user_id, $wallet_id, $category, $sub_category, $amount, $description, &$wallet_info) {
 		$currentTime = date("Y-m-d H:i:s");
 		$this->queryDb(
 			"INSERT INTO wallet_records (user_id, wallet_id, category, sub_category, amount, description, created_at) " .
@@ -146,10 +149,11 @@ class Wallet extends \Model {
 				':now' => $currentTime
 			)
 		);
+		$wallet_info["balance"] = $wallet_info["balance"] + $amount;
 		return $this->findRecordByIdsAndTime($user_id, $wallet_id, $currentTime);
 	}
 	
-	function saveRecord(&$wallet_record_info) {
+	function saveRecord(&$wallet_record_info, $previous_amount, &$wallet_info) {
 		$this->queryDb("UPDATE wallet_records " .
 			"SET user_id=:user_id, wallet_id=:wallet_id, category=:category, sub_category=:sub_category, amount=:amount, description=:description ".
 			"WHERE id=:id;",
@@ -164,12 +168,15 @@ class Wallet extends \Model {
 			)
 		);
 		
+		$wallet_info["balance"] = $wallet_info["balance"] - $previous_amount + $wallet_record_info["amount"];
+		
 		//TODO: update cache chunk
 	}
 	
-	function deleteRecord($wallet_record_info) {
+	function deleteRecord($wallet_record_info, &$wallet_info) {
 		$this->queryDb("DELETE FROM wallets WHERE id=? LIMIT 1;", $wallet_record_info["id"]);
 		
+		$wallet_info["balance"] -= $wallet_record_info["amount"];
 		//TODO: update cache chunk
 	}
 	
