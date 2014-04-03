@@ -704,8 +704,8 @@ class User extends \Controller {
 	
 	function api_uploadAvatar($base){
 		try {
-			$user = $this->user;
 			$user_status = $this->getUserStatus();
+			$user = $this->user;
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
 			
@@ -734,7 +734,7 @@ class User extends \Controller {
 			if ($base->exists("SESSION.resetPass_count") && intval($base->get("SESSION.resetPass_count")) > static::RSTPWD_REQ_PER_SESSION)
 				throw new \Exception("Please try this operation later", 2);
 			
-			$user = $this->user;
+			$user = \models\User::instance();
 			$email = $base->get("POST.email");
 			if (!$user->isValidEmail($email))
 				throw new \Exception("Invalid email address", 3);
