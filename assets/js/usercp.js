@@ -326,6 +326,8 @@ function init_boards(){
 					var new_board = $(data.data.board_data);
 					$("#main").append(new_board);
 					document.getElementById($(new_board).attr("id")).scrollIntoView();
+					if ($("#no_board_alert").length)
+						$("#no_board_alert").remove();
 					$("#create_board_modal").modal('hide');
 					new_board.addClass("animated bounceInDown");
 				} else {
