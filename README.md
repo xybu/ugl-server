@@ -51,6 +51,17 @@ Project Ugl is a collective life management web application written in PHP+MySQL
 		 - [Add a Post](#6-add-a-post)
 		 - [Edit a Post](#7-edit-a-post)
 		 - [Delete a Post](#8-delete-a-post)
+	 - [Wallet and Record API](#4-wallet-and-record-api)
+		 - [Create a wallet](#1-create-a-wallet)
+		 - [Edit a wallet](#2-edit-a-wallet)
+		 - [Delete a wallet](#3-delete-a-wallet)
+		 - [List wallets of a user](#4-list-wallets-of-a-user)
+		 - [List wallets of a group](#5-list-wallets-of-a-group)
+		 - [Add one or more records](#6-add-records-to-a-wallet)
+		 - [Edit a record](#7-edit-a-record)
+		 - [Delete a record](#8-delete-a-record)
+		 - [List records of a wallet](#9-list-records-of-a-wallet)
+	 - [Shelf and Item API](#5-shelf-and-item-api)
 
 # Introduction
 
@@ -1181,6 +1192,28 @@ Upon success, something like the following will be returned.
 ### 7) Edit a Post
 
 ### 8) Delete a Post
+
+## 4. Wallet and Record API
+
+### 1) Create a wallet
+
+### 2) Edit a wallet
+
+### 3) Delete a wallet
+
+### 4) List wallets of a user
+
+### 5) List wallets of a group
+
+### 6) Add records to a wallet
+
+### 7) Edit a record
+
+### 8) Delete a record
+
+### 9) List records of a wallet
+
+## 5. Shelf and Item API
 
 
 ## 3. News API
