@@ -1,0 +1,72 @@
+<ol class="breadcrumb">
+	<li>Home</li>
+	<?php if ($wallet_item["group_id"]) : ?><li id="group-alias"><a class="panel-link" href="/my/group/<?php echo $group_info["id"]?>"><?php echo $group_info["alias"]?></a></li><?php else :?>
+	<li><a class="panel-link" href="/my/wallets">Wallets</a></li><?php endif ?>
+	<li class="active"><?php echo $wallet_item["name"]?></li>
+</ol>	
+<div class="container-fluid" id="wallet_<?php echo $wallet_item["id"]?>">
+	<div class="row">
+		<h1 class="page-header">
+			<?php echo $wallet_item["name"];
+			echo "<div class=\"pull-right\">";
+			echo "<a class=\"btn btn-primary\" role=\"button\" data-toggle=\"modal\" data-target=\"#join_group_modal\"><i class=\"fa fa-pencil-square-o fa-fw\"></i> Edit</a> ";
+			echo "<a class=\"btn btn-default\" role=\"button\" data-toggle=\"modal\" data-target=\"#join_group_modal\"><i class=\"fa fa-trash-o fa-fw\"></i> Delete</a> ";
+			echo "</div>"
+			?>
+		</h1>
+		<div class="row">
+			<div class="col-md-7"><?php echo $wallet_item["description"]?></div>
+			<div class="col-md-5">
+				<div class="table-responsive" id="content">
+					<table class="table table-striped">
+						<tbody>
+							<tr><td></td><td></td></tr>
+							<tr><td>Current Balance</td><td>?</td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<h3>History</h3>
+		<div class="table-responsive" id="content">
+			<table class="table table-striped" id="records">
+				<thead>
+					<tr>
+						<th>Time</th><th>Category</th><th>Description</th><th>Amount</th>
+					</tr>
+				</thead>
+				<tbody>
+				<tr>
+					<td><i class="fa fa-plus"></i> New</td>
+					<td><input /> / <input /></td>
+					<td><input /></td>
+					<td><input /></td>
+				</tr>
+				<?php
+				if ($wallet_item["records"]["count"] > 0) {
+					foreach ($wallet_item["records"]["records"] as $r) {
+						echo "<tr>" .
+						 "<td>" . $r["created_at"] . "</td><td>" . $r["category"] . " / " . $r["sub_category"] . "</td><td>" . $r["description"] . "</td><td>" . $r["amount"] . "</td></tr>";
+					}
+				}
+				?>
+				<tr>
+					<td>Balance</td>
+					<td></td>
+					<td></td>
+					<td><?php echo $wallet_item["balance"];?></td>
+				</tr>
+				</tbody>
+			</table>
+			<ul class="pagination">
+				<li class="disabled"><a href="#">&laquo;</a></li>
+				<li class="active"><a href="#">1</a></li>
+				<li><a href="#">2</a></li>
+				<li><a href="#">3</a></li>
+				<li><a href="#">4</a></li>
+				<li><a href="#">5</a></li>
+				<li><a href="#">&raquo;</a></li>
+			</ul>
+		</div>
+	</div>
+</div>

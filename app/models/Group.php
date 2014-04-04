@@ -33,6 +33,7 @@ class Group extends \Model {
 		"comment" => false, // comment on posts
 		"delete" => false,	// delete posts
 		"edit" => false, 	// edit subjects
+		"view_wallet" => false,
 		"create_wallet" => false,
 		"edit_wallet" => false,
 		"delete_wallet" => false,
@@ -142,6 +143,7 @@ class Group extends \Model {
 				$permissions["post"] = true; 
 				$permissions["comment"] = true; 
 				$permissions["delete"] = true;
+				$permissions["view_wallet"] = true;
 				$permissions["create_wallet"] = true;
 				$permissions["edit_wallet"] = true;
 				$permissions["delete_wallet"] = true;
@@ -161,6 +163,7 @@ class Group extends \Model {
 				$permissions["edit_board"] = true;
 				$permissions["post"] = true;
 				$permissions["comment"] = true;
+				$permissions["view_wallet"] = true;
 				$permissions["create_wallet"] = true;
 				$permissions["create_record"] = true;
 				$permissions["add_record_notes"] = true;

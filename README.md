@@ -1195,17 +1195,129 @@ Upon success, something like the following will be returned.
 
 ## 4. Wallet and Record API
 
+The data structure of a wallet is defined as follows:
+ * **name**
+ * **description**
+ * **balance**
+ * **records**
+
 ### 1) Create a wallet
+
+Create a new wallet.
+
+#### Request
+
+| Name   | Description                                      |
+| ------ | ------------------------------------------------ |
+| Method | POST                                             |
+| URL    | `/api/wallet/create`                              |
+| DATA   | `name`=wallet_name&`description`=description&`group_id`=123 |
+
+Example POST source:
+```
+name=Secret+Wallet&description=There+is+no+secret+actually.&group_id=2
+```
+
+Authentication cookie `ugl_user` is required to perform the operation.
+
+Notes:
+
+ * The field `group_id` is needed only when the board is created for a group.
+	 * When creating a board for a group, `create_wallet` permission must be `true` for the user's role in the group.
+	 * Omitting `group_id` or setting `group_id` to `0` means the board is private to the user.
+ * Don't forget to do sanity check for the data.
+
+#### Response
+
+Upon success, server returns JSON object whose format looks like the following:
+
+```javascript
+{
+    "status": "success",
+    "expiration": "2014-04-04T19:40:03+00:00",
+    "data": {
+        "message": "You have successfully created a wallet.",
+        "wallet_data": {
+            "id": "7",
+            "user_id": "5",
+            "group_id": "2",
+            "name": "Secret Wallet Test",
+            "description": "There is no secret actually.",
+            "balance": null,
+            "created_at": "2014-04-04 19:40:03",
+            "last_update_at": null,
+            "records": {
+                "count": 0
+            }
+        }
+    }
+}
+```
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Must provide the authentication cookie `ugl_user`) 
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Invalid group id
+* 4 - Group not found
+* 5 - You are not allowed to create wallets for the group
+* 6 - Wallet name is empty or contains invalid chars
+* 7 - The wallet name has been used (the group or the user already has such a wallet)
 
 ### 2) Edit a wallet
 
 ### 3) Delete a wallet
 
-### 4) List wallets of a user
+### 4) List wallets
 
-### 5) List wallets of a group
+* List by user
+* List by group
+* List by certain criteria
 
 ### 6) Add records to a wallet
+
+Add a record to a wallet.
+
+#### Request
+
+| Name   | Description                                      |
+| ------ | ------------------------------------------------ |
+| Method | POST                                             |
+| URL    | `/api/wallet/create`                              |
+| DATA   | `name`=wallet_name&`description`=description&`group_id`=123 |
+
+Example POST source:
+```
+name=Secret+Wallet&description=There+is+no+secret+actually.&group_id=2
+```
+
+Authentication cookie `ugl_user` is required to perform the operation.
+
+Notes:
+
+ * The field `group_id` is needed only when the board is created for a group.
+	 * When creating a board for a group, `create_wallet` permission must be `true` for the user's role in the group.
+	 * Omitting `group_id` or setting `group_id` to `0` means the board is private to the user.
+ * Don't forget to do sanity check for the data.
+
+#### Response
+
+Upon success, server returns JSON object whose format looks like the following:
+
+```javascript
+
+```
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Must provide the authentication cookie `ugl_user`) 
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Invalid group id
+* 4 - Group not found
+* 5 - You are not allowed to create wallets for the group
+* 6 - Wallet name is empty or contains invalid chars
+* 7 - The wallet name has been used (the group or the user already has such a wallet)
+
 
 ### 7) Edit a record
 

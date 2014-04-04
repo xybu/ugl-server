@@ -312,6 +312,29 @@ class User extends \Controller {
 					$base->set("wallet_list", $wallet_list);
 					break;
 				case "wallet":
+					$wallet_id = $args["item_id"];
+					if (!is_numeric($wallet_id) or empty($wallet_id))
+						die();
+					
+					$Wallet = \models\Wallet::instance();
+					$wallet_info = $Wallet->findById($wallet_id);
+					if ($wallet_info["group_id"]) {
+						$Group = \models\Group::instance();
+						$group_info = $Group->findById($wallet_info["group_id"]);
+						if (!$group_info) die();
+						
+						$my_permissions = $Group->getPermissions($me["id"], $wallet_info["group_id"], $group_info);
+						if (!$my_permissions["view_wallet"])
+							die();
+						
+						$base->set("my_permissions", $my_permissions);
+						$base->set("group_info", $group_info);
+					}
+					
+					$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"]);
+					$base->set("wallet_item", $wallet_info);
+					$panel = "wallets";
+					$sub_panel = "wallet";
 					break;
 				case "preferences":
 					break;
@@ -415,6 +438,29 @@ class User extends \Controller {
 					$base->set("wallet_list", $wallet_list);
 					break;
 				case "wallet":
+					$wallet_id = $args["item_id"];
+					if (!is_numeric($wallet_id) or empty($wallet_id))
+						die();
+					
+					$Wallet = \models\Wallet::instance();
+					$wallet_info = $Wallet->findById($wallet_id);
+					if ($wallet_info["group_id"]) {
+						$Group = \models\Group::instance();
+						$group_info = $Group->findById($wallet_info["group_id"]);
+						if (!$group_info) die();
+						
+						$my_permissions = $Group->getPermissions($me["id"], $wallet_info["group_id"], $group_info);
+						if (!$my_permissions["view_wallet"])
+							die();
+						
+						$base->set("my_permissions", $my_permissions);
+						$base->set("group_info", $group_info);
+					}
+					
+					$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"]);
+					$base->set("wallet_item", $wallet_info);
+					$panel = "wallets";
+					$sub_panel = "wallet";
 					break;
 				case "preferences":
 					break;

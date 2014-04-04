@@ -231,13 +231,13 @@ function init_group(){
 					"/api/group/invite", 
 					{'group_id': $("#invite_form #group_id").val(), 'invite': email_to_send.join(",")},
 					function(data){
-						if (data.status == "success")
+						if (data.status == "success") {
 							$("#invite_loading_prompt").removeClass("alert-info");
 							$("#invite_loading_prompt").addClass("alert-success");
 							$("#invite_loading_prompt").text(data.data.message);
 							if (data.data.skipped.length)
 								invite_prompt.append($("<div class=\"alert alert-info alert-nomargin text-center\" />").text("Did not send to:\n" + data.data.skipped.join(", ")));
-						else {
+						} else {
 							invite_prompt.append($("<div class=\"alert alert-danger alert-nomargin\" />").text(data.message));
 						}
 					}).fail(function(xhr, textStatus, errorThrown) {
@@ -330,6 +330,7 @@ function init_boards(){
 						$("#no_board_alert").remove();
 					$("#create_board_modal").modal('hide');
 					new_board.addClass("animated bounceInDown");
+					//$('a.enter-group').address();
 				} else {
 					prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
 				}
@@ -371,6 +372,7 @@ function init_wallets(){
 					document.getElementById($(nw).attr("id")).scrollIntoView();
 					$("#create_wallet_modal").modal('hide');
 					nw.addClass("animated bounceInDown");
+					$("a.enter-wallet").address();
 				} else {
 					prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
 				}
@@ -379,6 +381,12 @@ function init_wallets(){
 		});
 		e.preventDefault();
 	});
+	$("a.enter-wallet").address();
+	ugl_panel_initialized = true;
+}
+
+function init_wallet(){
+	
 	ugl_panel_initialized = true;
 }
 
