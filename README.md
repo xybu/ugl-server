@@ -1185,9 +1185,68 @@ Upon success, something like the following will be returned.
 
 ### 4) Delete a Board
 
+Delete an existing board.
+
+#### Request
+
+| Name   | Description                                      |
+| ------ | ------------------------------------------------ |
+| Method | POST                                             |
+| URL    | `/api/board/delete`                              |
+| DATA   | `board_id`=123 |
+
+
+#### Response
+
+If success, server will return a message saying the board has been successfully deleted.
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Must provide the authentication cookie `ugl_user`) 
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Board does not exist
+* 4 - Group not found
+* 5 - You are not allowed to delete boards for the group
+
 ### 5) Edit a Board
 
+Edit the profile of a board. Note that the group where the board belongs cannot be changed.
+
+#### Request
+
+| Name   | Description                                      |
+| ------ | ------------------------------------------------ |
+| Method | POST                                             |
+| URL    | `/api/board/edit`                              |
+| DATA   | `board_id`=123&`title`=board_title&`description`=description |
+
+
+#### Response
+
+Upon success, server returns a message saying successfully updated board profile, along with 
+the new board information.
+
+TO-be-updated.
+
+```javascript
+{
+
+}
+```
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Must provide the authentication cookie `ugl_user`) 
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Board does not exist
+* 4 - Group not found
+* 5 - You are not allowed to edit the profile of the board
+* 6 - Board title is empty or contains invalid chars
+* 7 - Board title has been used
+
 ### 6) Add a Post
+
+
 
 ### 7) Edit a Post
 

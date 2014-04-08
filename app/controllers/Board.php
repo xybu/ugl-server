@@ -84,6 +84,29 @@ class Board extends \Controller {
 			$user_info = $user_status["user_info"];
 			$board_id = $base->get("POST.board_id");
 			
+			$Board = \models\Board::instance();
+			$board_info = $Board->findById($board_id);
+			
+			if (empty($board_info))
+				throw new \Exception("Board does not exist", 3);
+			
+			if ($board_info["group_id"]) {
+				$Group = \models\Group::instance();
+				
+				$group_info = $Group->findById($board_info["group_id"]);
+				if (empty($group_info)) throw new \Exception("Group not found", 4);
+				
+				$user_permissions = $group->getPermissions($user_id, $board_info["group_id"], $group_info);
+				if (!$user_permissions["del_board"]) throw new \Exception("You are not allowed to delete boards for the group", 5);
+			}
+			
+			$Discussion = \models\Discussion::instance();
+			
+			$Discussion->delete($board_id);
+			$Board->delete($boad_info);
+			
+			$this->json_printResponse(array("message" => "The board has been deleted"));
+			
 		} catch (\Exception $e) {
 			$this->json_printException($e);
 		}
@@ -98,6 +121,34 @@ class Board extends \Controller {
 			$board_id = $base->get("POST.board_id");
 			
 			$Board = \models\Board::instance();
+			$board_info = $Board->findById($board_id);
+			
+			if (empty($board_info))
+				throw new \Exception("Board does not exist", 3);
+			
+			if ($board_info["group_id"]) {
+				$Group = \models\Group::instance();
+				
+				$group_info = $Group->findById($board_info["group_id"]);
+				if (empty($group_info)) throw new \Exception("Group not found", 4);
+				
+				$user_permissions = $group->getPermissions($user_id, $board_info["group_id"], $group_info);
+				if (!$user_permissions["edit_board"]) throw new \Exception("You are not allowed to edit the profile of the board", 5);
+			}
+			
+			$board_title = $Board->filterTitle($base->get("POST.title"));
+			if (empty($board_title)) throw new \Exception("Board title is empty or contains invalid chars", 6);
+			else if ($board_title != $board_info["title"] and $Board->findByTitleAndIds($board_title, $user_id, $board_info["group_id"]))
+				 throw new \Exception("Board title has been used", 7);
+			
+			$board_description = $Board->filterContent($base->get("POST.description"), static::MAX_BOARD_DESC_LEN);
+			
+			$board_info["title"] = $board_title;
+			$board_info["description"] = $board_description;
+			
+			$Board->save($board_info);
+			
+			$this->json_printResponse(array("message" => "Successfully updated the board profile.", "board_data" => $board_info));
 			
 		} catch (\Exception $e) {
 			$this->json_printException($e);
