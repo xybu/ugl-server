@@ -386,7 +386,8 @@ function init_wallets(){
 }
 
 function init_wallet(){
-	
+	$('.selectpicker').selectpicker();
+	var new_category_dom = $("#new_category");
 	ugl_panel_initialized = true;
 }
 

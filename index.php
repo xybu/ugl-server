@@ -24,4 +24,11 @@ $base->route('GET /minify/@type',
     }, 3600*24 
 );
 
+$base->route('GET /test', 
+    function($f3, $args) {
+		$md = \Markdown::instance();  
+        echo Markdown::instance()->convert("[Example](javascript:alert%28%22xss%22%29)"); // <strong>Bold text</strong>
+    }
+);
+
 $base->run();

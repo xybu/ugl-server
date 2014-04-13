@@ -32,21 +32,24 @@
 			<table class="table table-striped" id="records">
 				<thead>
 					<tr>
-						<th>Time</th><th>Category</th><th>Description</th><th>Amount</th>
+						<th>Time</th><th>Category</th><th>Subcategory</th><th>Description</th><th>Amount</th>
 					</tr>
 				</thead>
 				<tbody>
 				<tr>
-					<td><i class="fa fa-plus"></i> New</td>
-					<td><input /> / <input /></td>
+					<td></td>
+					<td>
+					<select class="selectpicker" data-live-search="true" data-width="auto" id="new_category">
+					</select></td>
+					<td><select class="" ></select></td>
 					<td><input /></td>
-					<td><input /></td>
+					<td><input /> <button class="btn btn-default"><i class="fa fa-plus"></i> New</button></td>
 				</tr>
 				<?php
 				if ($wallet_item["records"]["count"] > 0) {
 					foreach ($wallet_item["records"]["records"] as $r) {
 						echo "<tr>" .
-						 "<td>" . $r["created_at"] . "</td><td>" . $r["category"] . " / " . $r["sub_category"] . "</td><td>" . $r["description"] . "</td><td>" . $r["amount"] . "</td></tr>";
+						 "<td>" . $r["created_at"] . "</td><td class=\"category\">" . $r["category"] . "</td><td>" . $r["sub_category"] . "</td><td>" . $r["description"] . "</td><td>" . $r["amount"] . "</td></tr>";
 					}
 				}
 				?>

@@ -60,6 +60,7 @@ class Wallet extends \Controller {
 	}
 	
 	function api_deleteWallet($base) {
+		
 	}
 	
 	function api_listWallet($base) {
@@ -111,6 +112,16 @@ class Wallet extends \Controller {
 	}
 	
 	function api_editRecord($base) {
+		try {
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			
+			
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
 	}
 	
 	function api_deleteRecord($base) {
