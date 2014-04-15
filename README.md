@@ -1304,10 +1304,7 @@ Upon success, server returns JSON object whose format looks like the following:
             "description": "There is no secret actually.",
             "balance": null,
             "created_at": "2014-04-04 19:40:03",
-            "last_update_at": null,
-            "records": {
-                "count": 0
-            }
+            "last_update_at": null
         }
     }
 }
@@ -1324,6 +1321,32 @@ Upon success, server returns JSON object whose format looks like the following:
 * 7 - The wallet name has been used (the group or the user already has such a wallet)
 
 ### 2) Edit a wallet
+
+#### Request
+
+| Name   | Description                                      |
+| ------ | ------------------------------------------------ |
+| Method | POST                                             |
+| URL    | `/api/wallet/edit`                              |
+| DATA   | `name`=wallet_name&`description`=description |
+
+Once a group wallet is created, one cannot change its group id.
+
+#### Response
+
+Refer to the wallet creation response.
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Must provide the authentication cookie `ugl_user`) 
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Invalid wallet id
+* 4 - Wallet not found
+* 5 - Group not found
+* 6 - You cannot edit the group wallet
+* 7 - You cannot edit the wallet information
+* 8 - Wallet name is empty or contains invalid chars
+* 9 - The wallet name has been used
 
 ### 3) Delete a wallet
 

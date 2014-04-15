@@ -57,6 +57,58 @@ class Wallet extends \Controller {
 	}
 	
 	function api_editWallet($base) {
+		try {
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			
+			$wallet_id = $base->get("POST.wallet_id");
+			$Wallet = \models\Wallet::instance();
+			
+			if (empty($wallet_id) or !is_numeric($wallet_id)) throw new \Exception("Invalid wallet id", 3);
+			
+			$wallet_info = $Wallet->findById($wallet_id);
+			if (empty($wallet_info)) throw new \Exception("Wallet not found", 4);
+			
+			if (!empty($wallet_info["group_id"])) {
+				$Group = \models\Group::instance();
+				$group_info = $Group->findById($wallet_info["group_id"]);
+				if (empty($group_info)) throw new \Exception("Group not found", 5);
+				
+				$user_permissions = $Group->getPermissions($user_id, $wallet_info["group_id"], $group_info);
+				if (!$user_permissions["edit_wallet"]) throw new \Exception("You cannot edit the group wallet", 6);
+			} else if ($wallet_info["user_id"] != $user_id) throw new \Exception("You cannot edit the wallet information", 7);
+			
+			if ($base->exists("POST.name")) {
+				$name = $Wallet->filterTitle($base->get("POST.name"), 48);
+				if (empty($name)) throw new \Exception("Wallet name is empty or contains invalid chars", 7);
+			
+				if ($name != $wallet_info["name"] and $Wallet->findByNameAndIds($name, $user_id, $wallet_info["group_id"]))
+					throw new \Exception("The wallet name has been used", 7);
+				
+				$wallet_info["name"] = $name;
+			}
+			
+			if ($base->exists("POST.description")) {
+				$description = $Wallet->filterContent($base->get("POST.description"), 150);
+				
+				$wallet_info["description"] = $description;
+			}
+			
+			$Wallet->save($wallet_info);
+			
+			if ($base->exists("POST.returnHtml")) {
+				$base->set("me", $user_info);
+				$base->set("wallet_item", $wallet_info);
+				$new_wallet = \View::instance()->render("wallet_brief.html");
+			}
+			
+			$this->json_printResponse(array("message" => "You have successfully updated a wallet.", "wallet_data" => $wallet_info));
+		
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
 	}
 	
 	function api_deleteWallet($base) {
