@@ -307,7 +307,7 @@ class User extends \Controller {
 					$wallet_list = $Wallet->findByUserId($me["id"]);
 					if ($wallet_list["count"] > 0)
 						foreach ($wallet_list["wallets"] as $key => &$wallet_info) {
-							$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"], 5);
+							$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"], 0, 5);
 						}
 					$base->set("wallet_list", $wallet_list);
 					break;
@@ -331,7 +331,7 @@ class User extends \Controller {
 						$base->set("group_info", $group_info);
 					}
 					
-					$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"]);
+					$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"], 0, 50);
 					$base->set("wallet_item", $wallet_info);
 					$panel = "wallets";
 					$sub_panel = "wallet";
@@ -433,7 +433,7 @@ class User extends \Controller {
 					$wallet_list = $Wallet->findByUserId($me["id"]);
 					if ($wallet_list["count"] > 0)
 						foreach ($wallet_list["wallets"] as $key => &$wallet_info) {
-							$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"], 5);
+							$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"], 0, 5);
 						}
 					$base->set("wallet_list", $wallet_list);
 					break;
@@ -457,7 +457,7 @@ class User extends \Controller {
 						$base->set("group_info", $group_info);
 					}
 					
-					$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"]);
+					$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"], 0, 50);
 					$base->set("wallet_item", $wallet_info);
 					$panel = "wallets";
 					$sub_panel = "wallet";

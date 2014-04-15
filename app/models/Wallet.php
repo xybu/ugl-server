@@ -96,10 +96,13 @@ class Wallet extends \Model {
 			$this->cache->set("wallet_id_" . $wallet_info["id"], $wallet_info);
 	}
 	
-	function findRecordsByWalletId($wallet_id, $limit = null) {
-		if (!empty($limit)) $limit = " LIMIT " . $limit;
-		else $limit = "";
-		$result = $this->queryDb("SELECT * FROM wallet_records WHERE wallet_id=? ORDER BY created_at DESC" . $limit . "", $wallet_id);
+	function findRecordsByWalletId($wallet_id, $start = 0, $limit = 100) {
+		$result = $this->queryDb("SELECT * FROM wallet_records WHERE wallet_id=:wallet_id and id > :start_id ORDER BY created_at DESC LIMIT :limit", 
+			array(
+				":wallet_id" => $wallet_id,
+				":start_id" => $start,
+				":limit" => $limit
+			));
 		$ret = array("count" => count($result));
 		if (count($result) > 0) {
 			// array_column is a PHP function >= 5.5.0

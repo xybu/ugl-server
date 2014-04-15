@@ -1407,6 +1407,39 @@ Upon success, server returns JSON object whose format looks like the following:
 
 ### 9) List records of a wallet
 
+List a given number of records of a wallet, starting from ID `start_id`.
+
+#### Request
+
+| Name   | Description                                        |
+| ------ | -------------------------------------------------- |
+| Method | POST                                               |
+| URL    | `/api/wallet/list_records`                         |
+| DATA   | `wallet_id`=123&`start_id`=description&`limit`=100 |
+
+Notes:
+ * If the wallet belongs to a group, then the user must have `view_wallet` permission
+in order to view the records.
+
+ * `wallet_id` is the wallet to list records
+ * `start_id` is the id of record from which to start listing (exclusive)
+ * `limit` is the number of records to be fetched
+ * One can use the parameters to build pagination in the UI.
+
+#### Response
+
+TBA.
+
+#### Associated Errors
+
+* 1 - You should log in to perform the request (Must provide the authentication cookie `ugl_user`) 
+* 2 - Unauthorized request (Authentication expired. Re-login.)
+* 3 - Invalid wallet id
+* 4 - Wallet not found
+* 5 - Group not found
+* 6 - You cannot view the group wallet
+* 7 - You cannot view the wallet information
+
 ## 5. Shelf and Item API
 
 

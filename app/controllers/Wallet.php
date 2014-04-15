@@ -42,7 +42,7 @@ class Wallet extends \Controller {
 			$description = $Wallet->filterContent($base->get("POST.description"), 150);
 			
 			$new_wallet = $Wallet->create($user_id, $group_id, $name, $description);
-			$new_wallet["records"]["count"] = 0;
+			
 			if ($base->exists("POST.returnHtml")) {
 				$base->set("me", $user_info);
 				$base->set("wallet_item", $new_wallet);
@@ -126,37 +126,28 @@ class Wallet extends \Controller {
 			$user_info = $user_status["user_info"];
 			$group_id = $base->get("POST.group_id");
 			
-			if (!empty($group_id)) {
-				if (!is_numeric($group_id)) throw new \Exception("Invalid group id", 3);
-				
-				$group = \models\Group::instance();
-				
-				$target_group = $group->findById($group_id);
-				if (empty($target_group)) throw new \Exception("Group not found", 4);
-				
-				$user_permissions = $group->getPermissions($user_id, $group_id, $target_group);
-				if (!$user_permissions["create_record"]) throw new \Exception("You cannot create new records for the group", 5);
-			} else $group_id = null;
-			
+			$wallet_id = $base->get("POST.wallet_id");
 			$Wallet = \models\Wallet::instance();
 			
-			$name = $Wallet->filterTitle($base->get("POST.name"), 48);
-			if (empty($name)) throw new \Exception("Wallet name is empty or contains invalid chars", 6);
+			if (empty($wallet_id) or !is_numeric($wallet_id)) throw new \Exception("Invalid wallet id", 3);
 			
-			if ($Wallet->findByNameAndIds($name, $user_id, $group_id))
-				 throw new \Exception("The wallet name has been used", 7);
+			$wallet_info = $Wallet->findById($wallet_id);
+			if (empty($wallet_info)) throw new \Exception("Wallet not found", 4);
 			
-			$description = $Wallet->filterContent($base->get("POST.description"), 150);
+			if (!empty($wallet_info["group_id"])) {
+				$Group = \models\Group::instance();
+				$group_info = $Group->findById($wallet_info["group_id"]);
+				if (empty($group_info)) throw new \Exception("Group not found", 5);
+				
+				$user_permissions = $Group->getPermissions($user_id, $wallet_info["group_id"], $group_info);
+				if (!$user_permissions["create_record"]) throw new \Exception("You cannot add records to the wallet", 6);
+			} else if ($wallet_info["user_id"] != $user_id) throw new \Exception("You cannot add records to the wallet", 7);
 			
-			$new_wallet = $Wallet->create($user_id, $group_id, $name, $description);
-			$new_wallet["records"]["count"] = 0;
-			if ($base->exists("POST.returnHtml")) {
-				$base->set("me", $user_info);
-				$base->set("wallet_item", $new_wallet);
-				$new_wallet = \View::instance()->render("wallet_brief.html");
-			}
 			
-			$this->json_printResponse(array("message" => "You have successfully created a wallet.", "wallet_data" => $new_wallet));
+			
+			$new_record = array();
+			
+			$this->json_printResponse(array("message" => "You have successfully added the record.", "record_data" => $new_record));
 		
 		} catch (\Exception $e) {
 			$this->json_printException($e);
@@ -180,6 +171,43 @@ class Wallet extends \Controller {
 	}
 	
 	function api_listRecords($base) {
+		try {
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+			
+			$wallet_id = $base->get("POST.wallet_id");
+			
+			$Wallet = \models\Wallet::instance();
+			
+			if (empty($wallet_id) or !is_numeric($wallet_id)) throw new \Exception("Invalid wallet id", 3);
+			
+			$wallet_info = $Wallet->findById($wallet_id);
+			if (empty($wallet_info)) throw new \Exception("Wallet not found", 4);
+			
+			if (!empty($wallet_info["group_id"])) {
+				$Group = \models\Group::instance();
+				$group_info = $Group->findById($wallet_info["group_id"]);
+				if (empty($group_info)) throw new \Exception("Group not found", 5);
+				
+				$user_permissions = $Group->getPermissions($user_id, $wallet_info["group_id"], $group_info);
+				if (!$user_permissions["view_wallet"]) throw new \Exception("You cannot view the group wallet", 6);
+			} else if ($wallet_info["user_id"] != $user_id) throw new \Exception("You cannot view the wallet information", 7);
+			
+			$start_id = $base->get("POST.start_id");
+			if (empty($start_id) or !is_numeric($start_id)) $start_id = 0;
+			
+			$limit = $base->get("POST.limit");
+			if (empty($limit) or !is_numeric($limit)) $limit = 100;
+			
+			$records = $Wallet->findRecordsByWalletId($wallet_id, $start_id, $limit);
+			
+			$this->json_printResponse($records);
+			
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
 	}
 	
 }
