@@ -4,9 +4,9 @@
 	<li><a class="panel-link" href="/my/wallets">Wallets</a></li><?php endif ?>
 	<li class="active"><?php echo $wallet_item["name"]?></li>
 </ol>	
-<div class="container-fluid" id="wallet_<?php echo $wallet_item["id"]?>">
+<div class="container-fluid">
 	<div class="row">
-		<h1 class="page-header">
+		<h1 class="page-header" data-id="<?php echo $wallet_item["id"]?>">
 			<?php echo $wallet_item["name"];
 			echo "<div class=\"pull-right\">";
 			echo "<a class=\"btn btn-primary\" role=\"button\" data-toggle=\"modal\" data-target=\"#join_group_modal\"><i class=\"fa fa-pencil-square-o fa-fw\"></i> Edit</a> ";
@@ -20,55 +20,60 @@
 				<div class="table-responsive" id="content">
 					<table class="table table-striped">
 						<tbody>
-							<tr><td></td><td></td></tr>
-							<tr><td>Current Balance</td><td>?</td></tr>
+							<tr><td>Created at</td><td><?php echo $wallet_item["created_at"]?></td></tr>
+							<tr><td>Number of Records</td><td id="num_of_records"><?php echo $wallet_item["num_of_records"]?></td></tr>
+							<tr><td>Current Balance</td><td><?php echo $wallet_item["balance"]?></td></tr>
 						</tbody>
 					</table>
 				</div>
 			</div>
 		</div>
-		<h3>History</h3>
+		<h3>History
+			<span onclick="addNewRecord()"><i class="fa fa-plus-circle"></i></span>
+		</h3>
 		<div class="table-responsive" id="content">
 			<table class="table table-striped" id="records">
 				<thead>
 					<tr>
-						<th>Time</th><th>Category</th><th>Subcategory</th><th>Description</th><th>Amount</th>
+						<th>Time</th>
+						<th>Category</th>
+						<th>Subcategory</th>
+						<th>Description</th>
+						<th>Amount</th>
+						<th></th>
 					</tr>
 				</thead>
-				<tbody>
-				<tr>
-					<td></td>
-					<td>
-					<select class="selectpicker" data-live-search="true" data-width="auto" id="new_category">
-					</select></td>
-					<td><select class="" ></select></td>
-					<td><input /></td>
-					<td><input /> <button class="btn btn-default"><i class="fa fa-plus"></i> New</button></td>
-				</tr>
-				<?php
-				if ($wallet_item["records"]["count"] > 0) {
-					foreach ($wallet_item["records"]["records"] as $r) {
-						echo "<tr>" .
-						 "<td>" . $r["created_at"] . "</td><td class=\"category\">" . $r["category"] . "</td><td>" . $r["sub_category"] . "</td><td>" . $r["description"] . "</td><td>" . $r["amount"] . "</td></tr>";
-					}
-				}
-				?>
-				<tr>
-					<td>Balance</td>
-					<td></td>
-					<td></td>
-					<td><?php echo $wallet_item["balance"];?></td>
-				</tr>
+				<tbody id="records_body">
+				</tbody>
+				<tbody id="add_new_record" class="hidden">
+					<tr class="form-group">
+						<td><input type="text" class="form-control" name="created_at" id="created_at" /></td>
+						<td>
+							<select class="selectpicker" data-live-search="true" data-width="auto" id="new_category">
+								<optgroup label="spending">
+									<option value="regular">Regular</option>
+									<option value="occasional">Occasional</option>
+								</optgroup>
+								<optgroup label="income">
+									<option value="income">Income</option>
+								</optgroup>
+								<optgroup label="others">
+									<option value="transfer">Transfer</option>
+								</optgroup>
+							</select>
+						</td>
+						<td>
+							<select class="selectpicker" data-live-search="true" data-width="auto">
+								<option value="food">Food</option>
+							</select>
+						</td>
+						<td><input /></td>
+						<td><input /> </td>
+						<td><i class="fa fa-plus"></i> <i class="fa fa-trash-o"></i></td>
+					</tr>
 				</tbody>
 			</table>
-			<ul class="pagination">
-				<li class="disabled"><a href="#">&laquo;</a></li>
-				<li class="active"><a href="#">1</a></li>
-				<li><a href="#">2</a></li>
-				<li><a href="#">3</a></li>
-				<li><a href="#">4</a></li>
-				<li><a href="#">5</a></li>
-				<li><a href="#">&raquo;</a></li>
+			<ul id="pagination" class="pagination">
 			</ul>
 		</div>
 	</div>

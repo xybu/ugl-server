@@ -143,7 +143,11 @@ class Wallet extends \Controller {
 				if (!$user_permissions["create_record"]) throw new \Exception("You cannot add records to the wallet", 6);
 			} else if ($wallet_info["user_id"] != $user_id) throw new \Exception("You cannot add records to the wallet", 7);
 			
-			
+			/*
+			if (DateTime::createFromFormat('Y-m-d G:i:s', $myString) !== FALSE) {
+  // it's a date
+}
+			*/
 			
 			$new_record = array();
 			
@@ -195,13 +199,22 @@ class Wallet extends \Controller {
 				if (!$user_permissions["view_wallet"]) throw new \Exception("You cannot view the group wallet", 6);
 			} else if ($wallet_info["user_id"] != $user_id) throw new \Exception("You cannot view the wallet information", 7);
 			
-			$start_id = $base->get("POST.start_id");
-			if (empty($start_id) or !is_numeric($start_id)) $start_id = 0;
+			$page = $base->get("POST.page");
+			if (empty($page) or !is_numeric($page)) $page = 1;
 			
 			$limit = $base->get("POST.limit");
 			if (empty($limit) or !is_numeric($limit)) $limit = 100;
+			$limit = intval($limit);
 			
-			$records = $Wallet->findRecordsByWalletId($wallet_id, $start_id, $limit);
+			$records = $Wallet->findRecordsByWalletId($wallet_id, $page, $limit);
+			
+			if ($records["count"] > 0) {
+				if ($base->exists("POST.returnHtml")) {
+					$base->set("records", $records["records"]);
+					$records_html = \View::instance()->render("wallet_record.html");
+					$records["records"] = $records_html;
+				}
+			}
 			
 			$this->json_printResponse($records);
 			

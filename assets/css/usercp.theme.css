@@ -774,3 +774,7 @@ body.loading .ajax-loading {
 .alert-nomargin{
 	margin-bottom: 1px;
 }
+
+.wallet_record #actions {
+	text-align:right;
+}

@@ -388,7 +388,32 @@ function init_wallets(){
 function init_wallet(){
 	$('.selectpicker').selectpicker();
 	var new_category_dom = $("#new_category");
+	
+	var wallet_id = $(".page-header").attr("data-id");
+	var num_of_records = parseInt($("#num_of_records").text());
+	var records_per_page = 20; // can be customized later
+	
+	$('input#created_at').datepicker({});
+	
+	$('#pagination').twbsPagination({
+        totalPages: Math.ceil(num_of_records / records_per_page),
+        visiblePages: 5,
+        onPageClick: function (event, page) {
+			var d = $("#records_body");
+			$.post("/api/wallet/list_records", {"wallet_id": wallet_id, "page": page, "limit": records_per_page, "returnHtml": 1}, function(data) {
+				d.html(data.data.records);
+			}).fail(function(data) {
+				alert("error loading record data");
+				console.log(data);
+			});
+		}
+    });
+	
 	ugl_panel_initialized = true;
+}
+
+function addNewRecord(){
+	$('#add_new_record').removeClass("hidden");
 }
 
 function init_settings(){

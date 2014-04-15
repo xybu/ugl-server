@@ -1415,20 +1415,54 @@ List a given number of records of a wallet, starting from ID `start_id`.
 | ------ | -------------------------------------------------- |
 | Method | POST                                               |
 | URL    | `/api/wallet/list_records`                         |
-| DATA   | `wallet_id`=123&`start_id`=description&`limit`=100 |
+| DATA   | `wallet_id`=123&`page`=1&`limit`=100 |
 
 Notes:
  * If the wallet belongs to a group, then the user must have `view_wallet` permission
 in order to view the records.
-
  * `wallet_id` is the wallet to list records
- * `start_id` is the id of record from which to start listing (exclusive)
+ * `page` is the page number, starting from `1`
  * `limit` is the number of records to be fetched
+	 * Say, `limit` is `20` and `page` is `1`, server will return the first 20 records of the wallet.
  * One can use the parameters to build pagination in the UI.
 
 #### Response
 
-TBA.
+`count` is the number of records in the array, and `records` is the array of the requested records.
+
+```
+{
+    "status": "success",
+    "expiration": "2014-04-15T03:46:47+00:00",
+    "data": {
+        "count": 2,
+        "records": [
+            {
+                "id": "3",
+                "wallet_id": "1",
+                "user_id": "5",
+                "category": "occasional",
+                "sub_category": "transport",
+                "description": "Trip to Mars",
+                "amount": "-1234.56",
+                "created_at": "2014-04-02 15:48:31",
+                "notes": null
+            },
+            {
+                "id": "1",
+                "wallet_id": "1",
+                "user_id": "5",
+                "category": "regular",
+                "sub_category": "food",
+                "description": "Some panacea",
+                "amount": "-10.00",
+                "created_at": "2014-03-31 00:00:00",
+                "notes": null
+            }
+        ]
+    }
+}
+```
 
 #### Associated Errors
 

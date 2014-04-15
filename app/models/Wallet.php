@@ -96,18 +96,21 @@ class Wallet extends \Model {
 			$this->cache->set("wallet_id_" . $wallet_info["id"], $wallet_info);
 	}
 	
-	function findRecordsByWalletId($wallet_id, $start = 0, $limit = 100) {
-		$result = $this->queryDb("SELECT * FROM wallet_records WHERE wallet_id=:wallet_id and id > :start_id ORDER BY created_at DESC LIMIT :limit", 
+	function findRecordsByWalletId($wallet_id, $page = 1, $limit = 100) {
+		$start = ($page - 1) * $limit;
+		$result = $this->queryDb(
+			"SELECT * FROM wallet_records WHERE wallet_id=:wallet_id ORDER BY created_at DESC LIMIT :start,:limit", 
 			array(
 				":wallet_id" => $wallet_id,
-				":start_id" => $start,
-				":limit" => $limit
+				":start" => $start,
+				":limit" => $limit + $start
 			));
 		$ret = array("count" => count($result));
 		if (count($result) > 0) {
 			// array_column is a PHP function >= 5.5.0
-			$ids = array_column($result, "id");
-			$ret["records"] = array_combine($ids, $result);
+			// $ids = array_column($result, "id");
+			// $ret["records"] = array_combine($ids, $result);
+			$ret["records"] = $result;
 		}
 		
 		return $ret;
@@ -137,8 +140,8 @@ class Wallet extends \Model {
 		return $result[0];
 	}
 	
-	function createRecord($user_id, $wallet_id, $category, $sub_category, $amount, $description, &$wallet_info) {
-		$currentTime = date("Y-m-d H:i:s");
+	function createRecord($user_id, &$wallet_info, $wallet_id, $category, $sub_category, $amount, $description) {
+		$currentTime = date("Y-m-d");
 		$this->queryDb(
 			"INSERT INTO wallet_records (user_id, wallet_id, category, sub_category, amount, description, created_at) " .
 			"VALUES (:user_id, :wallet_id, :category, :sub_category, :amount, :description, :now); ",
@@ -152,7 +155,12 @@ class Wallet extends \Model {
 				':now' => $currentTime
 			)
 		);
+		
 		$wallet_info["balance"] = $wallet_info["balance"] + $amount;
+		$wallet_info["num_of_records"] = $wallet_info["num_of_records"] + 1;
+		$this->cache->set("wallet_id_" . $wallet_info["id"], $wallet_info, static::WALLET_CACHE_TTL);
+		$this->save($wallet_info);
+		
 		return $this->findRecordByIdsAndTime($user_id, $wallet_id, $currentTime);
 	}
 	
