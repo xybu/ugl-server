@@ -413,7 +413,17 @@ function init_wallet(){
 }
 
 function addNewRecord(){
-	$('#add_new_record').removeClass("hidden");
+	var newRecord_container = $("#new_record_list");
+	var record_count = $("#num_of_new_records");
+	record_count.attr("value", parseInt(record_count.attr("value")) + 1);
+	newRecord_container.append($('#add_new_record').html());
+	$.each(newRecord_container.last().children().find(".new_record_proto"), function(i, item) {
+		var name = $(item).attr("name");
+		console.log(name);
+		if (typeof(name) != "undefined" && name.indexOf("[i]") > -1) {
+			$(item).attr("name", name.replace("[i]", "[" + record_count.attr("value") + "]"));
+		}
+	});
 }
 
 function init_settings(){

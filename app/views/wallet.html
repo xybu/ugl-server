@@ -45,11 +45,16 @@
 				</thead>
 				<tbody id="records_body">
 				</tbody>
+				<form id="new_record_form" method="post" action="/api/wallet/add_records">
+					<input type="hidden" id="num_of_new_records" value="0" />
+					<tbody id="new_record_list">
+					</tbody>
+				</form>
 				<tbody id="add_new_record" class="hidden">
-					<tr class="form-group">
-						<td><input type="text" class="form-control" name="created_at" id="created_at" /></td>
+					<tr class="wallet_record form-group">
+						<td><input type="text" class="form-control new_record_proto" name="item[i][created_at]" id="created_at" /></td>
 						<td>
-							<select class="selectpicker" data-live-search="true" data-width="auto" id="new_category">
+							<select name="item[i][category]" class="selectpicker new_record_proto" data-live-search="true" data-width="auto" id="new_category">
 								<optgroup label="spending">
 									<option value="regular">Regular</option>
 									<option value="occasional">Occasional</option>
@@ -63,13 +68,13 @@
 							</select>
 						</td>
 						<td>
-							<select class="selectpicker" data-live-search="true" data-width="auto">
+							<select name="item[i][sub_category]" class="selectpicker new_record_proto" data-live-search="true" data-width="auto">
 								<option value="food">Food</option>
 							</select>
 						</td>
-						<td><input /></td>
-						<td><input /> </td>
-						<td><i class="fa fa-plus"></i> <i class="fa fa-trash-o"></i></td>
+						<td id="description"><input name="item[i][description]" class="new_record_proto" /></td>
+						<td id="amount"><input name="item[i][amount]" class="new_record_proto" /> </td>
+						<td id="actions"><i class="fa fa-plus"></i> <i class="fa fa-trash-o"></i></td>
 					</tr>
 				</tbody>
 			</table>
