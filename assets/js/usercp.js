@@ -349,8 +349,6 @@ function init_items(){
 
 function init_wallets(){
 	document.title = "Wallets | Ugl";
-	$('.selectpicker').selectpicker();
-	$('a[data-toggle=popover]').popover();
 	$("#create_wallet_form").submit(function(e){
 		var wallet_name_dom = $("#create_wallet_form #name");
 		if (!wallet_name_dom.val().match(/^[\w\d][-\w\d_\ ]{1,32}$/)) {
@@ -386,14 +384,11 @@ function init_wallets(){
 }
 
 function init_wallet(){
-	$('.selectpicker').selectpicker();
 	var new_category_dom = $("#new_category");
-	
 	var wallet_id = $(".page-header").attr("data-id");
 	var num_of_records = parseInt($("#num_of_records").text());
 	var records_per_page = 20; // can be customized later
-	
-	$('input#created_at').datepicker({});
+	$('a[data-toggle=popover]').popover();
 	
 	$('#pagination').twbsPagination({
         totalPages: Math.ceil(num_of_records / records_per_page),
@@ -409,6 +404,8 @@ function init_wallet(){
 		}
     });
 	
+	addNewRecord();
+	
 	ugl_panel_initialized = true;
 }
 
@@ -416,14 +413,24 @@ function addNewRecord(){
 	var newRecord_container = $("#new_record_list");
 	var record_count = $("#num_of_new_records");
 	record_count.attr("value", parseInt(record_count.attr("value")) + 1);
-	newRecord_container.append($('#add_new_record').html());
+	newRecord_container.append("<tr class=\"wallet_record\">" + $('#add_new_record').html() + "</tr>");
 	$.each(newRecord_container.last().children().find(".new_record_proto"), function(i, item) {
 		var name = $(item).attr("name");
-		console.log(name);
 		if (typeof(name) != "undefined" && name.indexOf("[i]") > -1) {
 			$(item).attr("name", name.replace("[i]", "[" + record_count.attr("value") + "]"));
 		}
 	});
+	var new_record = $("#new_record_list tr:last");
+	$(new_record).find(".selectpicker").selectpicker();
+	$(new_record).find("input#created_at").datepicker({});
+}
+
+function deleteNewRecord(el) {
+	$(el).parents("tr").remove();
+}
+
+function deleteRecord(el) {
+	console.log(el);
 }
 
 function init_settings(){

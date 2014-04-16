@@ -778,3 +778,11 @@ body.loading .ajax-loading {
 .wallet_record #actions {
 	text-align:right;
 }
+
+.wallet_record #created_at input {
+	min-width: 7em;
+}
+
+.wallet_record #description input {
+	width: 99%;
+}
