@@ -143,6 +143,8 @@ class Wallet extends \Controller {
 				if (!$user_permissions["create_record"]) throw new \Exception("You cannot add records to the wallet", 6);
 			} else if ($wallet_info["user_id"] != $user_id) throw new \Exception("You cannot add records to the wallet", 7);
 			
+			var_dump($base->get("POST.item"));
+			die();
 			/*
 			if (DateTime::createFromFormat('Y-m-d G:i:s', $myString) !== FALSE) {
   // it's a date
