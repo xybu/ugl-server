@@ -775,14 +775,14 @@ body.loading .ajax-loading {
 	margin-bottom: 1px;
 }
 
-.wallet_record #actions {
+.wallet_record #actions_td {
 	text-align:right;
 }
 
-.wallet_record #created_at input {
+.wallet_record #created_at_td input {
 	min-width: 7em;
 }
 
-.wallet_record #description input {
+.wallet_record #description_td input {
 	width: 99%;
 }

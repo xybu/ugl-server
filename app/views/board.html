@@ -49,7 +49,7 @@ if ($board_item["discussion_list"])
 					"<div class=\"author\">".
 					"	<img alt=\"avatar\" src=\"". $me["avatar_url"] ."\">".
 					"</div>".
-					"<textarea placeholder=\"Write comment\" class=\"diss-form\"></textarea>".
+					"<div class=\"summernote\" class=\"diss-form\"></div><div style=\"margin-top: 5px;\" class=\"text-right\"><button class=\"btn btn-default\">Save</button> <button class=\"btn btn-primary\">Submit</button></div>".
 				"</li>";
 			while ($count > 1) { // there are replies
 				$buf = renderDiscussionItem($value["discussions"][$count - 1]) . "</li>" . $buf;
@@ -63,7 +63,7 @@ echo "<ul><li>".
 		"<div class=\"author\">".
 		"	<img alt=\"avatar\" src=\"" . $me["avatar_url"] . "\">".
 		"</div>".
-		"<textarea placeholder=\"Write comment\" class=\"diss-form\"></textarea>".
+		"<div class=\"summernote\" class=\"diss-form\"></div><div style=\"margin-top: 5px;\" class=\"text-right\"><button class=\"btn btn-default\">Save</button> <button class=\"btn btn-primary\">Submit</button></div>".
 	"</li></ul>";
 ?>
 		<hr class="page-divider" />

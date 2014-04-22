@@ -1,10 +1,10 @@
 <?php
 foreach ($records as $item) {
 	echo "<tr class=\"wallet_record\" data-id=\"" . $item["id"] . "\">".
-		"<td id=\"created_at\">" . $item["created_at"] . "</td>".
-		"<td id=\"category\">" . $item["category"] . "</td>".
-		"<td id=\"sub_category\">" . $item["sub_category"] . "</td>".
-		"<td id=\"description\">" . $item["description"] . "</td>".
-		"<td id=\"amount\">" . $item["amount"] . "</td>".
-		"<td id=\"actions\"><span><i class=\"fa fa-pencil-square-o\"></i> <i class=\"fa fa-trash-o cursor-pointer\" onclick=\"deleteRecord(this)\"></i></span></td></tr>";
+		"<td id=\"created_at_td\">" . $item["created_at"] . "</td>".
+		"<td id=\"category_td\">" . $item["category"] . "</td>".
+		"<td id=\"sub_category_td\">" . $item["sub_category"] . "</td>".
+		"<td id=\"description_td\">" . $item["description"] . "</td>".
+		"<td id=\"amount_td\">" . $item["amount"] . "</td>".
+		"<td id=\"actions_td\"><span><i class=\"fa fa-pencil-square-o\"></i> <i class=\"fa fa-trash-o cursor-pointer\" onclick=\"deleteRecord(this)\"></i></span></td></tr>";
 }

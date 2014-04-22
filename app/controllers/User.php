@@ -98,7 +98,7 @@ class User extends \Controller {
 				if ($oauth_info){
 					$user_info = $user->findById($oauth_info["user_id"]);
 					$this->setUserStatus($oauth_info["user_id"], $user->token_refresh($user_info));
-					$base->reroute("@usercp(@panel=dashboard)");
+					$base->reroute("@usercp(@panel=groups)");
 				}
 				
 				if (!array_key_exists("email", $response['auth']['info']))
@@ -119,7 +119,7 @@ class User extends \Controller {
 				$user_info = $user->findByEmail($email);
 				$user_id = null;
 				$user_token = null;
-				$reroute_panel = "dashboard";
+				$reroute_panel = "groups";
 				if ($user_info) {
 					// the user registered the email, but hasn't assoc with his account
 					$user_id = $user_info["id"];
@@ -275,6 +275,16 @@ class User extends \Controller {
 					}
 					
 					$group_info["users"] = $new_users;
+					
+					$Board = \models\Board::instance();
+					$board_list = $Board->findByGroupId($item_id);
+					$discussion = \models\Discussion::instance();
+					if ($board_list["count"] > 0)
+						foreach ($board_list["boards"] as $keyId => &$board){
+							$board["discussion_list"] = $discussion->listByBoardId($board["id"]);
+						}
+					
+					$base->set("board_list", $board_list);
 					
 					$base->set("my_permissions", $my_permissions);
 					$base->set("group_info", $group_info);

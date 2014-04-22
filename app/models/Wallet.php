@@ -124,14 +124,16 @@ class Wallet extends \Model {
 		return $result[0];
 	}
 	
-	function findRecordByIdsAndTime($user_id, $wallet_id, $created_at) {
+	function findRecord($user_id, $wallet_id, $created_at, $description, $amount) {
 		//TODO: check cache chunk
 		
-		$result = $this->queryDb("SELECT * FROM wallet_records WHERE user_id=:user_id AND wallet_id=:wallet_id AND created_at=:created_at LIMIT 1;",
+		$result = $this->queryDb("SELECT * FROM wallet_records WHERE user_id=:user_id AND wallet_id=:wallet_id AND created_at=:created_at AND description=:d AND amount=:a LIMIT 1;",
 			array(
 				":user_id" => $user_id, 
 				":wallet_id" => $wallet_id,
-				":created_at" => $created_at
+				":created_at" => $created_at,
+				":d" => $description,
+				":a" => $amount
 			)
 		);
 		
@@ -140,19 +142,19 @@ class Wallet extends \Model {
 		return $result[0];
 	}
 	
-	function createRecord($user_id, &$wallet_info, $wallet_id, $category, $sub_category, $amount, $description) {
-		$currentTime = date("Y-m-d");
+	function createRecord($user_id, &$wallet_info, $created_at, $category, $sub_category, $amount, $description) {
+		
 		$this->queryDb(
 			"INSERT INTO wallet_records (user_id, wallet_id, category, sub_category, amount, description, created_at) " .
 			"VALUES (:user_id, :wallet_id, :category, :sub_category, :amount, :description, :now); ",
 			array(
 				':user_id' => $user_id,
-				':wallet_id' => $group_id,
+				':wallet_id' => $wallet_info["id"],
 				':category' => $category,
 				':sub_category' => $sub_category,
 				':amount' => $amount,
 				':description' => $description,
-				':now' => $currentTime
+				':now' => $created_at
 			)
 		);
 		
@@ -161,7 +163,7 @@ class Wallet extends \Model {
 		$this->cache->set("wallet_id_" . $wallet_info["id"], $wallet_info, static::WALLET_CACHE_TTL);
 		$this->save($wallet_info);
 		
-		return $this->findRecordByIdsAndTime($user_id, $wallet_id, $currentTime);
+		return $this->findRecord($user_id, $wallet_id, $created_at, $description, $amount);
 	}
 	
 	function saveRecord(&$wallet_record_info, $previous_amount, &$wallet_info) {

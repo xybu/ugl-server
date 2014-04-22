@@ -96,6 +96,10 @@ $(document).ready(function(){
 		$("body").append(strVar);
 		$('#notif_modal').modal('show');
 	}
+	
+	$('.summernote').summernote({
+		height: 100
+	});
 });
 
 function logOut(){$.post("/api/logout");}
@@ -404,22 +408,66 @@ function init_wallet(){
 		}
     });
 	
-	addNewRecord();
+	$(".selectpicker").selectpicker();
+	$("input#created_at").datepicker({});
+	
+	$('#new_record_form').submit(function(e){
+		e.preventDefault();
+		$("#response").html("");
+		/*if (!$("input#created_at").attr("value")) {
+			$("#response").html("<span class=\"text-warning\">Please pick a creation date.</span>");
+			$("#response").removeClass("hidden");
+			return false;
+		}*/
+		if (!isDecimal($("input#amount").attr("value"))) {
+			$("#response").html("<span class=\"text-warning\">Amount should be a decimal number.</span>");
+			$("#response").removeClass("hidden");
+			return false;
+		}
+		$.post("/api/wallet/add_records", $("#new_record_form").serialize(), function(data){
+			console.log(data);
+		});
+		
+	});
 	
 	ugl_panel_initialized = true;
+	
+	/*$('#new_record_form').ajaxForm({
+		target: "#response td",
+		dataType: "json",
+		clearForm: true,
+		beforeSubmit: function(formData, jqForm, options) {
+			$.each(formData, function(i, e) {
+				if ($(e).attr("name").indexOf("[created_at]") > -1) {
+				} else if ($(e).attr("name").indexOf("[category]") > -1) {
+				} else if ($(e).attr("name").indexOf("[sub_category]") > -1) {
+				} else if ($(e).attr("name").indexOf("[description]") > -1) {
+					$(e).attr("value", escape($(e).attr("value")));
+				} else if ($(e).attr("name").indexOf("[amount]") > -1) {
+					console.log($(e).attr("value"));
+					if (!isDecimal($(e).attr("value"))) {
+						$("#response td").html("Amount is not a number.");
+						$("#response").removeClass("hidden");
+					};
+				}
+				//$(e).attr("name", $(e).attr("name").replace("[i]", "[" + i + "]"));
+				console.log(e);
+			});
+			return false;
+		},
+		success: function(responseText, statusText, xhr, $form) {
+			
+		}
+	});
+	*/
 }
 
 function addNewRecord(){
 	var newRecord_container = $("#new_record_list");
 	var record_count = $("#num_of_new_records");
 	record_count.attr("value", parseInt(record_count.attr("value")) + 1);
+	//var str = $('#add_new_record').html().replace("[i]", "[" + record_count.attr("value") + "]");
 	newRecord_container.append("<tr class=\"wallet_record\">" + $('#add_new_record').html() + "</tr>");
-	$.each(newRecord_container.last().children().find(".new_record_proto"), function(i, item) {
-		var name = $(item).attr("name");
-		if (typeof(name) != "undefined" && name.indexOf("[i]") > -1) {
-			$(item).attr("name", name.replace("[i]", "[" + record_count.attr("value") + "]"));
-		}
-	});
 	var new_record = $("#new_record_list tr:last");
 	$(new_record).find(".selectpicker").selectpicker();
 	$(new_record).find("input#created_at").datepicker({});
@@ -565,4 +613,8 @@ function refreshPreviewPic(elId, imgId, helperId){
 
 function isEmail(email){
 	return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test( email );
+}
+
+function isDecimal(x) {
+  return parseFloat(x) != NaN;
 }

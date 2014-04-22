@@ -41,7 +41,7 @@ class Board extends \Model {
 		
 		$boards = array();
 		foreach ($result as $k => $v) $boards[] = $this->findById($v["id"]);
-		return $boards;
+		return array("count" => count($boards), "boards" => $boards);
 	}
 	
 	function findByTitleAndIds($title, $user_id, $group_id) {

@@ -143,15 +143,20 @@ class Wallet extends \Controller {
 				if (!$user_permissions["create_record"]) throw new \Exception("You cannot add records to the wallet", 6);
 			} else if ($wallet_info["user_id"] != $user_id) throw new \Exception("You cannot add records to the wallet", 7);
 			
-			var_dump($base->get("POST.item"));
-			die();
-			/*
-			if (DateTime::createFromFormat('Y-m-d G:i:s', $myString) !== FALSE) {
-  // it's a date
-}
-			*/
+			$created_at = $base->get("POST.created_at"));
+			$created_at = preg_replace('#(\d{2})/(\d{2})/(\d{4})\s(.*)#', '$3-$2-$1 $4', $created_at);
 			
-			$new_record = array();
+			// SQL injection!
+			$category = $base->get("POST.category"));
+			
+			$subcategory = $base->get("POST.subcategory"));
+			
+			$description = $base->get("POST.description"));
+			
+			$amount = $base->get("POST.amount"));
+			if (!is_numeric($amount)) throw new \Exception("Amount must be a number", 8);
+			
+			$r = $Wallet->createRecord($user_id, $wallet_info, $created_at, $category, $subcategory, $amount, $description);
 			
 			$this->json_printResponse(array("message" => "You have successfully added the record.", "record_data" => $new_record));
 		
@@ -225,4 +230,9 @@ class Wallet extends \Controller {
 		}
 	}
 	
+	function validateDate($date, $format = 'Y-m-d H:i:s') {
+		$d = DateTime::createFromFormat($format, $date);
+		return $d && $d->format($format) == $date;
+	}
+
 }

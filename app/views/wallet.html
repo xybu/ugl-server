@@ -52,7 +52,7 @@
 	<h3>new records</h3>
 	<div class="table-responsive">
 		<table class="table table-striped">
-			<form id="new_record_form" method="post" action="/api/wallet/add_records">
+			<form id="new_record_form" name="new_record_form">
 				<input type="hidden" name="wallet_id" value="<?php echo $wallet_item["id"]?>" />					
 				<input type="hidden" id="num_of_new_records" value="0" />
 				<thead>
@@ -63,13 +63,11 @@
 					<th class="col-md-1">Amount</th>
 					<th></th>
 				</thead>
-				<tbody id="new_record_list">
-				</tbody>
-				<tbody id="new_record_control">
-					<tr class="wallet_record hidden" id="add_new_record">
-						<td id="created_at"><input type="date" class="form-control new_record_proto" name="item[i][created_at]" id="created_at" size="10" maxlength="10" required /></td>
+				<tbody id="new_record_body">
+					<tr class="wallet_record" id="add_new_record">
+						<td id="created_at_td"><input type="date" class="form-control new_record_proto" name="created_at" id="created_at" size="10" maxlength="10" placeholder="Pick a date" /></td>
 						<td>
-							<select name="item[i][category]" class="selectpicker new_record_proto" data-live-search="true" data-width="auto" id="new_category">
+							<select name="category" class="selectpicker new_record_proto" data-live-search="true" data-width="auto" id="new_category">
 								<optgroup label="spending">
 									<option value="regular">Regular</option>
 									<option value="occasional">Occasional</option>
@@ -82,18 +80,28 @@
 								</optgroup>
 							</select>
 						</td>
-						<td><select name="item[i][sub_category]" class="selectpicker new_record_proto" data-live-search="true" data-width="auto">
+						<td><select name="sub_category" class="selectpicker new_record_proto" data-live-search="true" data-width="auto">
+								<option value="apparel">Apparel</option>
+								<option value="electronics">Electronics</option>
+								<option value="books">Books</option>
+								<option value="housing">Housing</option>
+								<option value="supply">Supply</option>
 								<option value="food">Food</option>
+								<option value="transport">Transport</option>
+								<option value="other">Other</option>
 							</select>
 						</td>
-						<td id="description"><input name="item[i][description]" class="new_record_proto" /></td>
-						<td id="amount"><input type="number" name="item[i][amount]" class="new_record_proto" size="7" /> </td>
-						<td id="actions"><i class="fa fa-trash-o cursor-pointer" onclick="deleteNewRecord(this)"></i></td>
+						<td id="description_td"><input name="description" class="new_record_proto" /></td>
+						<td id="amount_td"><input type="number" name="amount" id="amount" class="new_record_proto" size="7" placeholder="0.00" /> </td>
+						<td id="actions_td"><!--<i class="fa fa-trash-o cursor-pointer" onclick="deleteNewRecord(this)"></i>--></td>
 					</tr>
 					<tr>
 						<td colspan="6" class="text-right">
+							<!--
 							<input type="button" onclick="addNewRecord()" class="btn btn-primary" value="More rows" />
-							<button class="btn btn-success"><i class="fa fa-plus fa-fw"></i> Add</button>
+							-->
+							<span class="hidden" id="response"></span>&nbsp;
+							<button type="submit" class="btn btn-success"><i class="fa fa-plus fa-fw"></i> Add</button>
 						</td>
 					</tr>
 				</tbody>

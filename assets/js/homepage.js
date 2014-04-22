@@ -108,7 +108,7 @@ $(document).ready(function() {
 							$(this).tooltip('hide');
 						});
 					} else {
-						window.location.href = '/my/dashboard';
+						window.location.href = '/my/groups';
 					}
 				},
 				error: function(jqXHR, textStatus, errorThrown)
