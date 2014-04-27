@@ -96,7 +96,7 @@ class Board extends \Controller {
 				$group_info = $Group->findById($board_info["group_id"]);
 				if (empty($group_info)) throw new \Exception("Group not found", 4);
 				
-				$user_permissions = $group->getPermissions($user_id, $board_info["group_id"], $group_info);
+				$user_permissions = $Group->getPermissions($user_id, $board_info["group_id"], $group_info);
 				if (!$user_permissions["del_board"]) throw new \Exception("You are not allowed to delete boards for the group", 5);
 			}
 			
@@ -132,7 +132,7 @@ class Board extends \Controller {
 				$group_info = $Group->findById($board_info["group_id"]);
 				if (empty($group_info)) throw new \Exception("Group not found", 4);
 				
-				$user_permissions = $group->getPermissions($user_id, $board_info["group_id"], $group_info);
+				$user_permissions = $Group->getPermissions($user_id, $board_info["group_id"], $group_info);
 				if (!$user_permissions["edit_board"]) throw new \Exception("You are not allowed to edit the profile of the board", 5);
 			}
 			
@@ -175,7 +175,7 @@ class Board extends \Controller {
 				$group_info = $Group->findById($board_info["group_id"]);
 				if (empty($group_info)) throw new \Exception("Group not found", 4);
 				
-				$user_permissions = $group->getPermissions($user_id, $board_info["group_id"], $group_info);
+				$user_permissions = $Group->getPermissions($user_id, $board_info["group_id"], $group_info);
 				if (!$user_permissions["post"]) throw new \Exception("You are not allowed to post on the board", 5);
 			}
 			

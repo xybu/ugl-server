@@ -281,9 +281,55 @@ function init_group(){
 	
 	$('.summernote').summernote({
 		height: 100,
+		onfocus: function(e) {
+			$(this).parent().parent().find("#prompt").addClass("hidden");
+		},
 		onpaste: function(e) {
 			// should filter all <script> and dangerous stuff
 		}
+	});
+	
+	$(".add_post_form .btn-primary").click(function(e){
+		e.preventDefault();
+		var form = $(this).parent().parent();
+		var aHTML = form.find(".summernote").code().replace("<br></p>", "</p>");
+		var form_prompt = form.find("#prompt");
+		if (aHTML.replace(/(<([^>]+)>)/ig, "") == ""){
+			form_prompt.text("content is empty");
+			form_prompt.removeClass("hidden");
+			return false;
+		}
+		form.find("#body").html(aHTML);
+		console.log(form.serialize());
+		
+		$.post(
+			"/api/board/add_post",
+			form.serialize(),
+			function(data){
+				if (data.status == "success"){
+					location.reload();
+				} else {
+					form_prompt.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
+				}
+			}).fail(function(xhr, textStatus, errorThrown) {
+				form_prompt.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+			}
+		);
+	});
+	
+	$(".message .body").each(function(i, val){
+		var d = $(val);
+		d.html(d.text());
+		
+		d.click(function(e){
+			d.summernote({
+				focus: true,
+				onblur: function(e) {
+					d.destroy();
+					d.addClass('animated bounceIn');
+				}
+			});
+		});
 	});
 	
 	ugl_panel_initialized = true;
@@ -388,7 +434,18 @@ function init_boards(){
 	});
 	
 	$(".message .body").each(function(i, val){
-		$(val).html($(val).text());
+		var d = $(val);
+		d.html(d.text());
+		
+		d.click(function(e){
+			d.summernote({
+				focus: true,
+				onblur: function(e) {
+					d.destroy();
+					d.addClass('animated bounceIn');
+				}
+			});
+		});
 	});
 	
 	ugl_panel_initialized = true;
@@ -479,35 +536,6 @@ function init_wallet(){
 	});
 	
 	ugl_panel_initialized = true;
-	
-	/*$('#new_record_form').ajaxForm({
-		target: "#response td",
-		dataType: "json",
-		clearForm: true,
-		beforeSubmit: function(formData, jqForm, options) {
-			$.each(formData, function(i, e) {
-				if ($(e).attr("name").indexOf("[created_at]") > -1) {
-				} else if ($(e).attr("name").indexOf("[category]") > -1) {
-				} else if ($(e).attr("name").indexOf("[sub_category]") > -1) {
-				} else if ($(e).attr("name").indexOf("[description]") > -1) {
-					$(e).attr("value", escape($(e).attr("value")));
-				} else if ($(e).attr("name").indexOf("[amount]") > -1) {
-					console.log($(e).attr("value"));
-					if (!isDecimal($(e).attr("value"))) {
-						$("#response td").html("Amount is not a number.");
-						$("#response").removeClass("hidden");
-					};
-				}
-				//$(e).attr("name", $(e).attr("name").replace("[i]", "[" + i + "]"));
-				console.log(e);
-			});
-			return false;
-		},
-		success: function(responseText, statusText, xhr, $form) {
-			
-		}
-	});
-	*/
 }
 
 function addNewRecord(){

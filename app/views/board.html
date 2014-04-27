@@ -49,7 +49,7 @@ if ($board_item["discussion_list"]){
 					"<div class=\"author\">".
 					"	<img alt=\"avatar\" src=\"". $me["avatar_url"] ."\">".
 					"</div>".
-					"<form class=\"add_post_form\">".
+					"<form action=\"/api/board/add_post\" method=\"post\" class=\"add_post_form\">".
 					"<input type=\"hidden\" name=\"board_id\" value=\"" . $board_item["id"] . "\" />".
 					"<input type=\"hidden\" name=\"parent_id\" value=\"" . $value["discussions"][0]["id"] . "\" />".
 					"<textarea name=\"body\" id=\"body\" class=\"hidden\"></textarea>".
@@ -68,7 +68,7 @@ echo "<ul><li>".
 		"<div class=\"author\">".
 		"	<img alt=\"avatar\" src=\"" . $me["avatar_url"] . "\">".
 		"</div>".
-		"<form class=\"add_post_form\">".
+		"<form action=\"/api/board/add_post\" method=\"post\" class=\"add_post_form\">".
 		"<input type=\"hidden\" name=\"board_id\" value=\"" . $board_item["id"] . "\" />".
 		"<input type=\"hidden\" name=\"parent_id\" value=\"0\" />".
 		"<textarea name=\"body\" id=\"body\" class=\"hidden\"></textarea>".
