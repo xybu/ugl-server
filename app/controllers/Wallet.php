@@ -147,13 +147,13 @@ class Wallet extends \Controller {
 			$created_at = preg_replace('#(\d{2})/(\d{2})/(\d{4})\s(.*)#', '$3-$2-$1 $4', $created_at);
 			
 			// SQL injection!
-			$category = $base->get("POST.category"));
+			$category = $base->get("POST.category"))
 			
-			$subcategory = $base->get("POST.subcategory"));
+			$subcategory = $base->get("POST.subcategory");
 			
-			$description = $base->get("POST.description"));
+			$description = $base->get("POST.description");
 			
-			$amount = $base->get("POST.amount"));
+			$amount = $base->get("POST.amount");
 			if (!is_numeric($amount)) throw new \Exception("Amount must be a number", 8);
 			
 			$r = $Wallet->createRecord($user_id, $wallet_info, $created_at, $category, $subcategory, $amount, $description);
