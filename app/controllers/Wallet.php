@@ -143,7 +143,7 @@ class Wallet extends \Controller {
 				if (!$user_permissions["create_record"]) throw new \Exception("You cannot add records to the wallet", 6);
 			} else if ($wallet_info["user_id"] != $user_id) throw new \Exception("You cannot add records to the wallet", 7);
 			
-			$created_at = $base->get("POST.created_at"));
+			$created_at = $base->get("POST.created_at");
 			$created_at = preg_replace('#(\d{2})/(\d{2})/(\d{4})\s(.*)#', '$3-$2-$1 $4', $created_at);
 			
 			// SQL injection!
