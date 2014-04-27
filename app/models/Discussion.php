@@ -40,16 +40,16 @@ class Discussion extends \Model {
 		return $discussions;
 	}
 	
-	function create($parent_id, $user_id, $board_id, $discussion, $body){
+	function create($parent_id, $user_id, $board_id, $subject, $body){
 		$created_at = date("Y-m-d H:i:s");
 		$this->queryDb(
-			"INSERT INTO discussions (parent_id, user_id, board_id, discussion, body, created_at, last_update_at) " .
-			"VALUES (:parent_id, :user_id, :board_id, :discussion, :body, :last_update_at, :last_update_at);",
+			"INSERT INTO discussions (parent_id, user_id, board_id, subject, body, created_at, last_update_at) " .
+			"VALUES (:parent_id, :user_id, :board_id, :subject, :body, :last_update_at, :last_update_at);",
 			array(
 				':parent_id' => $parent_id,
 				':user_id' => $user_id,
 				':board_id' => $board_id,
-				':discussion' => $discussion,
+				':subject' => $subject,
 				':body' => $body,
 				':last_update_at' => $created_at
 			)
@@ -61,13 +61,13 @@ class Discussion extends \Model {
 				':parent_id' => $parent_id,
 				':user_id' => $user_id,
 				':board_id' => $board_id,
-				':discussion' => $discussion,
-				':body' => $body,
 				':created_at' => $created_at
 			)
 		);
 		
-		return $this->findById($result[0]["id"]);
+		if ($parent_id > 0) $this->cache->clear("discussion_id_" . $parent_id);
+		
+		return $this->listById($result[0]["id"]);
 	}
 	
 	function delete($id) {

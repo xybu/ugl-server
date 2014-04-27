@@ -46,7 +46,7 @@ $(document).ready(function() {
 						$('#nav-login-btn').tooltip('destroy');
 						$('#nav-login-btn').tooltip({'title': "<h5>Thanks. Now redirecting...</h5>", html: true});
 						$('#nav-login-btn').tooltip('show');
-						window.location.href = '/my/dashboard';
+						window.location.href = '/my/groups';
 					}
 				},
 				error: function(jqXHR, textStatus, errorThrown)

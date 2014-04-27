@@ -378,21 +378,22 @@ body.loading .ajax-loading {
     background: transparent;
     right: 10px;
 }
+
 .discussions ul li ul li .message {
     border-bottom: 0;
 }
-.discussions textarea {
-    border: 0;
-    background: #efefef;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
-    width: 100%;
-	height: 67px;
-    padding: 5px 8px;
-    overflow: hidden;
-    resize: horizontal;
-    word-wrap: break-word;
+
+.discussions .message .subject {
+    font-weight: 700;
+}
+
+.discussions ul li form ul, .discussions ul li .message ul {
+	
+}
+
+.discussions ul li form ul li, .discussions ul li .message ul li {
+	display: list-item;
+	border: none;
 }
 
 .chat {

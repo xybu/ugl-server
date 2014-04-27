@@ -14,8 +14,8 @@ if (!function_exists("renderDiscussionItem")) {
 			"	<div class=\"name\">" . $name . "</div>".
 			"	<div class=\"date\">" . $discussion["created_at"] . "</div>".
 			"	<div class=\"delete\"><i class=\"fa fa-times\"></i></div>".
-			"	<div class=\"message\"><div class=\"subject\"></div><div class=\"body\">". $discussion["body"] .
-			"	</div></div>".
+			"	<div class=\"message\"><div class=\"subject\">" . $discussion["subject"] . "</div><div class=\"body\">". $discussion["body"] . "</div>" .
+			"</div>".
 			""; // note the special handling of the corresponding li
 	}
 }
@@ -42,14 +42,18 @@ if (empty($me["avatar_url"]))
 		</h2>
 		<div class="col-md-12 discussions" id="content">
 <?php
-if ($board_item["discussion_list"])
+if ($board_item["discussion_list"]){
 	foreach($board_item["discussion_list"] as $key => $value) {
 			$count = $value["count"]; // number of discussion items
 			$buf = "<li>".
 					"<div class=\"author\">".
 					"	<img alt=\"avatar\" src=\"". $me["avatar_url"] ."\">".
 					"</div>".
-					"<div class=\"summernote\" class=\"diss-form\"></div><div style=\"margin-top: 5px;\" class=\"text-right\"><button class=\"btn btn-default\">Save</button> <button class=\"btn btn-primary\">Submit</button></div>".
+					"<form class=\"add_post_form\">".
+					"<input type=\"hidden\" name=\"board_id\" value=\"" . $board_item["id"] . "\" />".
+					"<input type=\"hidden\" name=\"parent_id\" value=\"" . $value["discussions"][0]["id"] . "\" />".
+					"<textarea name=\"body\" id=\"body\" class=\"hidden\"></textarea>".
+					"<div class=\"summernote\" class=\"diss-form\"></div><div style=\"margin-top: 5px;\" class=\"text-right\"><span class=\"hidden\" id=\"prompt\"></span> <button class=\"btn btn-default\">Save</button> <button class=\"btn btn-primary\">Submit</button></div></form>".
 				"</li>";
 			while ($count > 1) { // there are replies
 				$buf = renderDiscussionItem($value["discussions"][$count - 1]) . "</li>" . $buf;
@@ -58,12 +62,17 @@ if ($board_item["discussion_list"])
 			$buf = "<ul>" . $buf . "</ul>";
 			echo "<ul>" . renderDiscussionItem($value["discussions"][0]) . $buf . "</li></ul>";
 	}
+}
 
 echo "<ul><li>".
 		"<div class=\"author\">".
 		"	<img alt=\"avatar\" src=\"" . $me["avatar_url"] . "\">".
 		"</div>".
-		"<div class=\"summernote\" class=\"diss-form\"></div><div style=\"margin-top: 5px;\" class=\"text-right\"><button class=\"btn btn-default\">Save</button> <button class=\"btn btn-primary\">Submit</button></div>".
+		"<form class=\"add_post_form\">".
+		"<input type=\"hidden\" name=\"board_id\" value=\"" . $board_item["id"] . "\" />".
+		"<input type=\"hidden\" name=\"parent_id\" value=\"0\" />".
+		"<textarea name=\"body\" id=\"body\" class=\"hidden\"></textarea>".
+		"<div class=\"summernote\" class=\"diss-form\"></div><div style=\"margin-top: 5px;\" class=\"text-right\"><span class=\"hidden\" id=\"prompt\"></span> <button class=\"btn btn-default\">Save</button> <button class=\"btn btn-primary\">Submit</button></div></form>".
 	"</li></ul>";
 ?>
 		<hr class="page-divider" />

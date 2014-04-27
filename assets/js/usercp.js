@@ -96,10 +96,6 @@ $(document).ready(function(){
 		$("body").append(strVar);
 		$('#notif_modal').modal('show');
 	}
-	
-	$('.summernote').summernote({
-		height: 100
-	});
 });
 
 function logOut(){$.post("/api/logout");}
@@ -282,6 +278,14 @@ function init_group(){
 		}
 	});
 	}
+	
+	$('.summernote').summernote({
+		height: 100,
+		onpaste: function(e) {
+			// should filter all <script> and dangerous stuff
+		}
+	});
+	
 	ugl_panel_initialized = true;
 }
 
@@ -343,6 +347,50 @@ function init_boards(){
 		});
 		e.preventDefault();
 	});
+	
+	// bug: should fix the css over rendering issue
+	$('.summernote').summernote({
+		height: 100,
+		onfocus: function(e) {
+			$(this).parent().parent().find("#prompt").addClass("hidden");
+		},
+		onpaste: function(e) {
+			// should filter all <script> and dangerous stuff
+		}
+	});
+	
+	$(".add_post_form .btn-primary").click(function(e){
+		e.preventDefault();
+		var form = $(this).parent().parent();
+		var aHTML = form.find(".summernote").code().replace("<br></p>", "</p>");
+		var form_prompt = form.find("#prompt");
+		if (aHTML.replace(/(<([^>]+)>)/ig, "") == ""){
+			form_prompt.text("content is empty");
+			form_prompt.removeClass("hidden");
+			return false;
+		}
+		form.find("#body").html(aHTML);
+		console.log(form.serialize());
+		
+		$.post(
+			"/api/board/add_post",
+			form.serialize(),
+			function(data){
+				if (data.status == "success"){
+					location.reload();
+				} else {
+					form_prompt.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
+				}
+			}).fail(function(xhr, textStatus, errorThrown) {
+				form_prompt.html("<span class=\"alert alert-warning\">" + xhr.responseText + "</span>");
+			}
+		);
+	});
+	
+	$(".message .body").each(function(i, val){
+		$(val).html($(val).text());
+	});
+	
 	ugl_panel_initialized = true;
 }
 

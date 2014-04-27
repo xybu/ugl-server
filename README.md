@@ -1246,7 +1246,41 @@ TO-be-updated.
 
 ### 6) Add a Post
 
+#### Request
 
+`/api/board/add_post`
+
+POST `board_id`=*4*&`parent_id`=*123*&`subject`=*subject*&`body`=*htmlBody*
+
+
+#### Response
+
+```
+{
+    "status": "success",
+    "expiration": "2014-04-27T23:17:35+00:00",
+    "data": {
+        "message": "Successfully created a post.",
+        "post_data": {
+            "count": 1,
+            "discussions": [
+                {
+                    "id": "6",
+                    "parent_id": "4",
+                    "user_id": "5",
+                    "board_id": "1",
+                    "subject": "",
+                    "body": "<p><span style=\"font-weight: bold;\">test<\/span><\/p>",
+                    "created_at": "2014-04-27 23:17:35",
+                    "last_update_at": "2014-04-27 23:17:35",
+                    "pin": "0",
+                    "history": ""
+                }
+            ]
+        }
+    }
+}
+```
 
 ### 7) Edit a Post
 

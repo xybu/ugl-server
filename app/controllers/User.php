@@ -406,8 +406,19 @@ class User extends \Controller {
 						foreach ($ids as $key => $val)
 							$new_users[$role][] = $user->filterOutPrivateKeys($user->findById($val));
 					}
-				
+					
 					$group_info["users"] = $new_users;
+					
+					$Board = \models\Board::instance();
+					$board_list = $Board->findByGroupId($item_id);
+					$discussion = \models\Discussion::instance();
+					if ($board_list["count"] > 0)
+						foreach ($board_list["boards"] as $keyId => &$board){
+							$board["discussion_list"] = $discussion->listByBoardId($board["id"]);
+						}
+					
+					$base->set("board_list", $board_list);
+					
 					
 					$base->set("my_permissions", $my_permissions);
 					$base->set("group_info", $group_info);

@@ -161,11 +161,38 @@ class Board extends \Controller {
 			$user = $this->user;
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
-			$board_id = $base->get("POST.board_id");
-			$parent_post_id = $base->get("POST.parent_post_id");
 			
 			$Board = \models\Board::instance();
+			$board_id = $base->get("POST.board_id");
+			$board_info = $Board->findById($board_id);
+			
+			if (empty($board_info))
+				throw new \Exception("Board does not exist", 3);
+			
+			if ($board_info["group_id"]) {
+				$Group = \models\Group::instance();
+				
+				$group_info = $Group->findById($board_info["group_id"]);
+				if (empty($group_info)) throw new \Exception("Group not found", 4);
+				
+				$user_permissions = $group->getPermissions($user_id, $board_info["group_id"], $group_info);
+				if (!$user_permissions["post"]) throw new \Exception("You are not allowed to post on the board", 5);
+			}
+			
 			$Discussion = \models\Discussion::instance();
+			$parent_id = $base->get("POST.parent_id");
+			if (empty($parent_id)) $parent_id = 0;
+			if ($parent_id > 0){
+				$posts = $Discussion->listById($parent_id);
+				if ($posts["count"] == 0) throw new \Exception("Parent post not found", 6);
+			}
+			
+			$subject = "";
+			$body = $base->get("POST.body");
+			
+			$ret = $Discussion->create($parent_id, $user_id, $board_id, $subject, $body);
+			
+			$this->json_printResponse(array("message" => "Successfully created a post.", "post_data" => $ret));
 			
 		} catch (\Exception $e) {
 			$this->json_printException($e);
