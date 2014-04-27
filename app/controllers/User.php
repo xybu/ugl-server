@@ -680,10 +680,10 @@ class User extends \Controller {
 	
 	function api_setInfo($base){
 		try {
-			$user = $this->user;
 			$user_status = $this->getUserStatus();
 			$user_id = $user_status["user_id"];
 			$user_info = $user_status["user_info"];
+			$user = $this->user;
 			
 			if ($base->exists("POST.email")){
 				$email = $base->get("POST.email");
