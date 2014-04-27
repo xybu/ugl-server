@@ -147,7 +147,7 @@ class Wallet extends \Controller {
 			$created_at = preg_replace('#(\d{2})/(\d{2})/(\d{4})\s(.*)#', '$3-$2-$1 $4', $created_at);
 			
 			// SQL injection!
-			$category = $base->get("POST.category")
+			$category = $base->get("POST.category");
 			
 			$subcategory = $base->get("POST.subcategory");
 			
