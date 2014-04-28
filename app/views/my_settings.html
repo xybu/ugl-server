@@ -5,14 +5,11 @@
 		<ul class="nav nav-tabs" id="settingsTab">
 			<li class="active"><a href="#profile" data-toggle="tab">Profile</a></li>
 			<li><a href="#preferences" data-toggle="tab">Preferences</a></li>
-			<li><a href="#groups" data-toggle="tab">Groups</a></li>
-			<li><a href="#boards" data-toggle="tab">Boards</a></li>
 			<li><a href="#accounts" data-toggle="tab">Accounts &amp; Devices</a></li>
-			<li><a href="#stat" data-toggle="tab">Statistics</a></li>
 		</ul>
 		<div class="tab-content">
-			<form id="profile_form" method="post">
 			<div class="tab-pane active" id="profile">
+				<form id="profile_form" method="post">
 				<h3 class="sub-header">Profile</h3>
 				<div class="table-responsive">
 					<table class="table table-striped">
@@ -73,39 +70,39 @@
 						<button class="btn btn-default" type="button">Reset</button>
 					</div>
 				</div>
+				</form>
 			</div>
-			</form>
 			<div class="tab-pane" id="preferences">
 				<h3 class="sub-header">Group Preferences</h3>
 				<div class="row form-group">
 					<label class="col-sm-4 col-md-4">Allow others to see the list of my public groups:</label>
 					<div class="col-sm-8 col-md-8">
-						<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
-						<label for="visibility-0">Yes. Others can see the public groups I am in.</label><br>
-						<input name="visibility" id="visibility-1" value="1" type="radio">
-						<label for="visibility-1">No. No one can see what groups I am in.</label><br>
+						<input name="showMyPublicGroups" id="showMyPublicGroups-1" value="1" checked="checked" type="radio">
+						<label for="showMyPublicGroups-1">Yes. Others can see the public groups I am in.</label><br>
+						<input name="showMyPublicGroups" id="showMyPublicGroups-0" value="0" type="radio">
+						<label for="showMyPublicGroups-0">No. No one can see what groups I am in.</label><br>
 						<div class="col-md-12 col-sm-12 col-xs-12 help-block">Note: private groups are always hidden.</div>
 					</div>
 				</div>
 				<div class="row form-group">
 					<label class="col-sm-4 col-md-4">Automatically accept group invitations:</label>
 					<div class="col-sm-8 col-md-8">
-						<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
-						<label for="visibility-0">Yes. When I receive invitations, simply add me to the group.</label><br>
-						<input name="visibility" id="visibility-1" value="1" type="radio">
-						<label for="visibility-1">No. Let me decide whether to join or not.</label><br>
+						<input name="autoAcceptInvitation" id="autoAcceptInvitation-1" value="1" type="radio">
+						<label for="autoAcceptInvitation-0">Yes. When I receive invitations, simply add me to the group.</label><br>
+						<input name="autoAcceptInvitation" id="autoAcceptInvitation-0" value="0" checked="checked" type="radio">
+						<label for="autoAcceptInvitation-1">No. Let me decide whether to join or not.</label><br>
 					</div>
 				</div>
 			</div>
 			<div class="tab-pane" id="accounts">
 				<h3 class="sub-header">Accounts</h3>
 				<div class="row form-group">
-					<label class="col-sm-4 col-md-4">Delete my account:</label>
+					<label class="col-sm-4 col-md-4">Push Notifications</label>
 					<div class="col-sm-8 col-md-8">
 						<input name="visibility" id="visibility-0" value="0" checked="checked" type="radio">
-						<label for="visibility-0">Yes. When I receive invitations, simply add me to the group.</label><br>
+						<label for="visibility-0">Yes. Send push notifications to all my devices.</label><br>
 						<input name="visibility" id="visibility-1" value="1" type="radio">
-						<label for="visibility-1">No. Let me decide whether to join or not.</label><br>
+						<label for="visibility-1">No. Don't send me push notifications.</label><br>
 					</div>
 				</div>
 				<h3 class="sub-header">Registered Devices</h3>
