@@ -2,17 +2,6 @@
 	<div class="row">
 		<h2 class="sub-header">	
 			<a class="enter-wallet" href="/my/wallet/<?php echo $wallet_item["id"]?>"><?php echo $wallet_item["name"]?></a>
-			<div class="btn-group pull-right">
-				<a role="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-					<span class="caret"></span>
-				</a>
-				<ul class="dropdown-menu pull-right" role="menu">
-					<li><a href="#"><i class="fa fa-pencil-square-o fa-fw"></i> Edit</a></li>
-					<li><a href="#"><i class="fa fa-trash-o fa-fw"></i> Delete</a></li>
-					<li class="divider"></li>
-					<li><a href="#"><i class="fa fa-refresh fa-fw"></i> Refresh</a></li>
-				</ul>
-			</div>
 		</h2>
 		<div class="row">
 			<div class="col-md-12"><?php echo $wallet_item["description"]?></div>

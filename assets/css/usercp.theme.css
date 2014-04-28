@@ -737,6 +737,17 @@ body.loading .ajax-loading {
 	-moz-box-shadow: 0 0 3px rgba(0, 0, 0, .8);
 }
 
+.large-avatar-ratio {
+	margin-top: 0.3em;
+	width: 80%;
+	height: 80%;
+	max-width: 12em !important;
+	max-height: auto !important;
+	box-shadow: 0 0 3px rgba(0, 0, 0, .8);
+	-webkit-box-shadow: 0 0 3px rgba(0, 0, 0, .8);
+	-moz-box-shadow: 0 0 3px rgba(0, 0, 0, .8);
+}
+
 .largest-avatar {
 	width: 95% !important;
 	height: 95% !important;

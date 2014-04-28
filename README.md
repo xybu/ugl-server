@@ -1390,6 +1390,14 @@ Refer to the wallet creation response.
 * List by group
 * List by certain criteria
 
+#### Request
+
+`/api/wallet/list` : list the wallets of the currently logged in user
+
+#### Response
+
+TBA.
+
 ### 6) Add records to a wallet
 
 Add a record to a wallet.

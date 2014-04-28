@@ -116,6 +116,23 @@ class Wallet extends \Controller {
 	}
 	
 	function api_listWallet($base) {
+		try {
+			$user_status = $this->getUserStatus();
+			$user = $this->user;
+			$user_id = $user_status["user_id"];
+			$user_info = $user_status["user_info"];
+		
+			$Wallet = \models\Wallet::instance();
+			$wallet_list = $Wallet->findByUserId($user_id);
+			if ($wallet_list["count"] > 0)
+				foreach ($wallet_list["wallets"] as $key => &$wallet_info) {
+					$wallet_info["records"] = $Wallet->findRecordsByWalletId($wallet_info["id"], 1, 5);
+				}
+			$this->json_printResponse(array("wallet_list" => $wallet_list));
+		
+		} catch (\Exception $e) {
+			$this->json_printException($e);
+		}
 	}
 	
 	function api_addRecords($base) {
@@ -144,21 +161,20 @@ class Wallet extends \Controller {
 			} else if ($wallet_info["user_id"] != $user_id) throw new \Exception("You cannot add records to the wallet", 7);
 			
 			$created_at = $base->get("POST.created_at");
-			$created_at = preg_replace('#(\d{2})/(\d{2})/(\d{4})\s(.*)#', '$3-$2-$1 $4', $created_at);
 			
 			// SQL injection!
 			$category = $base->get("POST.category");
 			
-			$subcategory = $base->get("POST.subcategory");
+			$sub_category = $base->get("POST.sub_category");
 			
 			$description = $base->get("POST.description");
 			
 			$amount = $base->get("POST.amount");
 			if (!is_numeric($amount)) throw new \Exception("Amount must be a number", 8);
 			
-			$r = $Wallet->createRecord($user_id, $wallet_info, $created_at, $category, $subcategory, $amount, $description);
+			$r = $Wallet->createRecord($user_id, $wallet_info, $created_at, $category, $sub_category, $amount, $description);
 			
-			$this->json_printResponse(array("message" => "You have successfully added the record.", "record_data" => $new_record));
+			$this->json_printResponse(array("message" => "You have successfully added the record.", "record_data" => $r));
 		
 		} catch (\Exception $e) {
 			$this->json_printException($e);

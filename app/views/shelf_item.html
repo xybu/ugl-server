@@ -1,0 +1,9 @@
+<?php
+echo "<div class=\"col-sm-6 col-md-4\" id=\"itemdiv_" . $item["id"] . "\" data-id=\"" . $item["id"] . "\">" .
+	"<div class=\"thumbnail\"><img class=\"large-avatar-ratio\" src=\"" . $item["image_url"] . "\" />" .
+	"<div class=\"caption text-center\">" .
+	"<h3 id=\"item_name\">" . $item["name"] . "</h3>" .
+	"<p class=\"item_desc\">" . $item["description"] . "</p>" .
+	"<p><button type=\"button\" data-toggle=\"modal\" data-target=\"#view_notes_modal\" class=\"btn btn-success view_notes_button\"><i class=\"fa fa-tags fa-fw\"></i> Notes</button>&nbsp;<button type=\"button\" data-toggle=\"modal\" data-target=\"#delete_item_modal\" class=\"btn btn-warning delete-item-button\"><i class=\"fa fa-trash-o fa-fw\"></i> Delete</button></p>" .
+	"<p id=\"notes\" class=\"hidden\">" . $item["records"] . "</p>" .
+	"</div></div></div>";

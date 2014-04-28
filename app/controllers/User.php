@@ -306,6 +306,18 @@ class User extends \Controller {
 					$base->set("board_list", $board_list);
 					break;
 				case "items":
+					$Group = \models\Group::instance();
+					foreach ($me["_joined_groups"] as $key => $id) {
+						$me["_joined_groups"][$key] = $Group->findById($id);
+						$me["_joined_groups"][$key]["my_permissions"] = $Group->getPermissions($me["id"], $id, $me["_joined_groups"][$key]);
+					}
+					$Shelf = \models\Shelf::instance();
+					$shelf_list = $Shelf->findByUserId($me["id"]);
+					if ($shelf_list["count"] > 0)
+						foreach ($shelf_list["shelves"] as &$s){
+							$s["item_list"] = $Shelf->findItemsByShelfId($s["id"]);
+						}
+					$base->set("shelf_list", $shelf_list);
 					break;
 				case "wallets":
 					$group = \models\Group::instance();
@@ -442,6 +454,18 @@ class User extends \Controller {
 					$base->set("board_list", $board_list);
 					break;
 				case "items":
+					$Group = \models\Group::instance();
+					foreach ($me["_joined_groups"] as $key => $id) {
+						$me["_joined_groups"][$key] = $Group->findById($id);
+						$me["_joined_groups"][$key]["my_permissions"] = $Group->getPermissions($me["id"], $id, $me["_joined_groups"][$key]);
+					}
+					$Shelf = \models\Shelf::instance();
+					$shelf_list = $Shelf->findByUserId($me["id"]);
+					if ($shelf_list["count"] > 0)
+						foreach ($shelf_list["shelves"] as &$s){
+							$s["item_list"] = $Shelf->findItemsByShelfId($s["id"]);
+						}
+					$base->set("shelf_list", $shelf_list);
 					break;
 				case "wallets":
 					$group = \models\Group::instance();

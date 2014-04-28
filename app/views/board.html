@@ -1,13 +1,18 @@
 <?php
+global $User;
+if (!isset($User)) $User = \models\User::instance();
+
 if (!function_exists("renderDiscussionItem")) {
+	
 	function renderDiscussionItem($discussion){
-		$user_info = \models\User::instance()->findById($discussion["user_id"]);
+		global $User;
+		$user_info = $User->findById($discussion["user_id"]);
 		if ($user_info["avatar_url"] == "") $user_info["avatar_url"] = "/assets/img/default-avatar.png";
 		if (!empty($user_info["first_name"]) or !empty($user_info["last_name"]))
 			$name = $user_info["first_name"] . " " . $user_info["last_name"];
 		else $name = $user_info["nickname"];
 		
-		return "<li>".
+		return "<li data-id=\"" . $discussion["id"] . "\">".
 			"	<div class=\"author\">".
 			"		<img alt=\"avatar\" src=\"" . $user_info["avatar_url"] . "\">".
 			"	</div>".

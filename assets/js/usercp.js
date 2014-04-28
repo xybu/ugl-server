@@ -441,18 +441,56 @@ function init_boards(){
 			d.summernote({
 				focus: true,
 				onblur: function(e) {
-					d.destroy();
-					d.addClass('animated bounceIn');
+					
+					$.post("/api/board/edit_post", {id: d.parents("li").attr("data-id"), body: d.html()}, function(data){
+						d.destroy();
+						d.addClass('animated bounceIn');
+					});
+					
 				}
 			});
+		});
+	});
+	
+	$("div.delete").click(function(e){
+		var parent = $(this).parent();
+		console.log(parent.attr("data-id"));
+		$.post("/api/board/del_post", {id: parent.attr("data-id")}, function(data){
+			parent.remove();
 		});
 	});
 	
 	ugl_panel_initialized = true;
 }
 
+function deleteItem(obj){
+	var item_id = $(obj).parent().parent().find("#item_id").attr("value");
+	$.post("/api/item/remove_item", {id: item_id}, function(data){
+		$("#itemdiv_" + item_id).remove();
+		$("#delete_item_modal").modal('hide');
+	});
+}
+
 function init_items(){
 	document.title = "Items | Ugl";
+	$('.selectpicker').selectpicker();
+	$('a[data-toggle=popover]').popover();
+	$(".view_notes_button").each(function(i, obj){
+		$(obj).on("click", function(e){
+			//console.log($(this).parent().parent().find("p#notes").html());
+			var doubleParent = $(this).parent().parent();
+			$("#delete_item_form #item_id").attr("value", doubleParent.parent().parent().attr("data-id"));
+			$("textarea#notes").text(doubleParent.find("p#notes").text());
+		});
+	});
+	$(".delete-item-button").each(function(i, obj){
+		$(obj).on("click", function(e){
+			//console.log($(this).parent().parent().find("p#notes").html());
+			var doubleParent = $(this).parent().parent();
+			$("#delete_item_form #item_id").attr("value", doubleParent.parent().parent().attr("data-id"));
+			$("#name_of_item").text(doubleParent.find("h3#item_name").text());
+		});
+	});
 	ugl_panel_initialized = true;
 }
 
@@ -488,7 +526,9 @@ function init_wallets(){
 		});
 		e.preventDefault();
 	});
+	
 	$("a.enter-wallet").address();
+	
 	ugl_panel_initialized = true;
 }
 
@@ -498,6 +538,11 @@ function init_wallet(){
 	var num_of_records = parseInt($("#num_of_records").text());
 	var records_per_page = 20; // can be customized later
 	$('a[data-toggle=popover]').popover();
+	
+	$(".selectpicker").selectpicker();
+	$("input#created_at").datepicker({format: 'yyyy-mm-dd'}).on('changeDate', function(ev){
+		$(this).attr("value", ev.target.value);
+	});
 	
 	$('#pagination').twbsPagination({
         totalPages: Math.ceil(num_of_records / records_per_page),
@@ -513,24 +558,31 @@ function init_wallet(){
 		}
     });
 	
-	$(".selectpicker").selectpicker();
-	$("input#created_at").datepicker({});
-	
 	$('#new_record_form').submit(function(e){
 		e.preventDefault();
 		$("#response").html("");
-		/*if (!$("input#created_at").attr("value")) {
+		if (!$("input#created_at").attr("value")) {
 			$("#response").html("<span class=\"text-warning\">Please pick a creation date.</span>");
 			$("#response").removeClass("hidden");
 			return false;
-		}*/
+		}
 		if (!isDecimal($("input#amount").attr("value"))) {
-			$("#response").html("<span class=\"text-warning\">Amount should be a decimal number.</span>");
+			$("#response").html("<span class=\"text-warning\">Amount should be a non-zero decimal number.</span>");
+			$("#response").removeClass("hidden");
+			return false;
+		} else if (parseFloat($("input#amount").attr("value")) < 0.01) {
+			$("#response").html("<span class=\"text-warning\">Amount should be a non-zero decimal number.</span>");
 			$("#response").removeClass("hidden");
 			return false;
 		}
+		console.log($("#new_record_form").serialize());
 		$.post("/api/wallet/add_records", $("#new_record_form").serialize(), function(data){
-			console.log(data);
+			if (data.status == "success"){
+				location.reload();
+			} else {
+				$("#response").html("<span class=\"text-warning\">" + data.message + "</span>");
+				$("#response").removeClass("hidden");
+			}
 		});
 		
 	});
@@ -692,5 +744,6 @@ function isEmail(email){
 }
 
 function isDecimal(x) {
-  return parseFloat(x) != NaN;
+	console.log(x);
+	return x !== undefined && parseFloat(x) != NaN;
 }

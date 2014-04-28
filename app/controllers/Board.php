@@ -189,8 +189,25 @@ class Board extends \Controller {
 			
 			$subject = "";
 			$body = $base->get("POST.body");
+			$pin = 0;
 			
-			$ret = $Discussion->create($parent_id, $user_id, $board_id, $subject, $body);
+			if (strpos($body, "#pin") !== false) {
+				$pin = 1;
+			}
+			
+			if ($board_info["group_id"] > 0) {
+				preg_match_all("/@([\w]+)/", $body, $matches, PREG_SET_ORDER);
+				//str_replace(array_column($matches, 0), );
+				
+				foreach ($matches as $val){
+					$body = str_replace($val[0], "<em class=\"at_person\">" . $val[0] . "</em>", $body);
+				}
+				//var_dump($matches);
+				//var_dump($body);
+				//die();
+			}
+			
+			$ret = $Discussion->create($parent_id, $user_id, $board_id, $subject, $body, $pin);
 			
 			$this->json_printResponse(array("message" => "Successfully created a post.", "post_data" => $ret));
 			

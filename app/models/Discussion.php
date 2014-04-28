@@ -19,7 +19,7 @@ class Discussion extends \Model {
 		if ($this->cache->exists("discussion_id_" . $id))
 			return $this->cache->get("discussion_id_" . $id);
 		
-		$result = $this->queryDb("SELECT * FROM discussions WHERE id=:id OR parent_id=:id ORDER BY created_at ASC;", array(":id" => $id));
+		$result = $this->queryDb("SELECT * FROM discussions WHERE id=:id OR parent_id=:id ORDER BY pin DESC, created_at ASC;", array(":id" => $id));
 		$ret = array("count" => 0);
 		if (empty($result) or count($result) == 0) return $ret;
 		
@@ -30,7 +30,7 @@ class Discussion extends \Model {
 	}
 	
 	function listByBoardId($id) {
-		$result = $this->queryDb("SELECT id FROM discussions WHERE board_id=:id AND parent_id=0 ORDER BY created_at DESC, pin DESC;", array(":id" => $id));
+		$result = $this->queryDb("SELECT id FROM discussions WHERE board_id=:id AND parent_id=0 ORDER BY pin DESC, created_at DESC;", array(":id" => $id));
 		if (empty($result) or count($result) == 0) return null;
 		
 		$discussions = array();
@@ -40,18 +40,19 @@ class Discussion extends \Model {
 		return $discussions;
 	}
 	
-	function create($parent_id, $user_id, $board_id, $subject, $body){
+	function create($parent_id, $user_id, $board_id, $subject, $body, $pin = 0){
 		$created_at = date("Y-m-d H:i:s");
 		$this->queryDb(
-			"INSERT INTO discussions (parent_id, user_id, board_id, subject, body, created_at, last_update_at) " .
-			"VALUES (:parent_id, :user_id, :board_id, :subject, :body, :last_update_at, :last_update_at);",
+			"INSERT INTO discussions (parent_id, user_id, board_id, subject, body, created_at, last_update_at, pin) " .
+			"VALUES (:parent_id, :user_id, :board_id, :subject, :body, :last_update_at, :last_update_at, :pin);",
 			array(
 				':parent_id' => $parent_id,
 				':user_id' => $user_id,
 				':board_id' => $board_id,
 				':subject' => $subject,
 				':body' => $body,
-				':last_update_at' => $created_at
+				':last_update_at' => $created_at,
+				':pin' => $pin
 			)
 		);
 		

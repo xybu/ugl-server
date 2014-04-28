@@ -1,0 +1,176 @@
+<h1 class="page-header">My Shelves
+	<div class="pull-right wider-screen">
+		<button type="button" data-toggle="modal" data-target="#add_shelf_modal" class="btn btn-primary"><i class="fa fa-plus-square fa-fw"></i> Add Shelf</button>
+		<button type="button" data-toggle="modal" data-target="#add_item_modal" class="btn btn-info"><i class="fa fa-plus-square fa-fw"></i> Add Item</button>
+	</div>
+</h1>
+<?php
+if ($shelf_list["count"] > 0){
+	global $Base, $View;
+	
+	$shelf_options = "";
+	$Base = \Base::instance();
+	$View = \View::instance();
+	
+	foreach ($shelf_list["shelves"] as $i) {
+		$Base->set("shelf_item", $i);
+		echo $View->render("shelf_brief.html");
+		$shelf_options = $shelf_options . "<option value=\"" . $i["id"] . "\">" . $i["name"] . "</option>";
+	}
+} else {
+	echo "<div id=\"no_shelf_alert\" class=\"col-md-12 text-center\"><span class=\"alert alert-info\">Oops... You don't have any shelf yet. What about creating one?</span></div>";
+}
+?>
+<div id="add_shelf_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="add_shelf_modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-adaptive">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">
+					<i class="fa fa-plus-square"></i> Create a new shelf
+					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button></h3>
+			</div>
+			<form class="form-horizontal" id="add_shelf_form">
+				<input type="hidden" name="returnHtml" value="1" />
+				<div class="modal-body">
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Name</div>
+						<div class="col-sm-8 col-md-9">
+							<input type="text" id="name" name="name" placeholder="short and succinct" required maxlength="32" data-toggle="tooltip" data-placement="right" title="Please make it short and sensible">
+							<p class="help-block">Something like "Books" or "My_Lent_Items". No more than 32 characters.</p>
+						</div>
+					</div>
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Description</div>
+						<div class="col-sm-8 col-md-9">                     
+							<textarea id="description" name="description" maxlength="70" oninput="limitTextArea('description', 'desc_counter', 150);"></textarea>
+							<p class="help-block"><span id="desc_counter">150</span> character(s) left</p>
+						</div>
+					</div>
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Visibility</div>
+						<div class="col-sm-8 col-md-9">
+							<p class="help-block">Is this shelf for a group?</p>
+							<select class="selectpicker" data-live-search="true" id="group_id" name="group_id">
+								<option value="0">The shelf is private to myself.</option>
+								<?php
+								foreach ($shelf_list["shelves"] as $i) {
+									$Base->set("shelf_item", $i);
+									
+								}
+								?>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="pull-left text-center hidden" id="prompt">
+					</div>
+					<button class="btn btn-primary" type="submit">Create</button>
+					<button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<?php
+if ($shelf_list["count"] > 0) : ?>
+<div id="add_item_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="add_item_modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-adaptive">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">
+					<i class="fa fa-plus-square"></i> Add a new Item
+					<button aria-hidden="true" data-dismiss="modal" class="close" type="button"><i class="fa fa-times"></i></button></h3>
+			</div>
+			<form class="form-horizontal" id="add_shelf_form">
+				<input type="hidden" name="returnHtml" value="1" />
+				<div class="modal-body">
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Name</div>
+						<div class="col-sm-8 col-md-9">
+							<input type="text" id="name" name="name" placeholder="short and succinct" required maxlength="32" data-toggle="tooltip" data-placement="right" title="Please make it short and sensible">
+							<p class="help-block">The name of your item. No more than 32 characters.</p>
+						</div>
+					</div>
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Description</div>
+						<div class="col-sm-8 col-md-9">                     
+							<textarea id="description" name="description" maxlength="70" oninput="limitTextArea('description', 'desc_counter', 150);"></textarea>
+							<p class="help-block"><span id="desc_counter">150</span> character(s) left</p>
+						</div>
+					</div>
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Image URL</div>
+						<div class="col-sm-8 col-md-9">
+							<input type="text" id="image_url" name="image_url" placeholder="URL of a picture of yout item" required maxlength="300" size="40" data-toggle="tooltip" data-placement="right" title="Providing a picture makes the item clearer.">
+							<p class="help-block">Set an image for your item.</p>
+						</div>
+					</div>
+					<div class="row form-group">
+						<div class="col-sm-4 col-md-3 itemLabel">Shelf</div>
+						<div class="col-sm-8 col-md-9">
+							<select class="selectpicker" data-live-search="true" id="group_id" name="shelf_id">
+								<option value="0">The shelf is private to myself.</option>
+								<?php echo $shelf_options?>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="pull-left text-center hidden" id="prompt">
+					</div>
+					<button class="btn btn-primary" type="submit">Create</button>
+					<button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div id="view_notes_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="view_notes_modalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button"><i class="fa fa-times"></i></button>
+				<h3 class="modal-title"><i class="fa fa-tags"></i> Notes</h3>
+			</div>
+
+				<div class="modal-body">
+					<input type="hidden" id="item_id" name="item_id" value="" />
+					<div class="form-group text-center">
+						<textarea id="notes" name="notes" class="large-textarea"></textarea>
+						
+					</div>
+					<div class="form-group hidden" id="invite_result">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" type="submit">Update</button>
+					<button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
+				</div>
+			
+		</div>
+	</div>
+</div>
+<div id="delete_item_modal" tab-index="-1" role="dialog" class="modal fade" aria-labelledby="delete_item_modalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button"><i class="fa fa-times"></i></button>
+				<h3 class="modal-title"><i class="fa fa-trash-o"></i> Delete Item</h3>
+			</div>
+			<form class="form-horizontal" id="delete_item_form">
+				<input type="hidden" name="item_id" id="item_id" value="" />
+				<div class="modal-body">
+					<div class="callout callout-warning"><h4>Confirmation</h4><p>Are you sure to delete this item? <div id="name_of_item" class="text-center">placeholder</div></p></div>
+					<div class="hidden text-center" id="form_prompt">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" type="button" onclick="deleteItem(this)">Delete</button>
+					<button data-dismiss="modal" class="btn btn-default" type="button">Cancel</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<?php endif?>

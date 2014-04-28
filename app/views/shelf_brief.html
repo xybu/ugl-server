@@ -1,0 +1,22 @@
+<div class="container-fluid" id="shelf_<?php echo $shelf_item["id"]?>">
+	<h2 class="sub-header">
+		<span onclick="togglePanel(this)" class="cursor-pointer">
+			<i class="fa fa-angle-up"></i> <?php echo $shelf_item["name"]?>
+			<small><?php echo $shelf_item["description"]?></small>
+		</span>
+	</h2>
+	<div class="row" id="content">
+		<?php
+global $View, $Base;
+if (!isset($View)) $View = \View::instance();
+if (!isset($Base)) $Base = \Base::instance();
+
+if ($shelf_item["item_list"]["count"] > 0){
+	foreach($shelf_item["item_list"]["items"] as $i){
+		$Base->set("item", $i);
+		echo $View->render("shelf_item.html");
+	}
+}
+?>
+	</div>
+</div>

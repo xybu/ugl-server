@@ -79,7 +79,7 @@ class Wallet extends \Model {
 	function save(&$wallet_info) {
 		$wallet_info["last_update_at"] = date("Y-m-d H:i:s");
 		$this->queryDb("UPDATE wallets " .
-			"SET user_id=:user_id, group_id=:group_id, name=:name, description=:description, balance=:balance, last_active_at=:last_update_at ".
+			"SET user_id=:user_id, group_id=:group_id, name=:name, description=:description, balance=:balance, last_update_at=:last_update_at ".
 			"WHERE id=:id;",
 			array(
 				":id" => $wallet_info["id"],
@@ -163,7 +163,7 @@ class Wallet extends \Model {
 		$this->cache->set("wallet_id_" . $wallet_info["id"], $wallet_info, static::WALLET_CACHE_TTL);
 		$this->save($wallet_info);
 		
-		return $this->findRecord($user_id, $wallet_id, $created_at, $description, $amount);
+		return $this->findRecord($user_id, $wallet_info["id"], $created_at, $description, $amount);
 	}
 	
 	function saveRecord(&$wallet_record_info, $previous_amount, &$wallet_info) {
