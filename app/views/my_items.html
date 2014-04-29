@@ -1,4 +1,4 @@
-<h1 class="page-header">My Shelves
+ <h1 class="page-header">My Shelves
 	<div class="pull-right wider-screen">
 		<button type="button" data-toggle="modal" data-target="#add_shelf_modal" class="btn btn-primary"><i class="fa fa-plus-square fa-fw"></i> Add Shelf</button>
 		<button type="button" data-toggle="modal" data-target="#add_item_modal" class="btn btn-info"><i class="fa fa-plus-square fa-fw"></i> Add Item</button>
@@ -53,10 +53,10 @@ if ($shelf_list["count"] > 0){
 							<select class="selectpicker" data-live-search="true" id="group_id" name="group_id">
 								<option value="0">The shelf is private to myself.</option>
 								<?php
-								foreach ($shelf_list["shelves"] as $i) {
-									$Base->set("shelf_item", $i);
-									
-								}
+								if ($shelf_list["count"] > 0)
+									foreach ($shelf_list["shelves"] as $i) {
+										$Base->set("shelf_item", $i);
+									}
 								?>
 							</select>
 						</div>
