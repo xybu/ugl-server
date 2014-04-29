@@ -265,7 +265,8 @@ class Group extends \Model {
 	}
 	
 	function hasUser($group_data, $user_id) {
-		foreach ($group_data["__users_raw"] as $role => $users){
+		if (empty($group_data["users"])) return false;
+		foreach ($group_data["users"] as $role => $users){
 			$i = array_search("" . $uid . "", $users);
 			if (!($i === false)) return true;
 		}
@@ -273,7 +274,8 @@ class Group extends \Model {
 	}
 	
 	function getRoleOf($group_data, $user_id) {
-		foreach ($group_data["__users_raw"] as $role => $users){
+		if (empty($group_data["users"])) return false;
+		foreach ($group_data["users"] as $role => $users){
 			$i = array_search("" . $uid . "", $users);
 			if (!($i === false)) return $role;
 		}
@@ -286,10 +288,10 @@ class Group extends \Model {
 	}
 	
 	function kickUser($uid, &$group_data){
-		foreach ($group_data["__users_raw"] as $role => $users){
+		foreach ($group_data["users"] as $role => $users){
 			$i = array_search("" . $uid . "", $users);
 			if (!($i === false)){
-				unset($group_data["__users_raw"][$role][$i]);
+				unset($group_data["users"][$role][$i]);
 				unset($group_data["users"][$role][$i]);
 				--$group_data["num_of_users"];
 			}
