@@ -8,6 +8,10 @@ class Shelf extends \Controller {
 		parent::__construct();
 	}
 	
+	function api_create($base) {
+		
+	}
+	
 	function api_removeItem($base) {
 		try {
 			$user_status = $this->getUserStatus();
