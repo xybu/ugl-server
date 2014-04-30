@@ -267,8 +267,8 @@ class Group extends \Model {
 	function hasUser($group_data, $user_id) {
 		if (empty($group_data["users"])) return false;
 		foreach ($group_data["users"] as $role => $users){
-			$i = array_search("" . $uid . "", $users);
-			if (!($i === false)) return true;
+			$i = array_search("" . $user_id . "", $users);
+			if ($i !== false) return true;
 		}
 		return false;
 	}
@@ -276,8 +276,8 @@ class Group extends \Model {
 	function getRoleOf($group_data, $user_id) {
 		if (empty($group_data["users"])) return false;
 		foreach ($group_data["users"] as $role => $users){
-			$i = array_search("" . $uid . "", $users);
-			if (!($i === false)) return $role;
+			$i = array_search("" . $user_id . "", $users);
+			if ($i !== false) return true;
 		}
 		return "guest";
 	}

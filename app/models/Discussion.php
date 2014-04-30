@@ -16,8 +16,8 @@ class Discussion extends \Model {
 	 * Support level2 list only.
 	 */
 	function listById($id) {
-		if ($this->cache->exists("discussion_id_" . $id))
-			return $this->cache->get("discussion_id_" . $id);
+		//if ($this->cache->exists("discussion_id_" . $id))
+		//	return $this->cache->get("discussion_id_" . $id);
 		
 		$result = $this->queryDb("SELECT * FROM discussions WHERE id=:id OR parent_id=:id ORDER BY pin DESC, created_at ASC;", array(":id" => $id));
 		$ret = array("count" => 0);
@@ -25,7 +25,7 @@ class Discussion extends \Model {
 		
 		$ret["discussions"] = $result;
 		$ret["count"] = count($result);
-		$this->cache->set("discussion_id_" . $id, $ret, static::DISCUSSION_CACHE_TTL);
+		//$this->cache->set("discussion_id_" . $id, $ret, static::DISCUSSION_CACHE_TTL);
 		return $ret;
 	}
 	

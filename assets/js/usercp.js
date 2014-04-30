@@ -384,6 +384,7 @@ function init_boards(){
 						$("#no_board_alert").remove();
 					$("#create_board_modal").modal('hide');
 					new_board.addClass("animated bounceInDown");
+					init_boards();
 					//$('a.enter-group').address();
 				} else {
 					prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
@@ -518,6 +519,7 @@ function init_wallets(){
 					$("#create_wallet_modal").modal('hide');
 					nw.addClass("animated bounceInDown");
 					$("a.enter-wallet").address();
+					$("#no_wallet_alert").remove();
 				} else {
 					prompt_dom.html("<span class=\"alert alert-warning\">" + data.message + "</span>");
 				}
@@ -528,6 +530,7 @@ function init_wallets(){
 	});
 	
 	$("a.enter-wallet").address();
+	$(".selectpicker").selectpicker();
 	
 	ugl_panel_initialized = true;
 }
@@ -545,7 +548,7 @@ function init_wallet(){
 	});
 	
 	$('#pagination').twbsPagination({
-        totalPages: Math.ceil(num_of_records / records_per_page),
+        totalPages: Math.floor(num_of_records / records_per_page) + 1,
         visiblePages: 5,
         onPageClick: function (event, page) {
 			var d = $("#records_body");

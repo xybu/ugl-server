@@ -391,9 +391,12 @@ body.loading .ajax-loading {
 	
 }
 
-.discussions ul li form ul li, .discussions ul li .message ul li {
-	display: list-item;
-	border: none;
+.discussions ul li form ul li,
+.discussions ul li .message .body ul li,
+.discussions ul li .message .body ol li {
+	display: list-item !important;
+	border: none !important;
+	background: none !important;
 }
 
 .chat {
